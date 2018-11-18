@@ -1,0 +1,14 @@
+CC = gcc
+CFLAGS += -Icompat -Werror -DUNIX
+
+SOURCES = a65816_Code.c a65816_Cond.c a65816_Data.c a65816_File.c \
+	a65816_Line.c a65816_Link.c a65816_Lup.c a65816_Macro.c a65816_OMF.c \
+	Dc_Library.c Main.c 
+
+OBJECTS=$(SOURCES:.c=.o)
+
+Merlin32: $(OBJECTS)
+	gcc $^ -o $@
+
+clean:
+	rm -f $(OBJECTS) Merlin32
