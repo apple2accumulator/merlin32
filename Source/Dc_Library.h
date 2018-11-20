@@ -273,4 +273,9 @@ void mem_free_item(struct item *);
 void mem_free_item_list(struct item *);
 void mem_free_table(int, char**);
 
+extern char *CopyString(char *target,char *source,size_t target_size);
+extern int IsEmpty(char *s);
+extern char *ClearString(char *s);
+extern int IsDirectory(char *name);
+
 /***********************************************************************/
