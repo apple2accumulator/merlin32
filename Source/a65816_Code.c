@@ -21,7 +21,6 @@
 
 static void BuildOneCodeLineOpcode(struct source_line *,struct omf_segment *);
 static void BuildOneCodeLineOperand(struct source_line *,int *,struct omf_segment *,struct omf_project *);
-static void EvaluateOperandAddressMode(char *);
 static int DecodeAddressMode(struct source_line *,char *,struct omf_segment *);
 static int GetOperandNbByte(char *,struct source_line *,int *,char *,struct omf_segment *);
 static int GetBitMode(struct source_line *);

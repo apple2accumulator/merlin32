@@ -1705,8 +1705,11 @@ int my_IsFileExist(char *file_path)
   FILE *fd;
   int i;
   char *file_case_path = NULL;
+#if defined(WIN32) || defined(WIN64) 
   char file_path_windows[1024] = "";
+#else
   char file_path_unix[1024] = "";
+#endif
 
   /** Les noms ne sont pas case-sensitives sous Windows **/
 #if defined(WIN32) || defined(WIN64) 
@@ -3860,8 +3863,6 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
   struct external *has_external;
   char **tab_element;
   char operator_c;
-  char dash_char[10] = "";
-  char addr_char[10] = "";
   char buffer[1024];
 
   /* Init */
@@ -5392,6 +5393,61 @@ void mem_free_table(int nb_item, char **table)
       free(table[i]);
 
   free(table);
+}
+
+/**
+ * Copies a string.
+ * 1. Does not overrun the target. 
+ * 2. Guarantees null termination of target.
+ * 3. Does not waste time filling the remainder of target 
+ *    with '\0' characters like strncpy does.
+ */
+char *CopyString(char *target, char *source, size_t target_size)
+{
+  char *s;
+  char *t;
+  size_t count = 0;
+
+  s = source;
+  t = target;
+  while (*s != '\0' && count < target_size)
+    {
+      *t = *s;
+      s++;
+      t++;
+      count++;
+    }
+  *t = '\0';
+  return target;
+}
+
+/**
+ * Determines if a string is empty.
+ */
+int IsEmpty(char *s)
+{
+  return s == NULL || s[0] == '\0';
+}
+
+char *ClearString(char *s)
+{
+  s[0] = '\0';
+  return s;
+}
+
+int IsDirectory(char *name)
+{
+  int is_directory = 0;
+
+#if defined(WIN32) || defined(WIN64)    
+  if (GetFileAttributes(name) & FILE_ATTRIBUTE_DIRECTORY)
+    is_directory = 1;
+#else
+  struct stat file_info;
+  if (stat(name, &file_info) == 0)
+    is_directory = S_ISDIR(file_info.st_mode);
+#endif
+  return is_directory;
 }
 
 /***********************************************************************/

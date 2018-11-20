@@ -22,8 +22,20 @@
 #include "a65816_Code.h"
 #include "a65816_Data.h"
 #include "a65816_OMF.h"
+#include "version.h"
+
+#ifndef MACRO_DIR
+#define MACRO_DIR "C:\\Program Files\\Merlin32\\asminc"
+#endif
+
+#define STR_SIZE 2048
 
 int Assemble65c816(char *,char *,int);
+void ParseArguments(int,char **,int *,char *,char *);
+void Usage(void);
+void FailWithUsage(char *,char *);
+
+char program_name[STR_SIZE];
 
 /****************************************************/
 /*  main() :  Fonction principale de l'application. */
@@ -35,43 +47,18 @@ int main(int argc, char *argv[])
   char *error_string = NULL;
   struct omf_segment *current_omfsegment;
   struct parameter *param;
-  char file_error_path[2048];
-  char source_file_path[2048];
-  char macro_folder_path[2048];
+  char file_error_path[STR_SIZE];
+  char source_file_path[STR_SIZE];
+  char macro_folder_path[STR_SIZE];
+  size_t len;
+
+  CopyString(program_name,argv[0],STR_SIZE);
 
   /* Message Information */
-  printf("%s v 1.0, (c) Brutal Deluxe 2011-2015\n",argv[0]);
-
-  /* Vérification des paramètres */
-  if(argc != 3 && argc != 4)
-    {
-      printf("  Usage : %s [-V] <macro_folder_path> <source_file_path>.\n",argv[0]);
-      return(1);
-    }
-  if(argc == 3 && !my_stricmp(argv[1],"-V"))
-    {
-      printf("  Usage : %s [-V] <macro_folder_path> <source_file_path>.\n",argv[0]);
-      return(1);
-    }
-  if(argc == 4 && my_stricmp(argv[1],"-V"))
-    {
-      printf("  Usage : %s [-V] <macro_folder_path> <source_file_path>.\n",argv[0]);
-      return(1);
-    }
-
-  /* Décodage des paramètres */
-  if(argc == 3)
-    {
-      verbose_mode = 0;
-      strcpy(macro_folder_path,argv[1]);
-      strcpy(source_file_path,argv[2]);
-    }
-  else
-    {
-      verbose_mode = 1;
-      strcpy(macro_folder_path,argv[2]);
-      strcpy(source_file_path,argv[3]);
-    }
+  printf("%s %s, (c) Brutal Deluxe 2011-2015\n",argv[0],MERLIN_VERSION);
+ 
+  /* Parse command line arguments */
+  ParseArguments(argc,argv,&verbose_mode,macro_folder_path,source_file_path);
 
   /* Initialisation */
   my_Memory(MEMORY_INIT,NULL,NULL,NULL);
@@ -121,8 +108,9 @@ int main(int argc, char *argv[])
   my_Memory(MEMORY_SET_PARAM,param,NULL,NULL);
 
   /** Préparation du dossier Macro **/
-  if(strlen(macro_folder_path) > 0)
-    if(macro_folder_path[strlen(macro_folder_path)-1] != '\\' && macro_folder_path[strlen(macro_folder_path)-1] != '/')
+  len = strlen(macro_folder_path);
+  if(len > 0)
+    if(macro_folder_path[len-1] != '\\' && macro_folder_path[len-1] != '/')
       strcat(macro_folder_path,FOLDER_SEPARATOR);
 
   /** Prépare le chemin des fichiers Output **/
@@ -148,7 +136,53 @@ int main(int argc, char *argv[])
   my_RaiseError(ERROR_END,NULL);
 
   /* OK */
-  return(0);
+  return EXIT_SUCCESS;
+}
+
+void ParseArguments(int argc,char *argv[],int *verbose,char *macro_dir,char *source_file)
+{
+  int i;
+
+  *verbose = 0;
+  ClearString(macro_dir);
+  ClearString(source_file);
+
+  for (i = 1; i < argc; i++)
+    if (my_stricmp(argv[i],"-v") == 0)
+      *verbose = 1;
+    else if (IsDirectory(argv[i]))
+      if (IsEmpty(macro_dir) && IsEmpty(source_file))
+        CopyString(macro_dir,argv[i],STR_SIZE);
+      else
+        FailWithUsage(argv[i],"Too many macro directories");
+    else
+      if (IsEmpty(source_file))
+        CopyString(source_file,argv[i],STR_SIZE);
+      else
+        FailWithUsage(argv[i],"Too many source files");
+
+  if (IsEmpty(macro_dir))
+    CopyString(macro_dir,MACRO_DIR,STR_SIZE);
+  if (IsEmpty(source_file))
+    FailWithUsage(NULL,"Missing source file parameter");
+}
+
+/**
+ * Prints command line help.
+ */
+void Usage(void)
+{
+  printf("Usage: %s [-v] [<macro_folder_path>] <source_file_path>\n",program_name);
+}
+
+void FailWithUsage(char *object_name,char *message)
+{
+  if (IsEmpty(object_name))
+    fprintf(stderr, "%s: %s\n", program_name, message);
+  else
+    fprintf(stderr, "%s: %s: %s\n", program_name, message, object_name);
+  Usage();
+  exit(EXIT_FAILURE);
 }
 
 /***********************************************************************/

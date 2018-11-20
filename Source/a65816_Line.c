@@ -2409,7 +2409,7 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
                 }
               if(nb_byte < 0)
                 {
-                  sprintf(param->buffer_error,"Error : Evaluation of DS data size ends up as negative value (%d) : '%d' (line %d, file '%s')",nb_byte,operand,current_line->file_line_number,current_line->file->file_name);
+                  sprintf(param->buffer_error,"Error : Evaluation of DS data size ends up as negative value (%d) : '%s' (line %d, file '%s')",nb_byte,operand,current_line->file_line_number,current_line->file->file_name);
                   my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
                 
