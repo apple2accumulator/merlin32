@@ -13,7 +13,8 @@
 #include <stdint.h>
 
 /** Platform dependent code **/
-#if defined(WIN32) || defined(WIN64)
+/* MSVC only defines _WIN32 */
+#if defined(_WIN32) || defined(WIN32) || defined(WIN64)
 /* Windows */
 #else
 /* Linux + MacOS */

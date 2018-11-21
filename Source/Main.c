@@ -5,6 +5,7 @@
 /***********************************************************************/
 /*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
+char *x = MACRO_DIR;
 
 #include <stdio.h>
 #include <stdlib.h>

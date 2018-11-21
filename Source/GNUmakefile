@@ -14,14 +14,11 @@
 
 ifeq ($(OS),Windows_NT)
     ifndef PREFIX
-	PREFIX='C:\Program Files\Merlin32'
+	PREFIX=$(USERPROFILE)/Applications/Merlin32
     endif
     MERLIN_BIN=$(PREFIX)/bin
     MACRO_DIR=$(PREFIX)/asminc
     EXE_EXT=.exe
-    INSTALL=copy
-    INSTALL_DIR=mkdir
-    SETUP_PATH=addtopath.bat
 else
     ifndef PREFIX
 	PREFIX=/usr/local
@@ -31,7 +28,6 @@ else
     EXE_EXT=
     INSTALL=install
     INSTALL_DIR=install -d
-    SETUP_PATH=
 endif
 
 TARGET=merlin32$(EXE_EXT)
@@ -51,7 +47,6 @@ install:
 	$(INSTALL) $(TARGET) $(MERLIN_BIN)
 	$(INSTALL_DIR) $(MACRO_DIR)
 	$(INSTALL) ../Library/* $(MACRO_DIR)
-        $(SETUP_PATH)
 	
 clean:
 	$(RM) $(OBJECTS) $(TARGET)
