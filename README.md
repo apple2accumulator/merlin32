@@ -1,13 +1,12 @@
-# merlin32
+# Merlin32
 The Merlin 32 assembler for the Apple II from Brutal Deluxe Software
 
 ## Build from Source and Install
 
 There are 2 different make files.
 
-GNUmakefile	Used for Mac, Linux & BSD UNIX
-
-Makefile	Used for Windows with nmake and MSVC
+1. GNUmakefile - Used for Mac, Linux & BSD UNIX
+2. Makefile - Used for Windows with nmake and MSVC
 
 The build process is too different between Windows and the other platforms
 to be done with the same make file. Using the current make file naming
@@ -18,35 +17,30 @@ nmake on Windows will ignore GNUmakefile and use Makefile instead.
 
 ### Mac, Linux, & BSD UNIX
 
-#### Defaults
+#### Build with default install loaction
 
-cd Source
+1. <code>cd Source</code>
+2. <code>make</code>
+3. <code>sudo make install</code>
 
-make
+This will install it into these locations:
 
-sudo make install
+<code>/usr/local/bin/merlin32</code><br>
+<code>/usr/local/share/merlin32/asminc/*.Mac.s</code>
 
-It will install into these locations:
-
-/usr/local/bin/merlin32
-
-/usr/local/share/merlin32/asminc/*.Mac.s
-
-#### Alternate PREFIX
+#### Alternate Install Location
 
 The default install location (PREFIX) is /usr/local.
 You can change the install location like this. Make sure you specify
 the PREFIX on both steps.
 
-make PREFIX=/opt/merlin32
-
-sudo make PREFIX=/opt/merlin32 install
+1. <code>make PREFIX=/opt/merlin32</code>
+2. <code>sudo make PREFIX=/opt/merlin32 install</code>
 
 This would install to:
 
-/opt/merlin32/bin/merlin32
-
-/opt/merlin32/share/merlin32/asminc/*.Mac.s
+<code>/opt/merlin32/bin/merlin32</code><br>
+<code>/opt/merlin32/share/merlin32/asminc/*.Mac.s</code>
 
 Then you would have to manually add to your PATH because that bin directory
 is not normally in the PATH like /usr/local/bin is.
@@ -57,8 +51,8 @@ is not normally in the PATH like /usr/local/bin is.
 
 1. Start a Visual Studio Command Prompt from the Start Menu.
 2. Change to the Source directory of the merlin32 extracted archive.
-3. nmake
-4. nmake install
+3. <code>nmake</code>
+4. <code>nmake install</code>
 
 This will install it into C:\Users\You\Applications\merlin32 and will
 automatically put the bin directory into the path. You'll have to start
@@ -66,9 +60,8 @@ a new Command Prompt to see it in the path.
 
 The install copies to these locations:
 
-C:\Users\You\Applications\merlin32\bin\merlin32.exe
-
-C:\Users\You\Applications\merlin32\asminc\*.Macs.s
+<code>C:\Users\You\Applications\merlin32\bin\merlin32.exe</code><br>
+<code>C:\Users\You\Applications\merlin32\asminc\\*.Macs.s</code>
 
 #### Options
 
@@ -76,9 +69,8 @@ To get it to install into "C:\Program Files" would require a setup application
 that would be able to do privilege escalation. That is not currently supported. But you could install into a directory like C:\opt because that is not protected like "C:\Program Files". To do
 that build it like this:
 
-nmake clean
-
-nmake PREFIX=C:\opt\merlin32 install
+1. <code>nmake clean</code>
+2. <code>nmake PREFIX=C:\opt\merlin32 install</code>
 
 On Windows, the bin directory is automatically added to the PATH regardless
 of where it is installed. This is done with the script 
@@ -92,7 +84,7 @@ standard folder C:\Users\You\Applications\merlin32.
 If you installed it to another location, just delete that directory.
 For example:
 
-rmdir /s C:\opt\merlin32
+<code>rmdir /s C:\opt\merlin32</code>
 
 ## Running
 
@@ -105,7 +97,6 @@ so it is optional on the command line. You can run it with or without
 specifying the macro library directory. So it is backward compatible with
 the original release.
 
-$ merlin32 ~/git/merlin32/Library skynet.s 
-
-$ merlin32 skynet.s  (Will automatically use PREFIX/share/merlin32/asminc)
+<code>$ merlin32 ~/git/merlin32/Library skynet.s</code><br>
+<code>$ merlin32 skynet.s</code>  (Will automatically use PREFIX/share/merlin32/asminc)
 
