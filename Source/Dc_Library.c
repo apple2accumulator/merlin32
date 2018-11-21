@@ -15,7 +15,8 @@
 #include <time.h>
 
 /** Platform dependent code **/
-#if defined(WIN32) || defined(WIN64)
+/* MSVC only defines _WIN32 */
+#if defined(_WIN32) || defined(WIN32) || defined(WIN64)
 /* Windows */
 #include <io.h>
 #include <windows.h>                    /* GetFileAttributes() SetFileAttributes() FILE_ATTRIBUTE_HIDDEN */
