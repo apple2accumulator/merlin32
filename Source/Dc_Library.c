@@ -5402,14 +5402,71 @@ void mem_free_param(struct parameter *param)
 /**************************************************/
 void mem_free_table(int nb_item, char **table)
 {
-    int i;
-
     if(table == NULL)
         return;
 
-    for(i=0; i<nb_item; i++)
+    for(int i = 0; i < nb_item; i++)
+    {
         if(table[i] != NULL)
             free(table[i]);
+    }
+}
+
+
+/************************************************************************/
+/*  CopyString() :  Copie une chaîne de caractères                      */
+/*  1. Ne pas saturer le tampon cible                                   */
+/*  2. Garantit la terminaison nulle de la cible                        */
+/*  3. Ne gaspille pas les cycles du processeur en remplissant le reste */
+/*     de la cible avec des caractères '\0', comme le fait strncpy.     */
+/************************************************************************/
+char *CopyString(char *target, char *source, size_t target_size)
+{
+  char *s;
+  char *t;
+  size_t count = 0;
+
+  s = source;
+  t = target;
+  while (*s != '\0' && count < target_size)
+    {
+      *t = *s;
+      s++;
+      t++;
+      count++;
+    }
+  *t = '\0';
+  return target;
+}
+
+
+/************************************************************************/
+/*  IsEmpty() :  Détermine si une chaîne de caractères est vide         */
+/************************************************************************/
+int IsEmpty(char *s)
+{
+  return s == NULL || s[0] == '\0';
+}
+
+
+/************************************************************************/
+/*  IsEmpty() :  Rend une chaîne de caractères vide                     */
+/************************************************************************/
+char *ClearString(char *s)
+{
+  s[0] = '\0';
+  return s;
+}
+
+
+/************************************************************************/
+/*  IsEmpty() :  Détermine si un nom fait référence à un répertoire     */
+/*               existant                                               */
+/************************************************************************/
+int IsDirectory(char *name)
+{
+  int is_directory = 0;
+>>>>>>> Script to make installer
 
     free(table);
 }

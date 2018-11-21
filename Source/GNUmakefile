@@ -32,6 +32,7 @@ endif
 
 TARGET=merlin32$(EXE_EXT)
 CFLAGS+= -Wall -DMACRO_DIR=\"$(MACRO_DIR)\"
+BIN_CONFIG=../Scripts/config.sh
 
 SOURCES = a65816_Code.c a65816_Cond.c a65816_Data.c a65816_File.c \
 	  a65816_Line.c a65816_Link.c a65816_Lup.c a65816_Macro.c a65816_OMF.c \
@@ -39,15 +40,20 @@ SOURCES = a65816_Code.c a65816_Cond.c a65816_Data.c a65816_File.c \
 
 OBJECTS=$(SOURCES:.c=.o)
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) $(BIN_CONFIG)
 	$(CC) $^ -o $@
 
-install:
-	$(INSTALL_DIR) $(MERLIN_BIN)
-	$(INSTALL) $(TARGET) $(MERLIN_BIN)
-	$(INSTALL_DIR) $(MACRO_DIR)
-	$(INSTALL) ../Library/* $(MACRO_DIR)
-	
+$(BIN_CONFIG):
+	echo PREFIX=$(PREFIX) > $(BIN_CONFIG)
+	echo INSTALL_BIN=$(MERLIN_BIN) >> $(BIN_CONFIG)
+	echo MACRO_INSTALL_DIR=$(MACRO_DIR) >> $(BIN_CONFIG)
+
+install: $(TARGET)
+	../Scripts/install
+
+installer: $(TARGET)
+	../Scripts/make-installer
+
 clean:
 	$(RM) $(OBJECTS) $(TARGET)
 

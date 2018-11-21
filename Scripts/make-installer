@@ -1,0 +1,20 @@
+#!/bin/sh
+
+SYSTEM=`uname -s`
+MACHINE=`uname -m`
+BIN_DIR=`dirname "$0"`
+if [ "$BIN_DIR" = "." ]
+then
+	BIN_DIR=`pwd`
+fi
+MERLIN_DIR=`dirname "$BIN_DIR"`
+MERLIN_PARENT_DIR=`dirname "$MERLIN_DIR"`
+cd "$MERLIN_PARENT_DIR"
+MERLIN="$MERLIN_DIR"/Source/merlin32 
+MERLIN_VERSION=`"$MERLIN" --version`
+DIST_DIR="$MERLIN_DIR"/Distributable
+MERLIN_ZIP="$DIST_DIR"/merlin32-"$MERLIN_VERSION"-"$SYSTEM"-"$MACHINE".zip 
+zip "$MERLIN_ZIP" \
+	"$MERLIN" \
+	"$MERLIN_DIR"/Scripts/*.* \
+	"$MERLIN_DIR"/Library/*.*
