@@ -61,7 +61,7 @@ a new Command Prompt to see it in the path.
 The install copies to these locations:
 
 <code>C:\Users\You\Applications\merlin32\bin\merlin32.exe</code><br>
-<code>C:\Users\You\Applications\merlin32\asminc\*.Macs.s</code>
+<code>C:\Users\You\Applications\merlin32\asminc\\*.Macs.s</code>
 
 #### Options
 
