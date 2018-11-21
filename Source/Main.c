@@ -5,7 +5,6 @@
 /***********************************************************************/
 /*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
-char *x = MACRO_DIR;
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +25,7 @@ char *x = MACRO_DIR;
 #include "version.h"
 
 #ifndef MACRO_DIR
-#define MACRO_DIR "C:\\Program Files\\Merlin32\\asminc"
+#error MACRO_DIR must be defined to the default macro library directory.
 #endif
 
 #define STR_SIZE 2048
@@ -53,12 +52,13 @@ int main(int argc, char *argv[])
   char macro_folder_path[STR_SIZE];
   size_t len;
 
+  /* Remplir la variable de nom de programme global */
   CopyString(program_name,argv[0],STR_SIZE);
 
   /* Message Information */
   printf("%s %s, (c) Brutal Deluxe 2011-2015\n",argv[0],MERLIN_VERSION);
  
-  /* Parse command line arguments */
+  /* Analyser les arguments en ligne de commande */
   ParseArguments(argc,argv,&verbose_mode,macro_folder_path,source_file_path);
 
   /* Initialisation */
@@ -140,7 +140,16 @@ int main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-void ParseArguments(int argc,char *argv[],int *verbose,char *macro_dir,char *source_file)
+
+/*****************************************************/
+/*  ParseArguments() :  Analyser les arguments       */
+/*****************************************************/
+void ParseArguments(
+        /* entrée de données */  int   argc,
+        /* entrée de données */  char *argv[],
+        /* sortie */             int  *verbose,
+        /* sortie */             char *macro_dir,
+        /* sortie */             char *source_file)
 {
   int i;
 
@@ -148,34 +157,46 @@ void ParseArguments(int argc,char *argv[],int *verbose,char *macro_dir,char *sou
   ClearString(macro_dir);
   ClearString(source_file);
 
-  for (i = 1; i < argc; i++)
-    if (my_stricmp(argv[i],"-v") == 0)
+  for(i = 1; i < argc; i++)
+    if(my_stricmp(argv[i],"-V")==0 || my_stricmp(argv[i],"--verbose")==0)
       *verbose = 1;
-    else if (IsDirectory(argv[i]))
-      if (IsEmpty(macro_dir) && IsEmpty(source_file))
+    else if(my_stricmp(argv[i],"-v")==0 || my_stricmp(argv[i],"--version")==0)
+      {
+        puts(MERLIN_VERSION);
+	exit(EXIT_SUCCESS);
+      }
+    else if(IsDirectory(argv[i])) /* Dir arg is macro lib */
+      if(IsEmpty(macro_dir) && IsEmpty(source_file))
         CopyString(macro_dir,argv[i],STR_SIZE);
       else
         FailWithUsage(argv[i],"Too many macro directories");
-    else
-      if (IsEmpty(source_file))
+    else                          /* Non-dir arg is source file */
+      if(IsEmpty(source_file))    /* Accept only if not yet provided */
         CopyString(source_file,argv[i],STR_SIZE);
       else
         FailWithUsage(argv[i],"Too many source files");
 
-  if (IsEmpty(macro_dir))
+  if(IsEmpty(macro_dir))
     CopyString(macro_dir,MACRO_DIR,STR_SIZE);
-  if (IsEmpty(source_file))
+  if(IsEmpty(source_file))
     FailWithUsage(NULL,"Missing source file parameter");
 }
 
-/**
- * Prints command line help.
- */
+
+/*************************************************************/
+/*  Usage() :  Affiche les arguments de la ligne de commande */
+/*************************************************************/
 void Usage(void)
 {
-  printf("Usage: %s [-v] [<macro_folder_path>] <source_file_path>\n",program_name);
+  printf("Usage:\n");
+  printf("  %s [-V|--verbose] [<macro_dir>] <source_file>\n",program_name);
+  printf("  %s -v|--version\n",program_name);
 }
 
+
+/************************************************************************/
+/*  FailWithUsage() :  Imprimer l'utilisation et quitter en cas d'échec */
+/************************************************************************/
 void FailWithUsage(char *object_name,char *message)
 {
   if (IsEmpty(object_name))
