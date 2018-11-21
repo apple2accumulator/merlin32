@@ -1,13 +1,12 @@
-# merlin32
+# Merlin32
 The Merlin 32 assembler for the Apple II from Brutal Deluxe Software
 
 ## Build from Source and Install
 
 There are 2 different make files.
 
-GNUmakefile	Used for Mac, Linux & BSD UNIX
-
-Makefile	Used for Windows with nmake and MSVC
+1. GNUmakefile - Used for Mac, Linux & BSD UNIX
+2. Makefile - Used for Windows with nmake and MSVC
 
 The build process is too different between Windows and the other platforms
 to be done with the same make file. Using the current make file naming
@@ -18,29 +17,26 @@ nmake on Windows will ignore GNUmakefile and use Makefile instead.
 
 ### Mac, Linux, & BSD UNIX
 
-#### Defaults
+#### Build with default install loaction
 
-cd Source
+1. cd Source
+2. make
+3. sudo make install
 
-make
-
-sudo make install
-
-It will install into these locations:
+This will install it into these locations:
 
 /usr/local/bin/merlin32
 
 /usr/local/share/merlin32/asminc/*.Mac.s
 
-#### Alternate PREFIX
+#### Alternate Install Location
 
 The default install location (PREFIX) is /usr/local.
 You can change the install location like this. Make sure you specify
 the PREFIX on both steps.
 
-make PREFIX=/opt/merlin32
-
-sudo make PREFIX=/opt/merlin32 install
+1. make PREFIX=/opt/merlin32
+2. sudo make PREFIX=/opt/merlin32 install
 
 This would install to:
 
@@ -76,9 +72,8 @@ To get it to install into "C:\Program Files" would require a setup application
 that would be able to do privilege escalation. That is not currently supported. But you could install into a directory like C:\opt because that is not protected like "C:\Program Files". To do
 that build it like this:
 
-nmake clean
-
-nmake PREFIX=C:\opt\merlin32 install
+1. nmake clean
+2. nmake PREFIX=C:\opt\merlin32 install
 
 On Windows, the bin directory is automatically added to the PATH regardless
 of where it is installed. This is done with the script 
