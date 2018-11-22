@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SYSTEM=`uname -s`
-MACHINE=`uname -m`
+MACHINE=`uname -p`
 BIN_DIR=`dirname "$0"`
 if [ "$BIN_DIR" = "." ]
 then
@@ -11,10 +11,16 @@ MERLIN_DIR=`dirname "$BIN_DIR"`
 MERLIN_PARENT_DIR=`dirname "$MERLIN_DIR"`
 cd "$MERLIN_PARENT_DIR"
 MERLIN="$MERLIN_DIR"/Source/merlin32 
-MERLIN_VERSION=`"$MERLIN" --version`
+MERLIN_VERSION=`"$MERLIN" -h | head -1 | cut -f 2 -d ' ' | cut -f 1 -d ,`
 DIST_DIR="$MERLIN_DIR"/Distributable
 MERLIN_ZIP="$DIST_DIR"/merlin32-"$MERLIN_VERSION"-"$SYSTEM"-"$MACHINE".zip 
+if [ ! -d "$DIST_DIR" ]
+then
+    mkdir "$DIST_DIR"
+fi
 zip "$MERLIN_ZIP" \
 	"$MERLIN" \
-	"$MERLIN_DIR"/Scripts/*.* \
+        "$MERLIN_DIR"/README.md \
+	"$MERLIN_DIR"/Scripts/config.sh \
+	"$MERLIN_DIR"/Scripts/install \
 	"$MERLIN_DIR"/Library/*.*

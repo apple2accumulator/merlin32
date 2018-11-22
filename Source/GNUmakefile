@@ -26,8 +26,6 @@ else
     MERLIN_BIN=$(PREFIX)/bin
     MACRO_DIR=$(PREFIX)/share/merlin32/asminc
     EXE_EXT=
-    INSTALL=install
-    INSTALL_DIR=install -d
 endif
 
 TARGET=merlin32$(EXE_EXT)
@@ -41,7 +39,7 @@ SOURCES = a65816_Code.c a65816_Cond.c a65816_Data.c a65816_File.c \
 OBJECTS=$(SOURCES:.c=.o)
 
 $(TARGET): $(OBJECTS) $(BIN_CONFIG)
-	$(CC) $^ -o $@
+	$(CC) $(OBJECTS) -o $@
 
 $(BIN_CONFIG):
 	echo PREFIX=$(PREFIX) > $(BIN_CONFIG)
@@ -55,5 +53,6 @@ installer: $(TARGET)
 	../Scripts/make-installer
 
 clean:
-	$(RM) $(OBJECTS) $(TARGET)
+	$(RM) $(OBJECTS) $(TARGET) $(BIN_CONFIG)
+	rm -rf ../Distributable
 
