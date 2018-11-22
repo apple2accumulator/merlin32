@@ -158,12 +158,12 @@ void ParseArguments(
   ClearString(source_file);
 
   for(i = 1; i < argc; i++)
-    if(my_stricmp(argv[i],"-V")==0 || my_stricmp(argv[i],"--verbose")==0)
+    if(my_stricmp(argv[i],"-v")==0 || my_stricmp(argv[i],"--verbose")==0)
       *verbose = 1;
-    else if(my_stricmp(argv[i],"-v")==0 || my_stricmp(argv[i],"--version")==0)
+    else if(my_stricmp(argv[i],"-h")==0 || my_stricmp(argv[i],"--help")==0)
       {
-        puts(MERLIN_VERSION);
-	exit(EXIT_SUCCESS);
+        Usage();
+        exit(EXIT_SUCCESS);
       }
     else if(IsDirectory(argv[i])) /* Dir arg is macro lib */
       if(IsEmpty(macro_dir) && IsEmpty(source_file))
@@ -208,3 +208,7 @@ void FailWithUsage(char *object_name,char *message)
 }
 
 /***********************************************************************/
+
+/* vim: tabstop=2 shiftwidth=2 expandtab
+*/
+
