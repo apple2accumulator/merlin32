@@ -1,26 +1,80 @@
 #!/bin/sh
 
-SYSTEM=`uname -s`
-MACHINE=`uname -p`
-BIN_DIR=`dirname "$0"`
-if [ "$BIN_DIR" = "." ]
-then
-	BIN_DIR=`pwd`
-fi
-MERLIN_DIR=`dirname "$BIN_DIR"`
-MERLIN_PARENT_DIR=`dirname "$MERLIN_DIR"`
-cd "$MERLIN_PARENT_DIR"
-MERLIN="$MERLIN_DIR"/Source/merlin32 
-MERLIN_VERSION=`"$MERLIN" -h | head -1 | cut -f 2 -d ' ' | cut -f 1 -d ,`
-DIST_DIR="$MERLIN_DIR"/Distributable
-MERLIN_ZIP="$DIST_DIR"/merlin32-"$MERLIN_VERSION"-"$SYSTEM"-"$MACHINE".zip 
+# Resolves all symlinks, . and .. path elements.
+# The realpath and reallink commands only exist or work properly on Linux.
+# There is some issue with each of them on either Mac or BSD. So this
+# function is necessary.
+ResolvePath()
+{
+    local PATH_NAME="$1"
+    if [ -d "$PATH_NAME" ]
+    then
+        TO_RESOLVE="$PATH_NAME"
+        unset FILE_PART
+    elif [ -e "$PATH_NAME" ]
+    then
+        TO_RESOLVE=`dirname "$PATH_NAME"`
+        FILE_PART=`basename "$PATH_NAME"`
+    else
+        echo $PATH_NAME does not exist. 1>&2
+    fi
+    RESOLVED=`unset CDPATH && cd "$TO_RESOLVE" && pwd -P`
+    echo $RESOLVED/$FILE_PART
+}
+
+CreateProxyInstallerScript()
+{
+    local PROXY_SCRIPT="$1"
+    local TARGET_SCRIPT="$2"
+    echo '#!/bin/sh' > "$PROXY_SCRIPT"
+    echo "$TARGET_SCRIPT" >> "$PROXY_SCRIPT"
+    chmod a+x "$PROXY_SCRIPT"
+}
+
+FindProjectParentDir()
+{
+    local ABS_SCRIPT_NAME=`ResolvePath "$1"`
+    local ABS_BIN_DIR=`dirname "$ABS_SCRIPT_NAME"`
+    local ABS_TOP_DIR=`dirname "$ABS_BIN_DIR"`
+    local ABS_PARENT_DIR=`dirname "$ABS_TOP_DIR"`
+    echo $ABS_PARENT_DIR
+}
+
+GetSystemName()
+{
+    local SYSTEM=`uname -s`
+    if [ "$SYSTEM" = "Darwin" ]
+    then
+        SYSTEM=macos
+    fi
+    echo $SYSTEM
+}
+
+PROGRAM_NAME=merlin32
+cd `FindProjectParentDir "$0"`
+# Must be some way to convert from absolute to relative here but not sure
+# yet how. We need the relative paths for "zip" to work the way it is
+# expected.
+RELATIVE_TOP_DIR="$PROGRAM_NAME"
+BINARY_EXEC="$RELATIVE_TOP_DIR"/Source/merlin32 
+PROGRAM_VERSION=`"$BINARY_EXEC" -h | head -1 | cut -f 2 -d ' ' | cut -f 1 -d ,`
+DIST_DIR="$RELATIVE_TOP_DIR"/Installer
 if [ ! -d "$DIST_DIR" ]
 then
     mkdir "$DIST_DIR"
 fi
-zip "$MERLIN_ZIP" \
-	"$MERLIN" \
-        "$MERLIN_DIR"/README.md \
-	"$MERLIN_DIR"/Scripts/config.sh \
-	"$MERLIN_DIR"/Scripts/install \
-	"$MERLIN_DIR"/Library/*.*
+
+DIST_ZIP="$DIST_DIR"/"$PROGRAM_NAME"-"$PROGRAM_VERSION"-`GetSystemName`-`uname -p`-installer.zip  
+PROXY_INSTALLER_SCRIPT="$RELATIVE_TOP_DIR"/run-this-to-install
+CreateProxyInstallerScript "$PROXY_INSTALLER_SCRIPT" Scripts/install
+
+zip "$DIST_ZIP" \
+    "$BINARY_EXEC" \
+    "$PROXY_INSTALLER_SCRIPT" \
+    "$RELATIVE_TOP_DIR"/README.md \
+    "$RELATIVE_TOP_DIR"/Scripts/config.sh \
+    "$RELATIVE_TOP_DIR"/Scripts/install \
+    "$RELATIVE_TOP_DIR"/Library/*.*
+
+rm "$PROXY_INSTALLER_SCRIPT"
+

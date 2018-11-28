@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ `id -u` -ne 0 ]
+then
+    echo Please enter your password to continue the install with root privleges.
+    sudo "$0"
+    exit
+fi
+
 BIN_DIR=`dirname "$0"`
 if [ "$BIN_DIR" = "." ]
 then
@@ -9,10 +16,12 @@ fi
 # Get PREFIX, INSTALL_BIN, MACRO_INSTALL_DIR
 . "$BIN_DIR"/config.sh
 
-TOP_SOURCE_DIST_DIR=`dirname "$0"`
+TOP_SOURCE_DIST_DIR=`dirname "$BIN_DIR"`
 
 install -d "$INSTALL_BIN"
-install "$TOP_SOURCE_DIST_DIR"/Source/merlin "$INSTALL_BIN"
+echo Installing merlin32 to $INSTALL_BIN
+install "$TOP_SOURCE_DIST_DIR"/Source/merlin32 "$INSTALL_BIN"
 install -d "$MACRO_INSTALL_DIR"
+echo Installing library files to $MACRO_INSTALL_DIR
 install "$TOP_SOURCE_DIST_DIR"/Library/* "$MACRO_INSTALL_DIR"
 

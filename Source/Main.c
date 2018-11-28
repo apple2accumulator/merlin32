@@ -25,7 +25,7 @@
 #include "version.h"
 
 #ifndef MACRO_DIR
-#error MACRO_DIR must be defined to the default macro library directory.
+#error MACRO_DIR must be defined in the Makefile to the default macro directory.
 #endif
 
 #define STR_SIZE 2048
@@ -189,8 +189,8 @@ void ParseArguments(
 void Usage(void)
 {
   printf("Usage:\n");
-  printf("  %s [-V|--verbose] [<macro_dir>] <source_file>\n",program_name);
-  printf("  %s -v|--version\n",program_name);
+  printf("  %s [-v|--verbose] [<macro_dir>] <source_file>\n",program_name);
+  printf("  %s -h|--help\n",program_name);
 }
 
 

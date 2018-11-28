@@ -1,6 +1,14 @@
 # Merlin32
 The Merlin 32 assembler for the Apple II from Brutal Deluxe Software
 
+## Install from binary release zip file
+
+1. Download the zip file for your platform. For example: merlin32-v1.1.0-macos-powerpc-installer.zip
+2. <code>unzip merlin32-v1.1.0-macos-powerpc-installer.zip</code>
+3. <code>cd merlin32</code>
+4. <code>./run-this-to-install</code>
+5. Enter your password.
+
 ## Build from Source and Install
 
 There are 2 different make files.
@@ -19,9 +27,10 @@ nmake on Windows will ignore GNUmakefile and use Makefile instead.
 
 #### Build with default install loaction
 
-1. <code>cd Source</code>
-2. <code>make</code>
-3. <code>sudo make install</code>
+1. <code>git clone https://github.com/apple2accumulator/merlin32</code>
+2. <code>cd merlin32/Source</code>
+3. <code>make</code>
+4. <code>sudo make install</code>
 
 This will install it into these locations:
 
@@ -34,8 +43,10 @@ The default install location (PREFIX) is /usr/local.
 You can change the install location like this. Make sure you specify
 the PREFIX on both steps.
 
-1. <code>make PREFIX=/opt/merlin32</code>
-2. <code>sudo make PREFIX=/opt/merlin32 install</code>
+1. <code>git clone https://github.com/apple2accumulator/merlin32</code>
+2. <code>cd merlin32/Source</code>
+3. <code>make PREFIX=/opt/merlin32</code>
+4. <code>sudo make PREFIX=/opt/merlin32 install</code>
 
 This would install to:
 
@@ -50,18 +61,19 @@ is not normally in the PATH like /usr/local/bin is.
 #### Install
 
 1. Start a Visual Studio Command Prompt from the Start Menu.
-2. Change to the Source directory of the merlin32 extracted archive.
-3. <code>nmake</code>
-4. <code>nmake install</code>
+2. <code>git clone https://github.com/apple2accumulator/merlin32</code>
+3. <code>cd merlin32/Source</code>
+4. <code>nmake</code>
+5. <code>nmake install</code>
 
-This will install it into C:\Users\You\Applications\merlin32 and will
+This will install it into C:\Users\<You>\Applications\merlin32 and will
 automatically put the bin directory into the path. You'll have to start
 a new Command Prompt to see it in the path.
 
 The install copies to these locations:
 
-<code>C:\Users\You\Applications\merlin32\bin\merlin32.exe</code><br>
-<code>C:\Users\You\Applications\merlin32\asminc\\*.Macs.s</code>
+<code>C:\Users\<You>\Applications\merlin32\bin\merlin32.exe</code><br>
+<code>C:\Users\<You>\Applications\merlin32\asminc\\*.Macs.s</code>
 
 #### Options
 
@@ -69,8 +81,11 @@ To get it to install into "C:\Program Files" would require a setup application
 that would be able to do privilege escalation. That is not currently supported. But you could install into a directory like C:\opt because that is not protected like "C:\Program Files". To do
 that build it like this:
 
-1. <code>nmake clean</code>
-2. <code>nmake PREFIX=C:\opt\merlin32 install</code>
+1. Start a Visual Studio Command Prompt from the Start Menu.
+2. <code>git clone https://github.com/apple2accumulator/merlin32</code>
+3. <code>cd merlin32/Source</code>
+4. <code>nmake clean</code>
+5. <code>nmake PREFIX=C:\opt\merlin32 install</code>
 
 On Windows, the bin directory is automatically added to the PATH regardless
 of where it is installed. This is done with the script 
