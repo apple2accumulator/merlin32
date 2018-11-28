@@ -54,5 +54,5 @@ installer: $(TARGET)
 
 clean:
 	$(RM) $(OBJECTS) $(TARGET) $(BIN_CONFIG)
-	rm -rf ../Distributable
+	rm -rf ../Installer
 
