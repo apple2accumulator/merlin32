@@ -33,6 +33,9 @@ $(TARGET): $(OBJECTS)
 
 install: $(TARGET)
 	..\Scripts\install.bat "$(PREFIX:\\=\)"
+
+installer: $(TARGET)
+	cscript //nologo ..\Scripts\make-installer.js
 	
 clean:
 	del $(OBJECTS) $(TARGET)
