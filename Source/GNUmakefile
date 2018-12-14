@@ -26,10 +26,26 @@ else
     MERLIN_BIN=$(PREFIX)/bin
     MACRO_DIR=$(PREFIX)/share/merlin32/asminc
     EXE_EXT=
+    
+    OS:=$(shell uname -s)
+    CPU:=$(shell uname -p)
+
+    ifdef CPU_OPT
+        ifeq ($(OS),Darwin)
+            MAH_SHEEN:=$(shell machine)
+            ifeq ($(CPU),powerpc)
+                CFLAGS+=-fast
+                ifeq ($(MAH_SHEEN),ppc7450)
+                    CFLAGS+=-mcpu=7450
+                endif
+            endif
+        endif
+    endif
+        
 endif
 
 TARGET=merlin32$(EXE_EXT)
-CFLAGS+= -Wall -DMACRO_DIR=\"$(MACRO_DIR)\"
+CFLAGS+=-O3 -Wall -DMACRO_DIR=\"$(MACRO_DIR)\"
 BIN_CONFIG=../Scripts/config.sh
 
 SOURCES = a65816_Code.c a65816_Cond.c a65816_Data.c a65816_File.c \
