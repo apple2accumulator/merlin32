@@ -227,6 +227,13 @@ function zip(zipFileName, topDirName, filesToZip) {
 // that we can write to stdout rather than displaying a separate popup
 // for each WScript.Echo.
 //
+// WScript is always started in a new window, so there is no way to get
+// back to the original Command Prompt if this was started from within
+// a Command Prompt. All we can do is make sure it is run in a new
+// Command Prompt if it was double-clicked from the desktop.
+//
+// TODO: Testing!
+//
 //////////////////////////////////////////////////////////////////////////
 if (WScript.FullName.search(/WScript/i) >= 0) {
     // Get a "WScript.Shell" object if we don't already have one.
@@ -236,7 +243,7 @@ if (WScript.FullName.search(/WScript/i) >= 0) {
     // shell.
     var restartSelfCmd = 'cscript //nologo "' + WScript.ScriptFullName+'"';
     // Run the command and collect the exit code.
-    var exitCode = shell.Run(cmd, 8, true);
+    var exitCode = mineShell.Run(restartSelfCmd, 8, true);
     WScript.Quit(exitCode);
 }
 
