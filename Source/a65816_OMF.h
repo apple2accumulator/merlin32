@@ -1,9 +1,9 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_OMF.h : Header pour la gestion du fichier OMF.              */
+/*  a65816_OMF.h : Header pour la gestion du File OMF.              */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 #define CRECORD_SIZE                7       /* Taille d'un CRecord */
@@ -11,15 +11,15 @@
 
 struct omf_project
 {
-  BYTE type;               /* Type du fichier ($06 pour les Multi-Segment Fixed-Address) */
-  WORD aux_type;           /* AuxType du fichier */
+  BYTE type;               /* Type du File ($06 pour les Multi-Segment Fixed-Address) */
+  WORD aux_type;           /* AuxType du File */
   int express_load;        /* Ajoute le Segment ExpressLoad au début */
 
-  /** Liste des Fichiers Multi-Segments (OMF ou Fixed Address) **/
-  int nb_file;             /* Nombre de fichiers pour les Multi-Segment Fixed-Address OneBinaryFile */
-  char **dsk_name_tab;     /* Nom du projet = Nom du fichier à créer (en OMF ou en Multi-Segment Fixed-Address SingleBinary) */
-  DWORD *org_address_tab;  /* Pour les Multi-Segment Fixed-Address OneBinaryFile, le ORG est fixé par le fichier LINK */
-  DWORD *file_size_tab;    /* Taille des fichiers pour les Multi-Segment Fixed-Address OneBinaryFile */
+  /** Liste des Files Multi-Segments (OMF ou Fixed Address) **/
+  int nb_file;             /* Nombre de Files pour les Multi-Segment Fixed-Address OneBinaryFile */
+  char **dsk_name_tab;     /* Nom du projet = File name à créer (en OMF ou en Multi-Segment Fixed-Address SingleBinary) */
+  DWORD *org_address_tab;  /* Pour les Multi-Segment Fixed-Address OneBinaryFile, le ORG est fixé par le File LINK */
+  DWORD *file_size_tab;    /* Taille des Files pour les Multi-Segment Fixed-Address OneBinaryFile */
   
   /** Liste des Segments OMF / Fixed Address **/
   int nb_segment;
@@ -30,13 +30,13 @@ struct omf_project
   DWORD project_buffer_length;
   unsigned char *project_buffer_file;
 
-  /* Taille du fichier Projet */
+  /* Taille du File Projet */
   DWORD project_file_length;
 
   /* Type de Program */
   int is_omf;                    /* Il s'agit d'un projet Relogeable OMF v2.1 */
   int is_multi_fixed;            /* Il s'agit d'un projet Multi-Segment Fixed-Address */
-  int is_single_binary;          /* A la fin, on colle tous les segments Fixed-Address ensemble, les uns derrière les autres (dans 1 ou plusieurs fichiers) */
+  int is_single_binary;          /* A la fin, on colle tous les segments Fixed-Address ensemble, les uns derrière les autres (dans 1 ou plusieurs Files) */
 };
 
 #define ALIGN_BANK   2
@@ -45,7 +45,7 @@ struct omf_project
 
 struct omf_segment
 {
-  char *master_file_path;    /* Chemin du fichier Source Master */
+  char *master_file_path;    /* Chemin du Source file Master */
 
   /*****************************************************/
   /*  Valeurs utilisées dans le Header du Segment OMF  */
@@ -59,7 +59,7 @@ struct omf_segment
   char *load_name;
   char *segment_name;
 
-  int file_number;           /* Numéro du fichier (pour les Fixed-Address Single-Binary */
+  int file_number;           /* File number (pour les Fixed-Address Single-Binary */
 
   /***************************************************/
   /*  Valeurs utilisées dans le Body du Segment OMF  */
@@ -67,11 +67,11 @@ struct omf_segment
   /* Numéro du Segment */
   int segment_number;      /* 1-N */
 
-   /* Pour les Multi-Segment Fixed-Address OneBinaryFile, le ORG est fixé par le fichier LINK */
+   /* Pour les Multi-Segment Fixed-Address OneBinaryFile, le ORG est fixé par le File LINK */
   int has_org_address;
   DWORD org_address;
 
-  /* Type de fichier en sortie : OMF ou Binaire */
+  /* Type de File en sortie : OMF ou Binaire */
   int is_omf;
   int is_relative;     /* On a un REL => Pas de Direct Page pour les Label (sauf si l'assemblage est géré via un Link.txt Fixed Address) */
 
@@ -80,7 +80,7 @@ struct omf_segment
   struct relocate_address *first_address;
   struct relocate_address *last_address;
 
-  /* Fichier a créer */
+  /* File a créer */
   char object_name[256];
 
   /* Object code */
@@ -108,7 +108,7 @@ struct omf_segment
   /*  Ensemble des structures de données mémoire  */
   /************************************************/
   void *alloc_table[1024];
-  struct source_file *first_file;         /* Premier fichier source */
+  struct source_file *first_file;         /* Premier Source file */
   int nb_opcode;                          /* Liste des opcode */
   struct item *first_opcode;
   struct item *last_opcode;
@@ -164,9 +164,9 @@ struct omf_segment
   struct omf_segment *next;
 };
 
-DWORD BuildOMFHeader(struct omf_project *,struct omf_segment *);
-DWORD BuildOMFBody(struct omf_project *,struct omf_segment *);
-void RelocateExternalFixedAddress(struct omf_project *,struct omf_segment *);
+DWORD BuildOMFHeader(struct omf_segment *);
+DWORD BuildOMFBody(struct omf_segment *);
+void RelocateExternalFixedAddress(struct omf_segment *);
 int BuildOMFFile(char *,struct omf_project *);
 int BuildExpressLoadSegment(struct omf_project *);
 void UpdateFileInformation(char *,char *,struct omf_project *);

@@ -3,7 +3,7 @@
 /*  a65816_Cond.h : Header pour la gestion des Conditional.            */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 int ProcessConditionalDirective(struct omf_segment *);

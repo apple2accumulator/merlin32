@@ -3,7 +3,7 @@
 /*  Main.c : Module Assembleur d'un code source 65c816.                */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 #include <stdio.h>
@@ -77,15 +77,15 @@ int main(int argc, char *argv[])
   my_Memory(MEMORY_INIT,NULL,NULL,NULL);
   my_File(FILE_INIT,NULL);
 
-  /* Initialisation du mécanisme de gestion d'erreurs */
+  /* Initialisation du mécanisme de gestion d'Errors */
   my_RaiseError(ERROR_INIT,NULL);
   context_value = setjmp(context);
   if(context_value)
     {
-      /* Récupération de la chaine contenant le message d'erreur */
+      /* Récupération de la chaine contenant le message d'Error */
       my_RaiseError(ERROR_GET_STRING,&error_string);
 
-      /* Message d'erreur et fin */
+      /* Message d'Error et fin */
       if(error_string)
         {
           printf("      => [Error] %s.\n",error_string);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
       /* On récupère le OMF Segment courant (s'il existe) */
       my_Memory(MEMORY_GET_OMFSEGMENT,&current_omfsegment,NULL,NULL);
 
-      /** On essaye de Dumper qqchose dans le fichier Error_Output.txt **/
+      /** On essaye de Dumper qqchose dans le File Error_Output.txt **/
       if(current_omfsegment != NULL)
         {
           strcpy(file_error_path,"error_output.txt");
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     }
   my_RaiseError(ERROR_INIT,&context);
 
-  /* Allocation mémoire de la structure param */
+  /* Memory allowance de la structure param */
   param = mem_alloc_param();
   if(param == NULL)
     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure parameter");
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
     if(macro_folder_path[strlen(macro_folder_path)-1] != '\\' && macro_folder_path[strlen(macro_folder_path)-1] != '/')
       strcat(macro_folder_path,FOLDER_SEPARATOR);
 
-  /** Prépare le chemin des fichiers Output **/
+  /** Prépare le chemin des Files Output **/
   strcpy(param->output_file_path,source_file_path);
   for(i=(int)strlen(param->output_file_path); i>=0; i--)
     if(param->output_file_path[i] == '\\' || param->output_file_path[i] == '/')
@@ -137,14 +137,14 @@ int main(int argc, char *argv[])
     strcpy(param->output_file_path,"");
   strcpy(param->current_folder_path,param->output_file_path);
 
-  /*** Assemble et Link tous les fichiers du projet ***/
+  /*** Assemble et Link tous les Files du projet ***/
   error = AssembleLink65c816(source_file_path,macro_folder_path,verbose_mode);
 
   /* Libération des ressources */
   my_File(FILE_FREE,NULL);
   my_Memory(MEMORY_FREE,NULL,NULL,NULL);
 
-  /* Fin de la gestion des erreurs */
+  /* Fin de la gestion des Errors */
   my_RaiseError(ERROR_END,NULL);
 
   /* OK */

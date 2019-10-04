@@ -3,7 +3,7 @@
 /*  Dc_Library.h : Header pour la bibliothèque générique de fonctions. */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 #if defined(WIN32)
@@ -131,7 +131,7 @@ struct parameter
 
   int org_address;        /* Default is $8000 */
 
-  char source_folder_path[1024];  /* Dossier contenant les fichiers sources */
+  char source_folder_path[1024];  /* Dossier contenant les Files sources */
 
   char date_1[64];       /* 29-DEC-88 (9 bytes) */
   char date_2[64];       /* 12/29/88 (8 bytes) */
@@ -153,7 +153,7 @@ struct parameter
   char buffer_string[64000];   /* Buffer utilise pour la conversion de String */
 
   char output_file_path[1024];
-  char current_folder_path[1024];   /* Dossier où se trouvait le fichier Link */
+  char current_folder_path[1024];   /* Dossier où se trouvait le File Link */
 
   char *buffer_error;
 
@@ -216,8 +216,8 @@ int my_IsFileExist(char *);
 void bo_memcpy(void *,void *,size_t);
 char *GetFileProperCasePath(char *);
 char **GetFolderFileList(char *,int *,int *);
-unsigned char *LoadTextFileData(char *,int *);
-unsigned char *LoadBinaryFileData(char *,int *);
+unsigned char *LoadTextFileData(char *,size_t *);
+unsigned char *LoadBinaryFileData(char *,size_t *);
 int GetLabelFromLine(char *,int,char *);
 int GetOpcodeFromLine(char *,int,char *);
 void CleanBuffer(char *);

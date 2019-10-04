@@ -3,7 +3,7 @@
 /*  a65816_Line.h : Header pour la gestion des lignes.                 */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 #define LINE_UNKNOWN     0       /* Ligne dont on ne connait pas encore le type / qu'on a rrive pas à décoder */
@@ -57,10 +57,10 @@
 
 struct source_line
 {
-  char *line_data;               /* Ligne telle qu'elle était dans le fichier Source */
+  char *line_data;               /* Ligne telle qu'elle était dans le Source file */
   int line_number;               /* Numéro de la ligne global */
 
-  int file_line_number;          /* Numéro de la ligne dans le fichier */
+  int file_line_number;          /* Numéro de la ligne dans le File */
   struct source_file *file;
 
   int type;                      /* Type de ligne : LINE_COMMENT, LINE_DIRECTIVE, LINE_CODE, LINE_MACRO */
@@ -72,7 +72,7 @@ struct source_line
 
   int was_local_label;           /* Ce label :local a été remplacé par un nom unique */
 
-  int is_inside_macro;           /* Cette ligne de code fait partie d'une déclaration d'une Macro présente dans le fichier Source */
+  int is_inside_macro;           /* Cette ligne de code fait partie d'une déclaration d'une Macro présente dans le Source file */
 
   int is_dum;                    /* Cette ligne est stockée entre 2 DUM - DEND */
   struct source_line *dum_line;  /* Ligne déclarant le DUM */
@@ -93,10 +93,10 @@ struct source_line
   struct macro *macro;           /* Si cette ligne est un appel à une Macro, on pointe vers elle */
 
   int bank;                      /* Bank mémoire de la ligne */
-  int address;                   /* Adresse de la ligne */
+  int address;                   /* Address of the line */
   int is_fix_address;            /* Cette ligne a une adresse fixe (cas des lignes situées dans [ORG $Addr ORG] pour un OMF ou un Single Binary */
   int global_bank;
-  int global_address;            /* Adresse de la ligne si le ORG $Addr n'était pas là (utile pour reloger les adresses situées entre un [ORG $Addr ORG] */
+  int global_address;            /* Address of the line si le ORG $Addr n'était pas là (utile pour reloger les adresses situées entre un [ORG $Addr ORG] */
 
   int nb_byte;                   /* Taille de la ligne : 1 + Operand Size */
   unsigned char opcode_byte;     /* Opcode */
@@ -150,7 +150,7 @@ struct equivalence
   char *name;
   char *value;
 
-  struct source_line *source_line;    /* Si l'équivalence provient du source, on pointe la ligne (elle peut aussi venir des fichiers Macro) */
+  struct source_line *source_line;    /* Si l'équivalence provient du source, on pointe la ligne (elle peut aussi venir des Files Macro) */
 
   struct equivalence *next;
 };
@@ -176,7 +176,7 @@ struct relocate_address
   WORD OffsetReference;       /* Adresse */ 
 
   struct external *external;  /* On fait appel à un Label Externe (NULL si interne) */
-  unsigned char *object_line; /* Adresse de la zone à patcher dans la line (pour les label externes) */
+  unsigned char *object_line; /* Adresse de la zone à patcher dans la line (pour les label external) */
 
   int processed;              /* Déjà traité */
 

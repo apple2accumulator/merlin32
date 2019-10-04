@@ -1,9 +1,9 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Line.c : Module pour la gestion des lignes  .               */
+/*  a65816_Line.c : Module for line management.                        */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 #include <stdio.h>
@@ -22,25 +22,27 @@
 
 char *opcode_list[] = 
 {
-  "ADC","ADCL","AND","ANDL","ASL",
-  "BCC","BLT","BCS","BGE","BEQ","BIT","BMI","BNE","BPL","BRA","BRK","BRL","BVC","BVS",
-  "CLC","CLD","CLI","CLV","CMP","CMPL","COP","CPX","CPY",
-  "DEC","DEX","DEY",
-  "EOR","EORL",
-  "INC","INX","INY",
-  "JMP","JML","JMPL","JSR","JSL",
-  "LDA","LDAL","LDX","LDY","LSR",
-  "MVN","MVP",
-  "NOP",
-  "ORA","ORAL",
-  "PEA","PEI","PER","PHA","PHB","PHD","PHK","PHP","PHX","PHY","PLA","PLB","PLD","PLP","PLX","PLY",
-  "REP","ROL","ROR","RTI","RTL","RTS",
-  "SBC","SBCL","SEC","SED","SEI","SEP","STA","STAL","STP","STX","STY","STZ",
-  "TAX","TAY","TCD","TCS","TDC","TRB","TSB","TSC","TSX","TXA","TXS","TXY","TYA","TYX",
-  "WAI","WDM",
-  "XBA","XCE",
-  NULL
+    "ADC","ADCL","AND","ANDL","ASL",
+    "BCC","BLT","BCS","BGE","BEQ","BIT","BMI","BNE","BPL","BRA","BRK","BRL","BVC","BVS",
+    "CLC","CLD","CLI","CLV","CMP","CMPL","COP","CPX","CPY",
+    "DEC","DEX","DEY",
+    "EOR","EORL",
+    "INC","INX","INY",
+    "JMP","JML","JMPL","JSR","JSL",
+    "LDA","LDAL","LDX","LDY","LSR",
+    "MVN","MVP",
+    "NOP",
+    "ORA","ORAL",
+    "PEA","PEI","PER","PHA","PHB","PHD","PHK","PHP","PHX","PHY","PLA","PLB","PLD","PLP","PLX","PLY",
+    "REP","ROL","ROR","RTI","RTL","RTS",
+    "SBC","SBCL","SEC","SED","SEI","SEP","STA","STAL","STP","STX","STY","STZ",
+    "TAX","TAY","TCD","TCS","TDC","TRB","TSB","TSC","TSX","TXA","TXS","TXY","TYA","TYX",
+    "WAI","WDM",
+    "XBA","XCE",
+    NULL
 };
+
+/* Data operands */
 
 /* DA   : Define Address (2 Bytes) */
 /* DW   : Define Word (2 Bytes) */
@@ -62,3263 +64,3237 @@ char *opcode_list[] =
 
 char *data_list[] = 
 {
-  "DA","DW","DDB","DFB","DB","ADR","ADRL","HEX","DS",
-  "DC","DE",  /* ? */
-  "ASC","DCI","INV","FLS","REV","STR","STRL",
-  "CHK",                                           /* Remplace par 1 Byte de Checksum */
-  NULL
+    "DA","DW","DDB","DFB","DB","ADR","ADRL","HEX","DS",
+    "DC","DE",  /* ? */
+    "ASC","DCI","INV","FLS","REV","STR","STRL",
+    "CHK",                                           /* Remplace par 1 Byte de Checksum */
+    NULL
 };
 
 char *directive_list[] = 
 {
-  "ANOP","ORG","PUT","PUTBIN",         /* PUTBIN n'existe pas dans Merlin 16+ */
-  "START","END",
-  "DUM","DEND",
-  "MX","XC","LONGA","LONGI",
-  "USE","USING",
-  "REL","DSK","LNK","SAV",
-  "TYP",
-  "IF","DO","ELSE","FIN",
-  "LUP","--^",
-  "ERR","DAT",
-  "AST","CYC","EXP","LST","LSTDO","PAG","TTL","SKP","TR","KBD","PAU","SW","USR",   /* On ne fait rien avec ces Directives */
-  NULL
+    "ANOP","ORG","PUT","PUTBIN",         /* PUTBIN n'existe pas dans Merlin 16+ */
+    "START","END",
+    "DUM","DEND",
+    "MX","XC","LONGA","LONGI",
+    "USE","USING",
+    "REL","DSK","LNK","SAV",
+    "TYP",
+    "IF","DO","ELSE","FIN",
+    "LUP","--^",
+    "ERR","DAT",
+    "AST","CYC","EXP","LST","LSTDO","PAG","TTL","SKP","TR","KBD","PAU","SW","USR",   /* On ne fait rien avec ces Directives */
+    NULL
 };
 
 char *equivalence_list[] =    /* Equivalence ou ]Variable */
 {
-  "EQU","=",
-  NULL
+    "EQU","=",
+    NULL
 };
 
-/** Address Mode **
-A          Implicit
-addr2      Absolute
-(addr2,X)  Absolute Indexed,X Indirect    
-addr2,X    Absolute Indexed,X           
-addr2,Y    Absolute Indexed,Y           
-(addr2)    Absolute Indirect            
-[addr2]    Absolute Indirect Long       
-addr3      Absolute Long                
-addr3,X    Absolute Long Indexed,X                         
-dp         Direct Page                  
-dp,X       Direct Page Indexed,X        
-dp,Y       Direct Page Indexed,Y        
-(dp)       Direct Page Indirect         
-[dp]       Direct Page Indirect Long    
-(dp,X)     Direct Page Indexed Indirect,X        
-(dp),Y     Direct Page Indirect Indexed,Y        
-[dp],Y     Direct Page Indirect Long Indexed,Y   
-#const     Immediate                    
-relative1  Program Counter Relative     
-relative2  Program Counter Relative Long
-(sr,S),Y   Stack Relative Indirect Indexed,Y             
-label      Stack PC Relative Long
-sr,S       Stack Relative
-*/
+/* Address Modes
+
+ A          Implicit
+ addr2      Absolute
+ (addr2,X)  Absolute Indexed,X Indirect
+ addr2,X    Absolute Indexed,X
+ addr2,Y    Absolute Indexed,Y
+ (addr2)    Absolute Indirect
+ [addr2]    Absolute Indirect Long
+ addr3      Absolute Long
+ addr3,X    Absolute Long Indexed,X
+ dp         Direct Page
+ dp,X       Direct Page Indexed,X
+ dp,Y       Direct Page Indexed,Y
+ (dp)       Direct Page Indirect
+ [dp]       Direct Page Indirect Long
+ (dp,X)     Direct Page Indexed Indirect,X
+ (dp),Y     Direct Page Indirect Indexed,Y
+ [dp],Y     Direct Page Indirect Long Indexed,Y
+ #const     Immediate
+ relative1  Program Counter Relative
+ relative2  Program Counter Relative Long
+ (sr,S),Y   Stack Relative Indirect Indexed,Y
+ label      Stack PC Relative Long
+ sr,S       Stack Relative
+
+ */
 
 static int IsLocalLabel(char *,struct omf_segment *);
-static int ProcessSourceAsteriskLine(struct source_line *,struct source_line *,struct source_file *,struct omf_segment *);
-static int ProcessMacroAsteriskLine(struct macro_line *,struct macro_line *,struct macro *,struct omf_segment *);
-static int ProcessSourceLineLocalLabel(struct source_line *,struct source_line *,struct omf_segment *);
-static int ProcessMacroLineLocalLabel(struct macro_line *,struct macro_line *,struct macro *,struct omf_segment *);
-static int ProcessSourceLineVariableLabel(struct source_line *,struct source_line *,struct omf_segment *);
-static int ProcessMacroLineVariableLabel(struct macro_line *,struct macro_line *,struct macro *,struct omf_segment *);
-static void AddDateLine(struct source_line *,struct omf_segment *);
+static int ProcessSourceAsteriskLine(struct source_line *,struct source_file *);
+static int ProcessMacroAsteriskLine(struct macro_line *,struct macro *);
+static int ProcessSourceLineLocalLabel(struct source_line *,struct source_line *);
+static int ProcessMacroLineLocalLabel(struct macro_line *,struct macro_line *);
+static int ProcessSourceLineVariableLabel(struct source_line *);
+static int ProcessMacroLineVariableLabel(struct macro_line *,struct macro *);
+static void AddDateLine(struct source_line *);
 
 /****************************************************/
-/*  DecodeLineType() :  Détermine le type de ligne. */
+/*  DecodeLineType() :  Determine the type of line. */
 /****************************************************/
 int DecodeLineType(struct source_line *first_line, struct macro *current_macro, struct omf_segment *current_omfsegment, struct omf_project *current_omfproject)
 {
-  int i, nb_error, nb_label, do_level, do_status, nb_global, found;
-  int64_t value_wdc;
-  char *str_temp;
-  char *new_label;
-  char **tab_label;
-  struct item *current_item;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct source_line *new_line;
-  struct source_line *last_line;
-  struct source_line *do_line;
-  struct source_line *else_line;
-  struct source_line *fin_line;
-  char *new_opcode;
-  struct global *current_global;
-  char opcode[1024];
-  char macro_name[1024];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    int nb_error = 0, nb_label = 0, do_level = 0, do_status = 0, nb_global = 0, found = 0;
+    int64_t value_wdc = 0;
+    char *str_temp = NULL;
+    char *new_label = NULL;
+    char **tab_label = NULL;
+    struct item *current_item = NULL;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct source_line *new_line = NULL;
+    struct source_line *last_line = NULL;
+    struct source_line *do_line = NULL;
+    struct source_line *else_line = NULL;
+    struct source_line *fin_line = NULL;
+    char *new_opcode = NULL;
+    struct global *current_global = NULL;
+    char opcode[1024];
+    char macro_name[1024];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Source file */
+    my_Memory(MEMORY_GET_FILE, &first_file, NULL, current_omfsegment);
 
-  /* Init */
-  nb_error = 0;
-
-  /*** Passe toutes les lignes en revue ***/
-  for(current_line=first_line; current_line; current_line=current_line->next)
+    /*** Pass all lines in to review ***/
+    for(current_line = first_line; current_line; current_line = current_line->next)
     {
-      /* Ligne déjà connue */
-      if(current_line->type != LINE_UNKNOWN)
-        continue;
+        /* Already known the line */
+        if(current_line->type != LINE_UNKNOWN)
+            continue;
 
-      /** Ligne vide **/
-     if(strlen(current_line->label_txt) == 0 && strlen(current_line->opcode_txt) == 0 && strlen(current_line->operand_txt) == 0)
+        /** Empty line **/
+        if(strlen(current_line->label_txt) == 0 && strlen(current_line->opcode_txt) == 0 && strlen(current_line->operand_txt) == 0)
         {
-          current_line->type = LINE_EMPTY;
-          continue;
+            current_line->type = LINE_EMPTY;
+            continue;
         }
-      if(strlen(current_line->label_txt) > 0 && strlen(current_line->opcode_txt) == 0)
+        if(strlen(current_line->label_txt) > 0 && strlen(current_line->opcode_txt) == 0)
         {
-          current_line->type = LINE_EMPTY;
-          continue;
-        }
-
-      /** Ligne ERR Expression dont l'évaluation se fait à la fin **/
-      if(!my_stricmp(current_line->opcode_txt,"ERR") && strlen(current_line->operand_txt))
-        {
-          current_line->type = LINE_CODE;
-          continue;
+            current_line->type = LINE_EMPTY;
+            continue;
         }
 
-      /** Ligne DAT à laquelle ont ajouter la Date sous forme de Texte **/
-      if(!my_stricmp(current_line->opcode_txt,"DAT"))
+        /** ERR line Expression whose evaluation is done at the end **/
+        if(!my_stricmp(current_line->opcode_txt,"ERR") && strlen(current_line->operand_txt))
         {
-          current_line->type = LINE_DIRECTIVE;
-          
-          /* On doit ajouter une ligne de Texte avec la date */
-          if(strlen(current_line->operand_txt) > 0)
-            AddDateLine(current_line,current_omfsegment);
-          continue;
+            current_line->type = LINE_CODE;
+            continue;
+        }
+
+        /** DAT line to which Text has been added as Text **/
+        if(!my_stricmp(current_line->opcode_txt,"DAT"))
+        {
+            current_line->type = LINE_DIRECTIVE;
+
+            /* We must add a line of text with the date */
+            if(strlen(current_line->operand_txt) > 0)
+                AddDateLine(current_line);
+            continue;
         }
         
-      /** Ligne définissant un point d'entrée Global pour les InterSeg **/
-      if(strlen(current_line->label_txt) > 0 && !my_stricmp(current_line->opcode_txt,"ENT"))
+        /** Line Defining a Global Entry Point for InterSegs **/
+        if(strlen(current_line->label_txt) > 0 && !my_stricmp(current_line->opcode_txt,"ENT"))
         {
-          current_line->type = LINE_GLOBAL;
-          continue;
+            current_line->type = LINE_GLOBAL;
+            continue;
         }
 
-      /** Ligne définissant une ou plusieurs entrées Global pour les InterSeg **/
-      if(strlen(current_line->label_txt) == 0 && !my_stricmp(current_line->opcode_txt,"ENT") && strlen(current_line->operand_txt) > 0)
+        /** Line Defining One or More Global Entries for InterSegs **/
+        if(strlen(current_line->label_txt) == 0 && !my_stricmp(current_line->opcode_txt,"ENT") && strlen(current_line->operand_txt) > 0)
         {
-          /* Plusieurs Labels EXT sous la forme Label1,Label2,Label3... => Création de nouvelles lignes */
-          tab_label = BuildUniqueListFromText(current_line->operand_txt,',',&nb_label);
-          if(tab_label == NULL)
+            /* Several EXT Labels in the form Label1, Label2, Label3 ... => Creation of new lines */
+            tab_label = BuildUniqueListFromText(current_line->operand_txt,',',&nb_label);
+            if(tab_label == NULL)
             {
-              /* Error */
-              printf("        => Error : Can't allocate memory to process line.\n");
-              return(1);
+                /* Error */
+                printf("        => Error : Can't allocate memory to process line.\n");
+                return(1);
             }
-                    
-          /* On va conserver ces Labels pour les traiter après le chargement des lignes */
-          for(i=0; i<nb_label; i++)
-            my_Memory(MEMORY_ADD_GLOBAL,tab_label[i],current_line,current_omfsegment);
-          current_line->type = LINE_EMPTY;
-          mem_free_list(nb_label,tab_label);
-          continue;
+
+            /* We will keep these Labels to treat them after loading lines */
+            for(int i=0; i<nb_label; i++)
+                my_Memory(MEMORY_ADD_GLOBAL,tab_label[i],current_line,current_omfsegment);
+            current_line->type = LINE_EMPTY;
+            mem_free_list(nb_label,tab_label);
+            continue;
         }
 
-      /** Ligne définissant un label Externe à ce segment **/
-      if(strlen(current_line->label_txt) > 0 && !my_stricmp(current_line->opcode_txt,"EXT"))
+        /** Line defining an external label at this segment **/
+        if(strlen(current_line->label_txt) > 0 && !my_stricmp(current_line->opcode_txt,"EXT"))
         {
-          current_line->type = LINE_EXTERNAL;
-          continue;
+            current_line->type = LINE_EXTERNAL;
+            continue;
         }
 
-      /** Ligne définissant un|plusieurs label Externe à ce segment **/
-      if(strlen(current_line->label_txt) == 0 && !my_stricmp(current_line->opcode_txt,"EXT") && strlen(current_line->operand_txt) > 0)
+        /** Line defining one | more External label à this segment **/
+        if(strlen(current_line->label_txt) == 0 && !my_stricmp(current_line->opcode_txt,"EXT") && strlen(current_line->operand_txt) > 0)
         {
-          /* On va inverser le Label et l'Operand : EXT Label => Label EXT */
-          if(strchr(current_line->operand_txt,',') == NULL)
+            /* We will reverse the Label and Operand: EXT Label => Label EXT */
+            if(strchr(current_line->operand_txt,',') == NULL)
             {
-              /* Un seul label EXT */
-              str_temp = current_line->label_txt;
-              current_line->label_txt = current_line->operand_txt;
-              current_line->operand_txt = str_temp;
-              current_line->type = LINE_EXTERNAL;
-              continue;
+                /* One EXT label */
+                str_temp = current_line->label_txt;
+                current_line->label_txt = current_line->operand_txt;
+                current_line->operand_txt = str_temp;
+                current_line->type = LINE_EXTERNAL;
+                continue;
             }
-          else
+            else
             {
-              /* Plusieurs Labels EXT sous la forme Label1,Label2,Label3... => Création de nouvelles lignes */
-              tab_label = BuildUniqueListFromText(current_line->operand_txt,',',&nb_label);
-              if(tab_label == NULL)
+                /* Several EXT Labels in the form Label1, Label2, Label3 ... => Creation of new lines */
+                tab_label = BuildUniqueListFromText(current_line->operand_txt,',',&nb_label);
+                if(tab_label == NULL)
                 {
-                  /* Error */
-                  printf("        => Error : Can't allocate memory to process line.\n");
-                  return(1);
+                    /* Error */
+                    printf("        => Error : Can't allocate memory to process line.\n");
+                    return(1);
                 }
-              
-              /* Finalement aucun Label */
-              if(nb_label == 0)
+
+                /* Finally no label */
+                if(nb_label == 0)
                 {
-                  mem_free_list(nb_label,tab_label);
-                  current_line->type = LINE_EMPTY;
-                  continue;
+                    mem_free_list(nb_label,tab_label);
+                    current_line->type = LINE_EMPTY;
+                    continue;
                 }
                 
-              /** On va devoir créer des lignes pour chacun des Labels **/
-              /* Ligne courrante */
-              new_label = strdup(tab_label[0]);
-              if(new_label == NULL)
+                /** We will have to create lines for each of the Labels **/
+                /* Current line */
+                new_label = strdup(tab_label[0]);
+                if(new_label == NULL)
                 {
-                  /* Error */
-                  printf("        => Error : Can't allocate memory to process line.\n");
-                  return(1);
+                    /* Error */
+                    printf("        => Error : Can't allocate memory to process line.\n");
+                    return(1);
                 }
-              free(current_line->label_txt);
-              current_line->label_txt = new_label;
-              strcpy(current_line->operand_txt,"");
-              current_line->type = LINE_EXTERNAL;
-              
-              /* Lignes Suivantes */
-              for(i=1; i<nb_label; i++)
+                free(current_line->label_txt);
+                current_line->label_txt = new_label;
+                strcpy(current_line->operand_txt,"");
+                current_line->type = LINE_EXTERNAL;
+
+                /* Following lines */
+                for(int i=1; i<nb_label; i++)
                 {
-                  /* Nouvelle ligne = Duplique la ligne */
-                  new_line = DuplicateSourceLine(current_line);
-                  if(new_line == NULL)
+                    /* New line = Duplicate line */
+                    new_line = DuplicateSourceLine(current_line);
+                    if(new_line == NULL)
                     {
-                      /* Error */
-                      mem_free_list(nb_label,tab_label);
-                      printf("        => Error : Can't allocate memory to process line.\n");
-                      return(1);
+                        /* Error */
+                        mem_free_list(nb_label,tab_label);
+                        printf("        => Error : Can't allocate memory to process line.\n");
+                        return(1);
                     }
-                  
-                  /* Nouveau Label (on part du fond du tableau) */
-                  new_line->label_txt = strdup(tab_label[nb_label-i]);
-                  if(new_line->label_txt == NULL)
+
+                    /* New Label (from the bottom of the table) */
+                    new_line->label_txt = strdup(tab_label[nb_label-i]);
+                    if(new_line->label_txt == NULL)
                     {
-                      /* Error */
-                      mem_free_sourceline(new_line);
-                      mem_free_list(nb_label,tab_label);
-                      printf("        => Error : Can't allocate memory to process line.\n");
-                      return(1);
+                        /* Error */
+                        mem_free_sourceline(new_line);
+                        mem_free_list(nb_label,tab_label);
+                        printf("        => Error : Can't allocate memory to process line.\n");
+                        return(1);
                     }
                     
-                  /* Attache la ligne */
-                  new_line->next = current_line->next;
-                  current_line->next = new_line;
+                    /* Attach the line */
+                    new_line->next = current_line->next;
+                    current_line->next = new_line;
                 }
-              
-              /* Libération mémoire */
-              mem_free_list(nb_label,tab_label);
-              continue;
+
+                /* Memory release */
+                mem_free_list(nb_label,tab_label);
+                continue;
             }
         }
 
-      /** Identification du type de ligne en utilisant l'opcode **/
-      if(strlen(current_line->opcode_txt) > 0)
+        /** Identification of the type of line using the opcode **/
+        if(strlen(current_line->opcode_txt) > 0)
         {
-          /*** Macro (on place la détection de Macro avant la détection des Opcodes car un WAIT en macro pourrait être interpretté comme un WAI du 65c816) ***/
-          /* Appel via PMC ou >>> */
-          if((!my_stricmp(current_line->opcode_txt,"PMC") || !my_stricmp(current_line->opcode_txt,">>>")) && strlen(current_line->operand_txt) > 0)
+            /*** Macro (Macro detection is set before Opcodes detection because a macro WAIT could be interpreted as a 65c816 WAI) ***/
+            /* Call via PMC or >>> */
+            if((!my_stricmp(current_line->opcode_txt,"PMC") || !my_stricmp(current_line->opcode_txt,">>>")) && strlen(current_line->operand_txt) > 0)
             {
-              /* On va isoler le nom de la macro (car il peut être collé aux paramètres) */
-              strcpy(macro_name,current_line->operand_txt);
-              for(i=0; i<(int)strlen(macro_name); i++)
-                if(macro_name[i] == ',' || macro_name[i] == '.' || macro_name[i] == '/' || macro_name[i] == '-' || macro_name[i] == '(' || macro_name[i] == ' ')
-                  {
-                    macro_name[i] = '\0';
-                    break;
-                  }
-
-              /* Recherche cette Macro */
-              my_Memory(MEMORY_SEARCH_MACRO,macro_name,&current_item,current_omfsegment);
-              if(current_item != NULL)
-                {
-                  current_line->type = LINE_MACRO;
-                  current_line->macro = (struct macro *) current_item;
-                  continue;
-                }
-            }
-          else
-            {
-              /* Appel avec le nom de la macro */
-              my_Memory(MEMORY_SEARCH_MACRO,current_line->opcode_txt,&current_item,current_omfsegment);
-              if(current_item != NULL)
-                {
-                  current_line->type = LINE_MACRO;
-                  current_line->macro = (struct macro *) current_item;
-                  continue;
-                }
-            }
-
-          /*** Opcode ***/
-          if(current_item == NULL)
-            {
-              my_Memory(MEMORY_SEARCH_OPCODE,current_line->opcode_txt,&current_item,current_omfsegment);
-              if(current_item != NULL)
-                {
-                  current_line->type = LINE_CODE;
-                  continue;
-                }
-
-              /*** Opcode avec une lettre derrière : LDA\ ou LDA: (ni D ni L) ***/
-              if(strlen(current_line->opcode_txt) == 4)
-                {
-                  if(toupper(current_line->opcode_txt[3]) != 'L' && toupper(current_line->opcode_txt[3]) != 'D')
+                /* We will isolate the name of the macro (because it can be pasted to the parameters) */
+                strcpy(macro_name,current_line->operand_txt);
+                for(int i=0; i<(int)strlen(macro_name); i++)
+                    if(macro_name[i] == ',' || macro_name[i] == '.' || macro_name[i] == '/' || macro_name[i] == '-' || macro_name[i] == '(' || macro_name[i] == ' ')
                     {
-                      strcpy(opcode,current_line->opcode_txt);
-                      opcode[3] = '\0';
-                      my_Memory(MEMORY_SEARCH_OPCODE,opcode,&current_item,current_omfsegment);
-                      if(current_item != NULL)
+                        macro_name[i] = '\0';
+                        break;
+                    }
+
+                /* Search this Macro */
+                my_Memory(MEMORY_SEARCH_MACRO,macro_name,&current_item,current_omfsegment);
+                if(current_item != NULL)
+                {
+                    current_line->type = LINE_MACRO;
+                    current_line->macro = (struct macro *) current_item;
+                    continue;
+                }
+            }
+            else
+            {
+                /* Call with the name of the macro */
+                my_Memory(MEMORY_SEARCH_MACRO,current_line->opcode_txt,&current_item,current_omfsegment);
+                if(current_item != NULL)
+                {
+                    current_line->type = LINE_MACRO;
+                    current_line->macro = (struct macro *) current_item;
+                    continue;
+                }
+            }
+
+            /*** Opcode ***/
+            if(current_item == NULL)
+            {
+                my_Memory(MEMORY_SEARCH_OPCODE,current_line->opcode_txt,&current_item,current_omfsegment);
+                if(current_item != NULL)
+                {
+                    current_line->type = LINE_CODE;
+                    continue;
+                }
+
+                /*** Opcode with a letter behind: LDA \ or LDA: (neither D nor L) ***/
+                if(strlen(current_line->opcode_txt) == 4)
+                {
+                    if(toupper(current_line->opcode_txt[3]) != 'L' && toupper(current_line->opcode_txt[3]) != 'D')
+                    {
+                        strcpy(opcode,current_line->opcode_txt);
+                        opcode[3] = '\0';
+                        my_Memory(MEMORY_SEARCH_OPCODE,opcode,&current_item,current_omfsegment);
+                        if(current_item != NULL)
                         {
-                          current_line->opcode_txt[3] = '\0';
-                          current_line->type = LINE_CODE;
-                          current_line->no_direct_page = 1;   /* Il y a un caractère derrière l'opcode pour empêcher le Page Direct */
-                          continue;
+                            current_line->opcode_txt[3] = '\0';
+                            current_line->type = LINE_CODE;
+                            current_line->no_direct_page = 1;   /* There is a character behind the opcode to prevent Direct Page */
+                            continue;
                         }
                     }
                 }
             }
 
-          /*** Data ***/
-          if(current_item == NULL)
+            /*** Data ***/
+            if(current_item == NULL)
             {
-              my_Memory(MEMORY_SEARCH_DATA,current_line->opcode_txt,&current_item,current_omfsegment);
-              if(current_item != NULL)
+                my_Memory(MEMORY_SEARCH_DATA,current_line->opcode_txt,&current_item,current_omfsegment);
+                if(current_item != NULL)
                 {
-                  current_line->type = LINE_DATA;
-                  continue;
+                    current_line->type = LINE_DATA;
+                    continue;
                 }
             }
 
-          /*** Directive ***/
-          if(current_item == NULL)
+            /*** Directive ***/
+            if(current_item == NULL)
             {
-              my_Memory(MEMORY_SEARCH_DIRECTIVE,current_line->opcode_txt,&current_item,current_omfsegment);
-              if(current_item != NULL)
+                my_Memory(MEMORY_SEARCH_DIRECTIVE,current_line->opcode_txt,&current_item,current_omfsegment);
+                if(current_item != NULL)
                 {
-                  current_line->type = LINE_DIRECTIVE;
+                    current_line->type = LINE_DIRECTIVE;
 
-                  /* On repère les REL (mais on entiet pas compte si on est sur un project multi-fixed) */
-                  if(!my_stricmp(current_line->opcode_txt,"REL") && current_omfproject->is_multi_fixed != 1)
-                    current_omfsegment->is_relative = 1;
+                    /* We detect the REL (but we do not consider if we are on a multi-fixed project) */
+                    if(!my_stricmp(current_line->opcode_txt,"REL") && current_omfproject->is_multi_fixed != 1)
+                        current_omfsegment->is_relative = 1;
 
-                  continue;
+                    continue;
                 }
             }
 
-          /*** Equivalence ou Variable ***/
-          if(current_item == NULL)
+            /*** Equivalence or Variable ***/
+            if(current_item == NULL)
             {
-              my_Memory(MEMORY_SEARCH_DIREQU,current_line->opcode_txt,&current_item,current_omfsegment);
-              if(current_item != NULL)
+                my_Memory(MEMORY_SEARCH_DIREQU,current_line->opcode_txt,&current_item,current_omfsegment);
+                if(current_item != NULL)
                 {
-                  if(current_line->label_txt[0] == ']')
-                    current_line->type = LINE_VARIABLE;
-                  else
-                    current_line->type = LINE_EQUIVALENCE;
-                  continue;
+                    if(current_line->label_txt[0] == ']')
+                        current_line->type = LINE_VARIABLE;
+                    else
+                        current_line->type = LINE_EQUIVALENCE;
+                    continue;
                 }
             }
         }
 
-      /* Erreur : Ligne toujours inconnue :-( */
-      if(current_line->type == LINE_UNKNOWN)
+        /* Error : Line still unknown :-( */
+        if(current_line->type == LINE_UNKNOWN)
         {
-          if(current_macro != NULL)
-            printf("      => [Error] Unknown Macro line '%s' from Macro file '%s' (line %d), inserted in source file '%s' (line %d).\n",current_line->line_data,current_macro->file_name,current_macro->file_line_number,current_line->file->file_name,current_line->file_line_number);
-          else
-            printf("      => [Error] Unknown line '%s' in source file '%s' (line %d).\n",current_line->line_data,current_line->file->file_name,current_line->file_line_number);          
-          nb_error++;
+            if(current_macro != NULL)
+                printf("      => [Error] Unknown Macro line '%s' from Macro file '%s' (line %d), inserted in source file '%s' (line %d).\n",current_line->line_data,current_macro->file_name,current_macro->file_line_number,current_line->file->file_name,current_line->file_line_number);
+            else
+                printf("      => [Error] Unknown line '%s' in source file '%s' (line %d).\n",current_line->line_data,current_line->file->file_name,current_line->file_line_number);
+            nb_error++;
         }
     }
 
-  /*** On ne fait pas le travail d'analyse des ENT dans les Macro ***/
-  if(current_macro == NULL)
+    /*** We do not do the work of analyzing the ENTs in the Macros ***/
+    if(current_macro == NULL)
     {
-      /********************************************************************/
-      /** Y a t'il des ENT qui ont été déclarées en ENT Label1,Label2... **/
-      /********************************************************************/
-      my_Memory(MEMORY_GET_GLOBAL_NB,&nb_global,NULL,current_omfsegment);
-      for(i=1; i<=nb_global; i++)
+        /** Are there any ENTs that have been declared in ENT Label1, Label2... **/
+        my_Memory(MEMORY_GET_GLOBAL_NB,&nb_global,NULL,current_omfsegment);
+        for(int i=1; i<=nb_global; i++)
         {
-          /* On récupère un Label ENT */
-          my_Memory(MEMORY_GET_GLOBAL,&i,&current_global,current_omfsegment);
-          
-          /* Cherche une ligne avec ce Label */
-          for(found=0,current_line = first_file->first_line; current_line; current_line = current_line->next)
+            /* We have an ENT Label */
+            my_Memory(MEMORY_GET_GLOBAL,&i,&current_global,current_omfsegment);
+
+            /* Look for a line with this Label */
+            for(found=0,current_line = first_file->first_line; current_line; current_line = current_line->next)
             {
-              if(!strcmp(current_line->label_txt,current_global->name) && current_line->type == LINE_GLOBAL)
+                if(!strcmp(current_line->label_txt,current_global->name) && current_line->type == LINE_GLOBAL)
                 {
-                  /* On a déjà le ENT sur la ligne du label => rien à faire */
-                  found = 1;
-                  break;
+                    /* We already have the ENT on the line of the label => nothing to do */
+                    found = 1;
+                    break;
                 }
-              else if(!strcmp(current_line->label_txt,current_global->name))
+                else if(!strcmp(current_line->label_txt,current_global->name))
                 {
-                  /* On crée une ligne ENT avec le label */
-                  new_line = DuplicateSourceLine(current_line);
-                  if(new_line == NULL)
+                    /* We create a line ENT with the label */
+                    new_line = DuplicateSourceLine(current_line);
+                    if(new_line == NULL)
                     {
-                      sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_line->file_line_number,current_line->file->file_path);
-                      my_RaiseError(ERROR_RAISE,param->buffer_error);
+                        sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_line->file_line_number,current_line->file->file_path);
+                        my_RaiseError(ERROR_RAISE,param->buffer_error);
                     }
-                  new_opcode = strdup("ENT");
-                  if(new_opcode == NULL)
+                    new_opcode = strdup("ENT");
+                    if(new_opcode == NULL)
                     {
-                      mem_free_sourceline(new_line);
-                      sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_line->file_line_number,current_line->file->file_path);
-                      my_RaiseError(ERROR_RAISE,param->buffer_error);
+                        mem_free_sourceline(new_line);
+                        sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_line->file_line_number,current_line->file->file_path);
+                        my_RaiseError(ERROR_RAISE,param->buffer_error);
                     }
-                   
-                  /* Modifie les valeurs */
-                  strcpy(current_line->operand_txt,"");    /* On vide l'Operande de la ligne ENT */
-                  free(current_line->opcode_txt);
-                  current_line->opcode_txt = new_opcode;   /* Le nouvel Opcode est ENT */
-                  current_line->type = LINE_GLOBAL;        /* Cette ligne est désormais une GLOBAL */
-                  strcpy(new_line->label_txt,"");          /* On vide le label pour éviter les doublons */
-                
-                  /* Attache la nouvelle ligne */
-                  new_line->next = current_line->next;
-                  current_line->next = new_line;
-                
-                  /* Label ENT traité */
-                  found = 1;
-                  break;
+
+                    /* Change values */
+                    strcpy(current_line->operand_txt,"");    /* We empty the Operand of the ENT line */
+                    free(current_line->opcode_txt);
+                    current_line->opcode_txt = new_opcode;   /* The new Opcode is ENT */
+                    current_line->type = LINE_GLOBAL;        /* This line is now a GLOBAL */
+                    strcpy(new_line->label_txt,"");          /* We empty the label to avoid duplicates */
+
+                    /* Attach the new line */
+                    new_line->next = current_line->next;
+                    current_line->next = new_line;
+
+                    /* ENT label treated */
+                    found = 1;
+                    break;
                 }
             }
-                        
-          /* On a pas trouvé de ligne avec ce Label => on la place au niveau du ENT Label1,Label2... */
-          if(found == 0)
+
+            /* We did not find a line with this Label => we place it at the level of ENT Label1, Label2... */
+            if(found == 0)
             {
-              /* On crée une ligne ENT avec le label en la placant apreès la ligne ENT Label1,Label2...*/
-              new_line = DuplicateSourceLine(current_global->source_line);
-              if(new_line == NULL)
+                /* We create a line ENT with the label by placing it after the line ENT Label1, Label2...*/
+                new_line = DuplicateSourceLine(current_global->source_line);
+                if(new_line == NULL)
                 {
-                  sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_global->source_line->file_line_number,current_global->source_line->file->file_path);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_global->source_line->file_line_number,current_global->source_line->file->file_path);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
-              new_label = strdup(current_global->name);
-              if(new_label == NULL)
+                new_label = strdup(current_global->name);
+                if(new_label == NULL)
                 {
-                  mem_free_sourceline(new_line);
-                  sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_global->source_line->file_line_number,current_global->source_line->file->file_path);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    mem_free_sourceline(new_line);
+                    sprintf(param->buffer_error,"Impossible to allocate memory to Duplicate Line %d in Source file '%s'",current_global->source_line->file_line_number,current_global->source_line->file->file_path);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
-                    
-              /* Modifie les valeurs */
-              strcpy(new_line->operand_txt,"");      /* On vide l'Operande de la ligne ENT */
-              free(new_line->label_txt);
-              new_line->label_txt = new_label;       /* Place le Label */
-              new_line->type = LINE_GLOBAL;          /* Cette ligne est désormais une GLOBAL */
-            
-              /* Attache la nouvelle ligne en dessous */
-              new_line->next = current_global->source_line->next;
-              current_global->source_line->next = new_line;          
+
+                /* Change values */
+                strcpy(new_line->operand_txt,"");      /* We empty the Operand of the ENT line */
+                free(new_line->label_txt);
+                new_line->label_txt = new_label;       /* Place the Label */
+                new_line->type = LINE_GLOBAL;          /* This line is now a GLOBAL */
+
+                /* Attach the new line below */
+                new_line->next = current_global->source_line->next;
+                current_global->source_line->next = new_line;
             }
         }
     }
     
-  /*** On ne fait pas le travail d'analyse des DO dans les Macro ***/
-  if(current_macro == NULL)
+    /*** We do not do the work of analysis of the DOs in Macro ***/
+    if(current_macro == NULL)
     {
-      /************************************************************************************/
-      /*** 1ère passe pour marquer les niveaux des DO-ELSE-FIN et valider l'imbrication ***/
-      /************************************************************************************/
-      do_level = 0;
-      for(current_line=first_line; current_line; current_line=current_line->next)
+        /************************************************************************************/
+        /*** 1st pass to mark the levels of the DO-ELSE-FIN and validate the nesting      ***/
+        /************************************************************************************/
+        do_level = 0;
+        for(current_line=first_line; current_line; current_line=current_line->next)
         {
-          /* On conserve la dernière ligne du fichier pour le message d'erreur */
-          last_line = current_line;
-          
-          /* Ligne définissant une nouvelle condition DO-FIN */
-          if(current_line->type == LINE_DIRECTIVE && (!my_stricmp(current_line->opcode_txt,"DO") || !my_stricmp(current_line->opcode_txt,"IF")))
+            /* We keep the last line of the file for the Error message */
+            last_line = current_line;
+
+            /* Line defining a new DO-FIN condition */
+            if(current_line->type == LINE_DIRECTIVE && (!my_stricmp(current_line->opcode_txt,"DO") || !my_stricmp(current_line->opcode_txt,"IF")))
             {
-              do_level++;
-              current_line->do_level = do_level;
-              continue;
+                do_level++;
+                current_line->do_level = do_level;
+                continue;
             }
 
-          /* Ligne définissant l'inversion d'une condition DO-ELSE_FIN */
-          if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"ELSE"))
+            /* Line defining the inversion of a condition DO-ELSE_FIN */
+            if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"ELSE"))
             {
-              current_line->do_level = do_level;
-              if(do_level == 0)
+                current_line->do_level = do_level;
+                if(do_level == 0)
                 {
-                  printf("      => [Error] ELSE directive found in source file '%s' at line %d doesn't match with a previous (missing) DO or IF.\n",current_line->file->file_name,current_line->file_line_number);
-                  return(1);            
+                    printf("      => [Error] ELSE directive found in source file '%s' at line %d doesn't match with a previous (missing) DO or IF.\n",current_line->file->file_name,current_line->file_line_number);
+                    return(1);
                 }
-              continue;        
+                continue;
             }
-                    
-          /* Ligne définissant la fin d'un DO-FIN */
-          if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"FIN"))
+
+            /* Line defining the end of a DO-FIN */
+            if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"FIN"))
             {
-              current_line->do_level = do_level;
-              do_level--;
-              if(do_level < 0)
+                current_line->do_level = do_level;
+                do_level--;
+                if(do_level < 0)
                 {
-                  printf("      => [Error] FIN directive found in source file '%s' at line %d doesn't match with a previous (missing) DO or IF.\n",current_line->file->file_name,current_line->file_line_number);
-                  return(1);
+                    printf("      => [Error] FIN directive found in source file '%s' at line %d doesn't match with a previous (missing) DO or IF.\n",current_line->file->file_name,current_line->file_line_number);
+                    return(1);
                 }
-              continue;
+                continue;
             }
-        
-          /* Ligne normale */
-          current_line->do_level = do_level;
-        }
-      if(do_level > 0) 
-        {
-          printf("      => [Error] Missing FIN directive in source file '%s' (due to previous usage of a DO or IF directive).\n",last_line->file->file_name);
-          return(1);
+
+            /* Normal line */
+            current_line->do_level = do_level;
         }
 
-      /***********************************************************************************/
-      /*** 2ème passe pour évaluer les conditions DO et invalider les lignes du source ***/
-      /***********************************************************************************/
-      for(do_line=first_line; do_line; do_line=do_line->next)
-        {             
-          /* Ligne définissant une première condition DO */
-          if(do_line->type == LINE_DIRECTIVE && !my_stricmp(do_line->opcode_txt,"DO"))
+        if(do_level > 0)
+        {
+            printf("      => [Error] Missing FIN directive in source file '%s' (due to previous usage of a DO or IF directive).\n",last_line->file->file_name);
+            return(1);
+        }
+
+        /*************************************************************************************/
+        /*** 2nd pass to evaluate the conditions DO and invalidate the lines of the source ***/
+        /*************************************************************************************/
+        for(do_line=first_line; do_line; do_line=do_line->next)
+        {
+            /* Line defining a first condition DO */
+            if(do_line->type == LINE_DIRECTIVE && !my_stricmp(do_line->opcode_txt,"DO"))
             {
-              /* Evaluation de la condition */
-              do_status = QuickConditionEvaluate(do_line,&value_wdc,current_omfsegment);
-              
-              /* Cherche la ligne FIN */
-              for(fin_line=do_line; fin_line; fin_line=fin_line->next)
-                if(fin_line->type == LINE_DIRECTIVE && !my_stricmp(fin_line->opcode_txt,"FIN") && do_line->do_level == fin_line->do_level)
-                  break;
-              
-              /* Cherche une éventuelle ligne ELSE */
-              for(else_line=do_line; else_line!=fin_line; else_line=else_line->next)
-                if(else_line->type == LINE_DIRECTIVE && !my_stricmp(else_line->opcode_txt,"ELSE") && do_line->do_level == else_line->do_level)
-                  break;
-              if(else_line == fin_line)
-                else_line = NULL;
+                /* Assessment of the condition */
+                do_status = QuickConditionEvaluate(do_line,&value_wdc,current_omfsegment);
+
+                /* Look for FIN line */
+                for(fin_line=do_line; fin_line; fin_line=fin_line->next)
+                    if(fin_line->type == LINE_DIRECTIVE && !my_stricmp(fin_line->opcode_txt,"FIN") && do_line->do_level == fin_line->do_level)
+                        break;
+
+                /* Look for a possible ELSE line */
+                for(else_line=do_line; else_line!=fin_line; else_line=else_line->next)
+                    if(else_line->type == LINE_DIRECTIVE && !my_stricmp(else_line->opcode_txt,"ELSE") && do_line->do_level == else_line->do_level)
+                        break;
+                if(else_line == fin_line)
+                    else_line = NULL;
                 
-              /** On invalide DO - ELSE/FIN **/
-              if(do_status == STATUS_DONT)
+                /** On invalid DO - ELSE / FIN **/
+                if(do_status == STATUS_DONT)
                 {
-                  for(current_line=do_line->next; current_line!=((else_line!=NULL)?else_line:fin_line); current_line=current_line->next)
-                    current_line->is_valid = 0;
+                    for(current_line=do_line->next; current_line!=((else_line!=NULL)?else_line:fin_line); current_line=current_line->next)
+                        current_line->is_valid = 0;
                 }
-              /** On invalide ELSE - FIN **/
-              else if(do_status == STATUS_DO && else_line != NULL)
+                /** On invalid ELSE / FIN **/
+                else if(do_status == STATUS_DO && else_line != NULL)
                 {
-                  for(current_line=else_line->next; current_line!=fin_line; current_line=current_line->next)
-                    current_line->is_valid = 0;            
+                    for(current_line=else_line->next; current_line!=fin_line; current_line=current_line->next)
+                        current_line->is_valid = 0;
                 }
                 
-              /** On ne sait pas : On continue à partie du FIN **/
-              do_line = fin_line;
+                /** We do not know: We're still part of FIN **/
+                do_line = fin_line;
             }
         }
     }
     
-  /* Renvoie le nombre d'erreur */
-  return(nb_error);
+    /* Returns the number of Error */
+    return(nb_error);
 }
 
 
-/****************************************************************************************/
-/*  ProcessAllAsteriskLine() :  Remplace les '*' dans les lignes de Code et les Macros. */
-/****************************************************************************************/
+/***********************************************************************/
+/*  ProcessAllAsteriskLine() :  Replaces '*' in Code Lines and Macros. */
+/***********************************************************************/
 int ProcessAllAsteriskLine(struct omf_segment *current_omfsegment)
 {
-  int i, error, nb_macro;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct source_line *last_line = NULL;
-  struct macro *current_macro;
+    int i, error, nb_macro;
+    struct source_file *first_file;
+    struct source_line *current_line;
+    struct source_line *last_line = NULL;
+    struct macro *current_macro;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** On traite les lignes du Source **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
-    if(current_line->next == NULL)
-      last_line = current_line;
-  error = ProcessSourceAsteriskLine(first_file->first_line,last_line,first_file,current_omfsegment);
-  if(error)
-    return(1);
-
-  /** On traite les Macros **/
-  my_Memory(MEMORY_GET_MACRO_NB,&nb_macro,NULL,current_omfsegment);
-  for(i=1; i<=nb_macro; i++)
-    {
-      my_Memory(MEMORY_GET_MACRO,&i,&current_macro,current_omfsegment);
-
-      /** Traite les lignes de cette Macro **/
-      error = ProcessMacroAsteriskLine(current_macro->first_line,current_macro->last_line,current_macro,current_omfsegment);
-      if(error)
+    /** Process the lines in the Source file **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+        if(current_line->next == NULL)
+            last_line = current_line;
+    error = ProcessSourceAsteriskLine(first_file->first_line,first_file);
+    if(error)
         return(1);
+
+    /** Process the Macros **/
+    my_Memory(MEMORY_GET_MACRO_NB,&nb_macro,NULL,current_omfsegment);
+    for(i=1; i<=nb_macro; i++)
+    {
+        my_Memory(MEMORY_GET_MACRO,&i,&current_macro,current_omfsegment);
+
+        /** Process the lines of this Macro **/
+        error = ProcessMacroAsteriskLine(current_macro->first_line,current_macro);
+        if(error)
+            return(1);
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*****************************************************************************/
-/*  ProcessSourceAsteriskLine() :  Remplace les '*' dans les lignes de Code. */
-/*****************************************************************************/
-static int ProcessSourceAsteriskLine(struct source_line *first_line, struct source_line *last_line, struct source_file *first_file, struct omf_segment *current_omfsegment)
+/************************************************************************/
+/*  ProcessSourceAsteriskLine() :  Replace the '*' in the line of Code. */
+/************************************************************************/
+static int ProcessSourceAsteriskLine(struct source_line *first_line, struct source_file *first_file)
 {
-  int use_address;
-  struct source_line *previous_line;  
-  struct source_line *current_line;
-  struct source_line *new_line;
-  char label_name[1024];  
-  char buffer_error[1024];
+    int use_address = 0;
+    struct source_line *previous_line = NULL;
+    struct source_line *current_line = NULL;
+    struct source_line *new_line = NULL;
+    char label_name[1024];
+    char buffer_error[1024];
 
-  /*** Passe toutes les lignes en revue ***/
-  for(previous_line=NULL, current_line=first_line; current_line; previous_line=current_line, current_line=current_line->next)
+    /*** Pass all lines in to review ***/
+    for(previous_line=NULL, current_line=first_line; current_line; previous_line=current_line, current_line=current_line->next)
     {
-      /* On ne traite pas les commentaires */
-      if(current_line->type == LINE_EMPTY || current_line->type == LINE_COMMENT || current_line->type == LINE_GLOBAL || current_line->is_valid == 0)
-        continue;
-
-      /** Cas particulier des ]Label = * ou des Label = * **/        
-      if(strlen(current_line->label_txt) > 0 && !strcmp(current_line->opcode_txt,"=") && !strcmp(current_line->operand_txt,"*"))
-        {
-          /* On convertit cette ligne en ligne vide */
-          strcpy(current_line->opcode_txt,"");
-          strcpy(current_line->operand_txt,"");
-          current_line->type = LINE_EMPTY;
-          continue;
-        }
-
-      /** On ne cherche que dans l'Operande **/
-      if(strchr(current_line->operand_txt,'*') != NULL)
-        {
-          /** Peut t'on détecter un * utilisé comme valeur ? **/
-          use_address = UseCurrentAddress(current_line->operand_txt,&buffer_error[0],current_line);
-          if(strlen(buffer_error) > 0)
-            {
-              printf("    Error : Impossible to analyze Operand '%s' in source file '%s' (line %d) : %s.\n",
-                     current_line->operand_txt,current_line->file->file_name,current_line->file_line_number,buffer_error);
-              return(1);
-            }
-          if(use_address == 0)
+        /* We do not treat comments */
+        if(current_line->type == LINE_EMPTY || current_line->type == LINE_COMMENT || current_line->type == LINE_GLOBAL || current_line->is_valid == 0)
             continue;
 
-          /** On va remplacer le * par un label unique **/
-          /* Création d'un Label unique ANOP */
-          GetUNID(&label_name[0]);
-
-          /** Création d'un Ligne vide ANOP avec le label **/
-          new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
-          if(new_line == NULL)
-            {
-              printf("    Error : Impossible to allocate memory to create new Empty line.\n");
-              return(1);
-            }
-          new_line->file = current_line->file;
-          new_line->file_line_number = current_line->file_line_number;
-          new_line->line_number = current_line->line_number;
-          new_line->is_in_source = 1;
-          new_line->is_valid = 1;
-          strcpy(new_line->reloc,"         ");
-          new_line->label_txt = strdup(label_name);
-          new_line->opcode_txt = strdup("");
-          new_line->operand_txt = strdup("");
-          new_line->comment_txt = strdup("");
-          strcpy(new_line->m,current_line->m);
-          strcpy(new_line->x,current_line->x);
-          new_line->address = current_line->address;
-          new_line->operand_value = current_line->operand_value;
-          new_line->operand_address_long = current_line->operand_address_long;
-          new_line->bank = current_line->bank;
-          new_line->type_aux = current_line->type_aux;        /* On conserve l'information d'inclusion dans le corps d'une Macro */
-          new_line->is_inside_macro = current_line->is_inside_macro;
-          if(new_line->label_txt == NULL || new_line->opcode_txt == NULL || new_line->operand_txt == NULL || new_line->comment_txt == NULL)
-            {
-              printf("    Error : Impossible to allocate memory to populate new Empty line.\n");
-              mem_free_sourceline(new_line);
-              return(1);
-            }
-          new_line->type = LINE_EMPTY;
-          
-          /* Attachement de la ligne au dessus */
-          new_line->next = current_line;
-          if(previous_line == NULL)
-            first_file->first_line = new_line;
-          else
-            previous_line->next = new_line;
-            
-          /** Remplace le * par un Label unique **/
-          ReplaceCurrentAddressInOperand(&current_line->operand_txt,label_name,&buffer_error[0],current_line);
-          if(strlen(buffer_error) > 0)
-            {
-              printf("    Error : Impossible to replace '*' in Operand '%s' in source file '%s' (line %d) : %s.\n",
-                     current_line->operand_txt,current_line->file->file_name,current_line->file_line_number,buffer_error);
-              return(1);
-            }
-        }
-    }
-
-  /* OK */
-  return(0);
-}
-
-
-/******************************************************************************/
-/*  ProcessMacroAsteriskLine() :  Remplace les '*' dans les lignes des Macro. */
-/******************************************************************************/
-static int ProcessMacroAsteriskLine(struct macro_line *first_line, struct macro_line *last_line, struct macro *current_macro, struct omf_segment *current_omfsegment)
-{
-  int use_address;
-  struct macro_line *previous_line;  
-  struct macro_line *current_line;
-  struct macro_line *new_line;
-  char label_name[1024];  
-  char buffer_error[1024];
-
-  /*** Passe toutes les lignes en revue ***/
-  for(previous_line=NULL, current_line=first_line; current_line; previous_line=current_line, current_line=current_line->next)
-    {
-      /** Cas particulier des ]Label = * ou des Label = * **/        
-      if(strlen(current_line->label) > 0 && !strcmp(current_line->opcode,"=") && !strcmp(current_line->operand,"*"))
+        /** Special case of ]Label = * or Label = * **/
+        if(strlen(current_line->label_txt) > 0 && !strcmp(current_line->opcode_txt,"=") && !strcmp(current_line->operand_txt,"*"))
         {
-          /* On convertit cette ligne en ligne vide */
-          strcpy(current_line->opcode,"");
-          strcpy(current_line->operand,"");
-          continue;
-        }
-
-      /** On ne cherche quand dans l'Operande **/
-      if(strchr(current_line->operand,'*') != NULL)
-        {
-          /** Peut t'on détecter un * utilisé comme valeur ? **/
-          use_address = UseCurrentAddress(current_line->operand,&buffer_error[0],NULL);
-          if(strlen(buffer_error) > 0)
-            {
-              printf("    Error : Impossible to analyze Operand '%s' in Macro '%s' : %s.\n",
-                     current_line->operand,current_macro->name,buffer_error);
-              return(1);
-            }
-          if(use_address == 0)
+            /* We convert this line to Empty line */
+            strcpy(current_line->opcode_txt,"");
+            strcpy(current_line->operand_txt,"");
+            current_line->type = LINE_EMPTY;
             continue;
+        }
 
-          /** On va remplacer le * par un label unique **/
-          /* Création d'un Label unique ANOP */
-          GetUNID(&label_name[0]);
+        /** We search only in the Operand **/
+        if(strchr(current_line->operand_txt,'*') != NULL)
+        {
+            /** Detected a * used as a value? **/
+            use_address = UseCurrentAddress(current_line->operand_txt,&buffer_error[0],current_line);
+            if(strlen(buffer_error) > 0)
+            {
+                printf("    Error : Impossible to analyze Operand '%s' in source file '%s' (line %d) : %s.\n",
+                       current_line->operand_txt,current_line->file->file_name,current_line->file_line_number,buffer_error);
+                return(1);
+            }
+            if(use_address == 0)
+                continue;
 
-          /** Création d'un Ligne vide ANOP avec le label **/
-          new_line = (struct macro_line *) calloc(1,sizeof(struct macro_line));
-          if(new_line == NULL)
+            /** We will replace the * with a unique label **/
+            /* Creation of a unique ANOP label */
+            GetUNID(&label_name[0]);
+
+            /** Creation of an Empty line ANOP with the label **/
+            new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
+            if(new_line == NULL)
             {
-              printf("    Error : Impossible to allocate memory to create new Empty Macro line.\n");
-              return(1);
+                printf("    Error : Impossible to allocate memory to create new Empty line.\n");
+                return(1);
             }
-          new_line->label = strdup(label_name);
-          new_line->opcode = strdup("");
-          new_line->operand = strdup("");
-          new_line->comment = strdup("");
-          if(new_line->label == NULL || new_line->opcode == NULL || new_line->operand == NULL || new_line->comment == NULL)
+            new_line->file = current_line->file;
+            new_line->file_line_number = current_line->file_line_number;
+            new_line->line_number = current_line->line_number;
+            new_line->is_in_source = 1;
+            new_line->is_valid = 1;
+            strcpy(new_line->reloc,"         ");
+            new_line->label_txt = strdup(label_name);
+            new_line->opcode_txt = strdup("");
+            new_line->operand_txt = strdup("");
+            new_line->comment_txt = strdup("");
+            strcpy(new_line->m,current_line->m);
+            strcpy(new_line->x,current_line->x);
+            new_line->address = current_line->address;
+            new_line->operand_value = current_line->operand_value;
+            new_line->operand_address_long = current_line->operand_address_long;
+            new_line->bank = current_line->bank;
+            new_line->type_aux = current_line->type_aux;        /* We keep the inclusion information in the body of a Macro */
+            new_line->is_inside_macro = current_line->is_inside_macro;
+            if(new_line->label_txt == NULL || new_line->opcode_txt == NULL || new_line->operand_txt == NULL || new_line->comment_txt == NULL)
             {
-              printf("    Error : Impossible to allocate memory to populate new Empty Macro line.\n");
-              mem_free_macroline(new_line);
-              return(1);
+                printf("    Error : Impossible to allocate memory to populate new Empty line.\n");
+                mem_free_sourceline(new_line);
+                return(1);
             }
-          
-          /* Attachement de la ligne au dessus */
-          new_line->next = current_line;
-          if(previous_line == NULL)
-            current_macro->first_line = new_line;
-          else
-            previous_line->next = new_line;
+            new_line->type = LINE_EMPTY;
+
+            /* Attachment of the line above */
+            new_line->next = current_line;
+            if(previous_line == NULL)
+                first_file->first_line = new_line;
+            else
+                previous_line->next = new_line;
             
-          /** Remplace le * par un Label unique **/
-          ReplaceCurrentAddressInOperand(&current_line->operand,label_name,&buffer_error[0],NULL);
-          if(strlen(buffer_error) > 0)
+            /** Replaces the * with a unique label **/
+            ReplaceCurrentAddressInOperand(&current_line->operand_txt,label_name,&buffer_error[0],current_line);
+            if(strlen(buffer_error) > 0)
             {
-              printf("    Error : Impossible to replace '*' in Operand '%s' in Macro '%s' : %s.\n",
-                     current_line->operand,current_macro->name,buffer_error);
-              return(1);
+                printf("    Error : Impossible to replace '*' in Operand '%s' in source file '%s' (line %d) : %s.\n",
+                       current_line->operand_txt,current_line->file->file_name,current_line->file_line_number,buffer_error);
+                return(1);
             }
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*************************************************************/
-/*  BuildLabelTable() :  Construction des tables des Labels. */
-/*************************************************************/
+/**************************************************************/
+/*  ProcessMacroAsteriskLine() :  Replace '*' in Macro lines. */
+/**************************************************************/
+static int ProcessMacroAsteriskLine(struct macro_line *first_line, struct macro *current_macro)
+{
+    int use_address = 0;
+    struct macro_line *previous_line = NULL;
+    struct macro_line *current_line = NULL;
+    struct macro_line *new_line = NULL;
+    char label_name[1024];
+    char buffer_error[1024];
+
+    /*** Pass all lines in to review ***/
+    for(previous_line=NULL, current_line=first_line; current_line; previous_line=current_line, current_line=current_line->next)
+    {
+        /** Special case of ]Label = * or Label = * **/
+        if(strlen(current_line->label) > 0 && !strcmp(current_line->opcode,"=") && !strcmp(current_line->operand,"*"))
+        {
+            /* We convert this line to Empty line */
+            strcpy(current_line->opcode,"");
+            strcpy(current_line->operand,"");
+            continue;
+        }
+
+        /** We do not look when in the Operand **/
+        if(strchr(current_line->operand,'*') != NULL)
+        {
+            /** Detected * used as a value? **/
+            use_address = UseCurrentAddress(current_line->operand,&buffer_error[0],NULL);
+            if(strlen(buffer_error) > 0)
+            {
+                printf("    Error : Impossible to analyze Operand '%s' in Macro '%s' : %s.\n",
+                       current_line->operand,current_macro->name,buffer_error);
+                return(1);
+            }
+            if(use_address == 0)
+                continue;
+
+            /** We will replace the * with a unique label **/
+            /* Creation of a unique ANOP label */
+            GetUNID(&label_name[0]);
+
+            /** Creation of an Empty line ANOP with the label **/
+            new_line = (struct macro_line *) calloc(1,sizeof(struct macro_line));
+            if(new_line == NULL)
+            {
+                printf("    Error : Impossible to allocate memory to create new Empty Macro line.\n");
+                return(1);
+            }
+            new_line->label = strdup(label_name);
+            new_line->opcode = strdup("");
+            new_line->operand = strdup("");
+            new_line->comment = strdup("");
+            if(new_line->label == NULL || new_line->opcode == NULL || new_line->operand == NULL || new_line->comment == NULL)
+            {
+                printf("    Error : Impossible to allocate memory to populate new Empty Macro line.\n");
+                mem_free_macroline(new_line);
+                return(1);
+            }
+
+            /* Attachment of the line above */
+            new_line->next = current_line;
+            if(previous_line == NULL)
+                current_macro->first_line = new_line;
+            else
+                previous_line->next = new_line;
+            
+            /** Replaces the * with a unique label **/
+            ReplaceCurrentAddressInOperand(&current_line->operand,label_name,&buffer_error[0],NULL);
+            if(strlen(buffer_error) > 0)
+            {
+                printf("    Error : Impossible to replace '*' in Operand '%s' in Macro '%s' : %s.\n",
+                       current_line->operand,current_macro->name,buffer_error);
+                return(1);
+            }
+        }
+    }
+
+    /* OK */
+    return(0);
+}
+
+
+/********************************************************/
+/*  BuildLabelTable() :  Construction of Labels tables. */
+/********************************************************/
 int BuildLabelTable(struct omf_segment *current_omfsegment)
 {
-  struct label *current_label;
-  struct source_line *current_line;
-  struct source_file *first_file;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct label *current_label = NULL;
+    struct source_line *current_line = NULL;
+    struct source_file *first_file = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On ne prend que le lignes avec label */
-      if(strlen(current_line->label_txt) == 0)
-        continue;
+        /* We only take the lines with label */
+        if(strlen(current_line->label_txt) == 0)
+            continue;
 
-      /* On ne prend pas les Label locaux ou les Variables */
-      if(current_line->label_txt[0] == ':' || current_line->label_txt[0] == ']')
-        continue;
+        /* We do not take local labels or variables */
+        if(current_line->label_txt[0] == ':' || current_line->label_txt[0] == ']')
+            continue;
 
-      /* On ne prend pas les Equivalence */
-      if(current_line->type == LINE_EQUIVALENCE)
-        continue;
+        /* We do not take Equivalence */
+        if(current_line->type == LINE_EQUIVALENCE)
+            continue;
 
-      /* On ne prend pas les External */
-      if(current_line->type == LINE_EXTERNAL)
-        continue;
+        /* We do not take the External */
+        if(current_line->type == LINE_EXTERNAL)
+            continue;
 
-      /* On ne prend pas les Label dans les Macro */
-      if(current_line->type == LINE_DIRECTIVE && current_line->type_aux == LINE_MACRO_DEF)
-        continue;
-      if(current_line->is_inside_macro == 1)
-        continue;
+        /* We do not take Label in Macro */
+        if(current_line->type == LINE_DIRECTIVE && current_line->type_aux == LINE_MACRO_DEF)
+            continue;
+        if(current_line->is_inside_macro == 1)
+            continue;
 
-      /* On ne prend pas les Labels dans les LUP */
-      if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"LUP"))
-        continue;
-      if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"--^"))
-        continue;
+        /* We do not take Labels in LUP */
+        if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"LUP"))
+            continue;
+        if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"--^"))
+            continue;
 
-      /** Allocation de la structure Label **/
-      current_label = (struct label *) calloc(1,sizeof(struct label));
-      if(current_label == NULL)
-        my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure label");
-      current_label->name = strdup(current_line->label_txt);
-      if(current_label->name == NULL)
+        /** Allocation of the Label structure **/
+        current_label = (struct label *) calloc(1,sizeof(struct label));
+        if(current_label == NULL)
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure label");
+        current_label->name = strdup(current_line->label_txt);
+        if(current_label->name == NULL)
         {
-          free(current_label);
-          my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure label");
+            free(current_label);
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure label");
         }
-      current_label->line = current_line;
+        current_label->line = current_line;
 
-      /* Un label Global est un label comme un autre */
-      if(current_line->type == LINE_GLOBAL)
-        current_label->is_global = 1;
+        /* A Global label is a label like any other */
+        if(current_line->type == LINE_GLOBAL)
+            current_label->is_global = 1;
 
-      /* Déclaration de la structure */
-      my_Memory(MEMORY_ADD_LABEL,current_label,NULL,current_omfsegment);
+        /* Create the structure */
+        my_Memory(MEMORY_ADD_LABEL,current_label,NULL,current_omfsegment);
     }
 
-  /* Tri les Labels */
-  my_Memory(MEMORY_SORT_LABEL,NULL,NULL,current_omfsegment);
+    /* Sort Labels */
+    my_Memory(MEMORY_SORT_LABEL,NULL,NULL,current_omfsegment);
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/************************************************************************/
-/*  BuildEquivalenceTable() :  Construction des tables des Equivalence. */
-/************************************************************************/
+/*******************************************************************/
+/*  BuildEquivalenceTable() :  Construction of Equivalence tables. */
+/*******************************************************************/
 int BuildEquivalenceTable(struct omf_segment *current_omfsegment)
 {
-  int i, j, nb_equivalence, nb_element, modified, nb_modified;
-  struct equivalence *current_equivalence;
-  struct equivalence *replace_equivalence;
-  struct source_line *current_line;
-  struct source_file *first_file;
-  char *new_value;
-  char **tab_element;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    int nb_equivalence = 0, nb_element = 0, modified = 0, nb_modified = 0;
+    struct equivalence *current_equivalence = NULL;
+    struct equivalence *replace_equivalence = NULL;
+    struct source_line *current_line = NULL;
+    struct source_file *first_file = NULL;
+    char *new_value = NULL;
+    char **tab_element = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes en revue (certaines equivalences provenant des fichiers macro sont déjà enregistrées) **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review (some equivalences from macro files are already registered) **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On ne prend que les Equivalence */
-      if(current_line->type != LINE_EQUIVALENCE)
-        continue;
+        /* We only take Equivalence */
+        if(current_line->type != LINE_EQUIVALENCE)
+            continue;
 
-      /* On ne prend que le lignes avec label */
-      if(strlen(current_line->label_txt) == 0)
-        continue;
+        /* We only take the lines with label */
+        if(strlen(current_line->label_txt) == 0)
+            continue;
 
-      /** Allocation de la structure Equivalence **/
-      current_equivalence = (struct equivalence *) calloc(1,sizeof(struct equivalence));
-      if(current_equivalence == NULL)
-        my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure equivalence");
-      current_equivalence->name = strdup(current_line->label_txt);
-      current_equivalence->value = strdup(current_line->operand_txt);
-      if(current_equivalence->name == NULL || current_equivalence->value == NULL)
+        /** Allocation of the structure for Equivalence **/
+        current_equivalence = (struct equivalence *) calloc(1,sizeof(struct equivalence));
+        if(current_equivalence == NULL)
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure equivalence");
+        current_equivalence->name = strdup(current_line->label_txt);
+        current_equivalence->value = strdup(current_line->operand_txt);
+        if(current_equivalence->name == NULL || current_equivalence->value == NULL)
         {
-          mem_free_equivalence(current_equivalence);
-          my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure equivalence");
+            mem_free_equivalence(current_equivalence);
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure equivalence");
         }
-      current_equivalence->source_line = current_line;   /* Cette equivalence vient d'un fichier source */
+        current_equivalence->source_line = current_line;   /* Cette equivalence vient d'un Source file */
 
-      /* Déclaration de la structure */
-      my_Memory(MEMORY_ADD_EQUIVALENCE,current_equivalence,NULL,current_omfsegment);
+        /* Create the structure */
+        my_Memory(MEMORY_ADD_EQUIVALENCE,current_equivalence,NULL,current_omfsegment);
     }
 
-  /* Tri les Equivalence */
-  my_Memory(MEMORY_SORT_EQUIVALENCE,NULL,NULL,current_omfsegment);
+    /* Sort the Equivalence */
+    my_Memory(MEMORY_SORT_EQUIVALENCE,NULL,NULL,current_omfsegment);
 
-  /** On va repasser sur les équivalences pour résoudre celles dépendent d'autres équivalences **/
-  modified = 1;
-  nb_modified = 0;
-  while(modified)
+    /** We will go back on equivalences to solve those depend on other equivalences **/
+    modified = 1;
+    nb_modified = 0;
+    while(modified)
     {
-      /* Init */
-      modified= 0;
-      my_Memory(MEMORY_GET_EQUIVALENCE_NB,&nb_equivalence,NULL,current_omfsegment);
-      for(i=1; i<=nb_equivalence; i++)
+        /* Init */
+        modified= 0;
+        my_Memory(MEMORY_GET_EQUIVALENCE_NB,&nb_equivalence,NULL,current_omfsegment);
+        for(int i=1; i<=nb_equivalence; i++)
         {
-          my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
+            my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
 
-          /** Découpe l'expression **/
-          tab_element = DecodeOperandeAsElementTable(current_equivalence->value,&nb_element,SEPARATOR_REPLACE_LABEL,current_equivalence->source_line);
-          if(tab_element == NULL)
-            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'tab_element' table");
+            /** Cut out the expression **/
+            tab_element = DecodeOperandeAsElementTable(current_equivalence->value,&nb_element,SEPARATOR_REPLACE_LABEL,current_equivalence->source_line);
+            if(tab_element == NULL)
+                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'tab_element' table");
 
-          /** On passe en revue les valeurs **/
-          for(j=0,param->buffer_operand[0]='\0'; j<nb_element; j++)
+            /** Review the values **/
+            param->buffer_operand[0]='\0';
+            for(int j=0; j<nb_element; j++)
             {
-              my_Memory(MEMORY_SEARCH_EQUIVALENCE,tab_element[j],&replace_equivalence,current_omfsegment);
-              if(replace_equivalence != NULL)
+                my_Memory(MEMORY_SEARCH_EQUIVALENCE,tab_element[j],&replace_equivalence,current_omfsegment);
+                if(replace_equivalence != NULL)
                 {
-                  /* L'ajout des {} permet de certifier l'ordre d'évaluation */
-                  strcat(param->buffer_operand,"{");
-                  strcat(param->buffer_operand,replace_equivalence->value);   /* Equivalence */
-                  strcat(param->buffer_operand,"}");
+                    /* Adding {} certifies the order of evaluation */
+                    strcat(param->buffer_operand,"{");
+                    strcat(param->buffer_operand,replace_equivalence->value);   /* Equivalence */
+                    strcat(param->buffer_operand,"}");
 
-                  /* La valeur a été modifiée */
-                  modified = 1;
+                    /* The value has been changed */
+                    modified = 1;
                 }
-              else
-                strcat(param->buffer_operand,tab_element[j]);
+                else
+                    strcat(param->buffer_operand,tab_element[j]);
             }
 
-          /* Libération mémoire */
-          mem_free_table(nb_element,tab_element);
+            /* Memory release */
+            mem_free_table(nb_element,tab_element);
 
-          /** Si la valeur a été modifiée, on la remplace **/
-          if(modified == 1)
+            /** If the value has been changed, we replace it **/
+            if(modified == 1)
             {
-              new_value = strdup(param->buffer_operand);
-              if(new_value == NULL)
-                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory to replace an Equivalence");
+                new_value = strdup(param->buffer_operand);
+                if(new_value == NULL)
+                    my_RaiseError(ERROR_RAISE,"Impossible to allocate memory to replace an Equivalence");
 
-              /* Libère l'ancienne */
-              free(current_equivalence->value);
+                /* Free the old */
+                free(current_equivalence->value);
 
-              /* Positionne la nouvelle */
-              current_equivalence->value = new_value;
+                /* Position the new */
+                current_equivalence->value = new_value;
             }
         }
 
-      /* On se protège des récursivités sans fin */
-      if(modified)
-        nb_modified++;
-      if(nb_modified > 10)
-        my_RaiseError(ERROR_RAISE,"Recursivity detected in Equivalence replacement");
+        /* Don't endlessly recurse */
+        if(modified)
+            nb_modified++;
+        if(nb_modified > 10)
+            my_RaiseError(ERROR_RAISE,"Recursivity detected in Equivalence replacement");
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/******************************************************************/
-/*  BuildExternalTable() :  Construction des tables des External. */
-/******************************************************************/
+/*********************************************************/
+/*  BuildExternalTable() :  External table construction. */
+/*********************************************************/
 int BuildExternalTable(struct omf_segment *current_omfsegment)
 {
-  struct external *current_external;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct external *current_external = NULL;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /* Init */
-  my_Memory(MEMORY_FREE_EXTERNAL,NULL,NULL,current_omfsegment);
+    /* Init */
+    my_Memory(MEMORY_FREE_EXTERNAL,NULL,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On ne prend que les External */
-      if(current_line->type != LINE_EXTERNAL)
-        continue;
+        /* We only take External */
+        if(current_line->type != LINE_EXTERNAL)
+            continue;
 
-      /** Allocation de la structure External **/
-      current_external = (struct external *) calloc(1,sizeof(struct external));
-      if(current_external == NULL)
-        my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure external");
-      current_external->name = strdup(current_line->label_txt);
-      if(current_external->name == NULL)
+        /** Allocation of the structure External **/
+        current_external = (struct external *) calloc(1,sizeof(struct external));
+        if(current_external == NULL)
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure external");
+        current_external->name = strdup(current_line->label_txt);
+        if(current_external->name == NULL)
         {
-          mem_free_external(current_external);
-          my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure external");
+            mem_free_external(current_external);
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure external");
         }
-      current_external->source_line = current_line;
+        current_external->source_line = current_line;
 
-      /* Déclaration de la structure */
-      my_Memory(MEMORY_ADD_EXTERNAL,current_external,NULL,current_omfsegment);
+        /* Create the structure */
+        my_Memory(MEMORY_ADD_EXTERNAL,current_external,NULL,current_omfsegment);
     }
 
-  /* Tri les External */
-  my_Memory(MEMORY_SORT_EXTERNAL,NULL,NULL,current_omfsegment);
+    /* Sort the External */
+    my_Memory(MEMORY_SORT_EXTERNAL,NULL,NULL,current_omfsegment);
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*****************************************************************/
-/*  CheckForDuplicatedLabel() :  Recherche les Labels en double. */
-/*****************************************************************/
+/**********************************************************/
+/*  CheckForDuplicatedLabel() :  Search Duplicate Labels. */
+/**********************************************************/
 int CheckForDuplicatedLabel(struct omf_segment *current_omfsegment)
 {
-  int i, nb_label, nb_equivalence, nb_error;
-  struct label *previous_label;
-  struct label *current_label;
-  struct equivalence *previous_equivalence;
-  struct equivalence *current_equivalence;
+    int nb_label = 0, nb_equivalence = 0, nb_error = 0;
+    struct label *previous_label = NULL;
+    struct label *current_label = NULL;
+    struct equivalence *previous_equivalence = NULL;
+    struct equivalence *current_equivalence = NULL;
 
-  /* Init */
-  nb_error = 0;
-
-  /** Recherche de doublons dans les Labels **/
-  previous_label = NULL;
-  my_Memory(MEMORY_GET_LABEL_NB,&nb_label,NULL,current_omfsegment);
-  for(i=1; i<=nb_label; i++)
+    /** Search duplicates in Labels **/
+    previous_label = NULL;
+    my_Memory(MEMORY_GET_LABEL_NB,&nb_label,NULL,current_omfsegment);
+    for(int i=1; i<=nb_label; i++)
     {
-      my_Memory(MEMORY_GET_LABEL,&i,&current_label,current_omfsegment);
-      if(previous_label != NULL && current_label != NULL)
-        if(!strcmp(previous_label->name,current_label->name))
-          {
-            printf("      => [Error] Found label name '%s' in both source files '%s' (line %d) and '%s' (line %d).\n",current_label->name,
-                   previous_label->line->file->file_name, previous_label->line->file_line_number, 
-                   current_label->line->file->file_name, current_label->line->file_line_number);
-            nb_error++;
-          }
+        my_Memory(MEMORY_GET_LABEL,&i,&current_label,current_omfsegment);
+        if(previous_label != NULL && current_label != NULL)
+            if(!strcmp(previous_label->name,current_label->name))
+            {
+                printf("      => [Error] Found label name '%s' in both source files '%s' (line %d) and '%s' (line %d).\n",current_label->name,
+                       previous_label->line->file->file_name, previous_label->line->file_line_number,
+                       current_label->line->file->file_name, current_label->line->file_line_number);
+                nb_error++;
+            }
 
-      previous_label = current_label;
+        previous_label = current_label;
     }
 
-  /** Recherche de doublons dans les Equivalence (mais pas dans les variables) **/
-  previous_equivalence = NULL;
-  my_Memory(MEMORY_GET_EQUIVALENCE_NB,&nb_equivalence,NULL,current_omfsegment);
-  for(i=1; i<=nb_equivalence; i++)
+    /** Find duplicates in Equivalence (but not in variables) **/
+    previous_equivalence = NULL;
+    my_Memory(MEMORY_GET_EQUIVALENCE_NB,&nb_equivalence,NULL,current_omfsegment);
+    for(int i=1; i<=nb_equivalence; i++)
     {
-      my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
-      if(previous_equivalence != NULL && current_equivalence != NULL)
-        if(!strcmp(previous_equivalence->name,current_equivalence->name))
-          {
-            printf("      => [Error] Found label equivalence '%s' in both source files '%s' (line %d) and '%s' (line %d).\n",current_equivalence->name,
-                   previous_equivalence->source_line->file->file_name, previous_equivalence->source_line->file_line_number,
-                   current_equivalence->source_line->file->file_name, current_equivalence->source_line->file_line_number);
-            nb_error++;
-          }
+        my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
+        if(previous_equivalence != NULL && current_equivalence != NULL)
+            if(!strcmp(previous_equivalence->name,current_equivalence->name))
+            {
+                printf("      => [Error] Found label equivalence '%s' in both source files '%s' (line %d) and '%s' (line %d).\n",current_equivalence->name,
+                       previous_equivalence->source_line->file->file_name, previous_equivalence->source_line->file_line_number,
+                       current_equivalence->source_line->file->file_name, current_equivalence->source_line->file_line_number);
+                nb_error++;
+            }
 
-      previous_equivalence = current_equivalence;
+        previous_equivalence = current_equivalence;
     }
 
-  /** Recherche de doublons entre les Label et les Equivalence **/
-  for(i=1; i<=nb_equivalence; i++)
+    /** Search for duplicates between Label and Equivalence **/
+    for(int i=1; i<=nb_equivalence; i++)
     {
-      my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
+        my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
 
-      /* Recherche un Label portant le même nom */
-      my_Memory(MEMORY_SEARCH_LABEL,current_equivalence->name,&current_label,current_omfsegment);
-      if(current_label != NULL)
+        /* Search for a Label with the same name */
+        my_Memory(MEMORY_SEARCH_LABEL,current_equivalence->name,&current_label,current_omfsegment);
+        if(current_label != NULL)
         {
-          printf("      => [Error] Found equivalence and label '%s' in both source files '%s' (line %d) and '%s' (line %d).\n",current_equivalence->name,
-                 current_equivalence->source_line->file->file_name,current_equivalence->source_line->file_line_number,
-                 current_label->line->file->file_name,current_label->line->file_line_number);
-          nb_error++;
+            printf("      => [Error] Found equivalence and label '%s' in both source files '%s' (line %d) and '%s' (line %d).\n",current_equivalence->name,
+                   current_equivalence->source_line->file->file_name,current_equivalence->source_line->file_line_number,
+                   current_label->line->file->file_name,current_label->line->file_line_number);
+            nb_error++;
         }
     }
 
-  /* OK */
-  return(nb_error);
+    /* OK */
+    return(nb_error);
 }
 
 
-/***************************************************************************/
-/*  ProcessAllLocalLabel() :  On remplace les labels locaux par des unid_. */
-/***************************************************************************/
+/****************************************************************/
+/*  ProcessAllLocalLabel() :   replace local labels with unid_. */
+/****************************************************************/
 int ProcessAllLocalLabel(struct omf_segment *current_omfsegment)
 {
-  int i, error, nb_macro;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct source_line *last_line = NULL;
-  struct macro *current_macro;
+    int error = 0, nb_macro = 0;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct source_line *last_line = NULL;
+    struct macro *current_macro = NULL;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** On traite les lignes du Source **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
-    if(current_line->next == NULL)
-      last_line = current_line;
-  error = ProcessSourceLineLocalLabel(first_file->first_line,last_line,current_omfsegment);
+    /** Process the lines in the Source file **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+        if(current_line->next == NULL)
+            last_line = current_line;
+    error = ProcessSourceLineLocalLabel(first_file->first_line,last_line);
 
-  /** On traite les Macros **/
-  my_Memory(MEMORY_GET_MACRO_NB,&nb_macro,NULL,current_omfsegment);
-  for(i=1; i<=nb_macro; i++)
+    /** Process the Macros **/
+    my_Memory(MEMORY_GET_MACRO_NB,&nb_macro,NULL,current_omfsegment);
+    for(int i=1; i<=nb_macro; i++)
     {
-      my_Memory(MEMORY_GET_MACRO,&i,&current_macro,current_omfsegment);
+        my_Memory(MEMORY_GET_MACRO,&i,&current_macro,current_omfsegment);
 
-      /* Traite les lignes de cette Macro */
-      error = ProcessMacroLineLocalLabel(current_macro->first_line,current_macro->last_line,current_macro,current_omfsegment);
+        /* Process the lines of this Macro */
+        error = ProcessMacroLineLocalLabel(current_macro->first_line,current_macro->last_line);
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
 /*******************************************************************************************************/
-/*  ProcessSourceLineLocalLabel() :  On remplace les labels locaux par des unid_ des lignes du Source. */
+/*  ProcessSourceLineLocalLabel() : We replace the local labels with unid_ of the lines of the Source. */
 /*******************************************************************************************************/
-static int ProcessSourceLineLocalLabel(struct source_line *first_line, struct source_line *last_line, struct omf_segment *current_omfsegment)
+static int ProcessSourceLineLocalLabel(struct source_line *first_line, struct source_line *last_line)
 {
-  struct source_line *current_line;
-  struct source_line *other_line;
-  struct source_line *begin_global_line;
-  struct source_line *end_global_line;
-  struct source_line *replace_line;
-  int found, nb_local;
-  char *new_label;
-  char *new_operand;
-  char previous_label[256];
-  char unique_label[256];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct source_line *current_line = NULL;
+    struct source_line *other_line = NULL;
+    struct source_line *begin_global_line = NULL;
+    struct source_line *end_global_line = NULL;
+    struct source_line *replace_line = NULL;
+    int found = 0, nb_local = 0;
+    char *new_label = NULL;
+    char *new_operand = NULL;
+    char previous_label[256];
+    char unique_label[256];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /*************************************************************************************/
-  /** Si un Label :Local n'existe qu'en 1 seul exemplaire, on va le globaliser _Local **/
-  /*************************************************************************************/
-  for(current_line=first_line; current_line; current_line=current_line->next)
+    /** If a Label: Local exists in only 1 copy, we will globalize it _Local **/
+    for(current_line=first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes commentaires / celles sans labels / Label autres que :Label */
-      if(current_line->type == LINE_COMMENT || current_line->is_valid == 0)
-        continue;
-      if(strlen(current_line->label_txt) == 0)
-        continue;
-      if(current_line->label_txt[0] != ':')
-        continue;
+        /* We ignore the lines comments / those without labels / Label other than :Label */
+        if(current_line->type == LINE_COMMENT || current_line->is_valid == 0)
+            continue;
+        if(strlen(current_line->label_txt) == 0)
+            continue;
+        if(current_line->label_txt[0] != ':')
+            continue;
 
-      /** Ce Label est t'il unique ? **/
-      for(found=0,other_line=first_line; other_line; other_line=other_line->next)
+        /** Is this label unique? **/
+        for(found=0,other_line=first_line; other_line; other_line=other_line->next)
         {
-          /* On ignore les lignes commentaires / celles sans labels / Label autres que :Label */
-          if(other_line->type == LINE_COMMENT || other_line->is_valid == 0)
-            continue;
-          if(strlen(other_line->label_txt) == 0)
-            continue;
-          if(other_line->label_txt[0] != ':')
-            continue;
-          if(other_line == current_line)
-            continue;
+            /* We ignore the lines comments / those without labels / Label other than :Label */
+            if(other_line->type == LINE_COMMENT || other_line->is_valid == 0)
+                continue;
+            if(strlen(other_line->label_txt) == 0)
+                continue;
+            if(other_line->label_txt[0] != ':')
+                continue;
+            if(other_line == current_line)
+                continue;
 
-          /* Compare le Label */
-          if(!strcmp(current_line->label_txt,other_line->label_txt))
+            /* Compare the Label */
+            if(!strcmp(current_line->label_txt,other_line->label_txt))
             {
-              found = 1;
-              break;
+                found = 1;
+                break;
             }
         }
 
-      /** Il est unique, on va essayer de trouver un nom autre que oz_unid... **/
-      if(found == 0)
+        /** It's unique, we'll try to find a name other than oz_unid... **/
+        if(found == 0)
         {
-          /* On remplace le : par un _ */
-          strcpy(unique_label,current_line->label_txt);
-          unique_label[0] = '_';
+            /* We replace the : with _ */
+            strcpy(unique_label,current_line->label_txt);
+            unique_label[0] = '_';
 
-          /* Ce _Label est t'il unique ? */
-          for(found=0,other_line=first_line; other_line; other_line=other_line->next)
+            /* Is this _Label unique? */
+            for(found=0,other_line=first_line; other_line; other_line=other_line->next)
             {
-              /* On ignore les lignes commentaires / celles sans labels / Label autres que :Label */
-              if(other_line->type == LINE_COMMENT || other_line->is_valid == 0)
-                continue;
-              if(strlen(other_line->label_txt) == 0)
-                continue;
+                /* We ignore the lines comments / those without labels / Label other than :Label */
+                if(other_line->type == LINE_COMMENT || other_line->is_valid == 0)
+                    continue;
+                if(strlen(other_line->label_txt) == 0)
+                    continue;
 
-              /* Compare le Label */
-              if(!strcmp(unique_label,other_line->label_txt))
+                /* Compare the Label */
+                if(!strcmp(unique_label,other_line->label_txt))
                 {
-                  found = 1;
-                  break;
+                    found = 1;
+                    break;
                 }
             }
 
-          /* Il est unique, on l'utilise pour remplacer */
-          if(found == 0)
+            /* It's unique, so use to replace */
+            if(found == 0)
             {
-              /* Remplace :Label par _Label dans tout le fichier */
-              strcpy(previous_label,current_line->label_txt);
-              for(other_line=first_line; other_line; other_line=other_line->next)
+                /* Replace :Label with _Label throughout the file */
+                strcpy(previous_label,current_line->label_txt);
+                for(other_line=first_line; other_line; other_line=other_line->next)
                 {
-                  /* On remplace dans le label */
-                  if(!strcmp(other_line->label_txt,previous_label))
+                    /* We replaced the label */
+                    if(!strcmp(other_line->label_txt,previous_label))
                     {
-                      other_line->label_txt[0] = '_';
-                      other_line->was_local_label = 1;     /* Ce label a été un label local */
+                        other_line->label_txt[0] = '_';
+                        other_line->was_local_label = 1;     /* This label is a local label */
                     }
 
-                  /** Remplace le Label dans l'Operand **/
-                  if(other_line->type == LINE_CODE || other_line->type == LINE_DATA || other_line->type == LINE_MACRO)
+                    /** Replaces the Label in the Operand **/
+                    if(other_line->type == LINE_CODE || other_line->type == LINE_DATA || other_line->type == LINE_MACRO)
                     {
-                      new_operand = ReplaceInOperand(other_line->operand_txt,previous_label,unique_label,SEPARATOR_REPLACE_LABEL,other_line);
-                      if(new_operand != other_line->operand_txt)
+                        new_operand = ReplaceInOperand(other_line->operand_txt,previous_label,unique_label,SEPARATOR_REPLACE_LABEL,other_line);
+                        if(new_operand != other_line->operand_txt)
                         {
-                          free(other_line->operand_txt);
-                          other_line->operand_txt = new_operand;
+                            free(other_line->operand_txt);
+                            other_line->operand_txt = new_operand;
                         }
-                    }                                              
+                    }
                 }
             }
         }
     }
 
-  /******************************************/
-  /** On recherche le premier Label global **/
-  /******************************************/
-  for(begin_global_line=first_line; begin_global_line; begin_global_line=begin_global_line->next)
+    /** We are looking for the first Global Label **/
+    for(begin_global_line=first_line; begin_global_line; begin_global_line=begin_global_line->next)
     {
-      /* On ignore les lignes commentaires / celles sans labels / Celles avec des labels Variable ] */
-      if(begin_global_line->type == LINE_COMMENT || begin_global_line->is_valid == 0)
-        continue;
-      if(strlen(begin_global_line->label_txt) == 0)
-        continue;
-      if(begin_global_line->label_txt[0] == ']')
-        continue;
-      if(begin_global_line->was_local_label == 1)
-        continue;
-      
-      /* Erreur : On ne peut pas commencer son source par un Label Local */
-      if(begin_global_line->label_txt[0] == ':')
+        /* Comment / non-label lines are ignored / those with variable labels ] */
+        if(begin_global_line->type == LINE_COMMENT || begin_global_line->is_valid == 0)
+            continue;
+        if(strlen(begin_global_line->label_txt) == 0)
+            continue;
+        if(begin_global_line->label_txt[0] == ']')
+            continue;
+        if(begin_global_line->was_local_label == 1)
+            continue;
+
+        /* Error : You can not start your source with a Local Label */
+        if(begin_global_line->label_txt[0] == ':')
         {
-          printf("      => [Error] Wrong Local Label : '%s' in file '%s' (line %d).\n",begin_global_line->data,begin_global_line->file->file_name,begin_global_line->file_line_number);
-          return(1);
+            printf("      => [Error] Local Label : '%s' can not be first label in file '%s' (line %d).\n",begin_global_line->data,begin_global_line->file->file_name,begin_global_line->file_line_number);
+            return(1);
         }
         
-      /* On est sur le 1er Label global */
-      break;
+        /* We are on the 1st Global Label */
+        break;
     }
     
-  /* Aucun Label global dans le source => On prend le début du fichier comme référence */
-  if(begin_global_line == NULL)
-    begin_global_line = first_line;
+    /* No global Label in the source => We take the beginning of the file as reference */
+    if(begin_global_line == NULL)
+        begin_global_line = first_line;
 
-  /**************************************************************/
-  /** On traite les Label locaux situés entre 2 labels globaux **/
-  /**************************************************************/
-  while(begin_global_line)
+    /** Process local labels located between 2 global labels **/
+    while(begin_global_line)
     {
-      /* Recherche le label global suivant */
-      for(nb_local=0,end_global_line = begin_global_line->next; end_global_line; end_global_line=end_global_line->next)
+        /* Search the following global label */
+        for(nb_local=0,end_global_line = begin_global_line->next; end_global_line; end_global_line=end_global_line->next)
         {
-          /* On saute */
-          if(end_global_line->type == LINE_COMMENT || end_global_line->is_valid == 0)
-            continue;
-          if(strlen(end_global_line->label_txt) == 0)
-             continue;
-          if(end_global_line->label_txt[0] == ']')
-             continue;
-          if(end_global_line->was_local_label == 1)
-            continue;
+            /* We jump */
+            if(end_global_line->type == LINE_COMMENT || end_global_line->is_valid == 0)
+                continue;
+            if(strlen(end_global_line->label_txt) == 0)
+                continue;
+            if(end_global_line->label_txt[0] == ']')
+                continue;
+            if(end_global_line->was_local_label == 1)
+                continue;
             
-          /* Comptabilise */ 
-          if(end_global_line->label_txt[0] == ':')
+            /* Count matches */
+            if(end_global_line->label_txt[0] == ':')
             {
-              nb_local++;
-              continue;
+                nb_local++;
+                continue;
             }
             
-          /* Nouveau label global */
-          break;
+            /* New global label */
+            break;
         }
 
-      /** Pas de Label Global => On prend la dernière ligne du Source **/
-      if(end_global_line == NULL)
-        end_global_line = last_line;
+        /** No Global Label => We take the last line of the Source **/
+        if(end_global_line == NULL)
+            end_global_line = last_line;
 
-      /** On a fini **/
-      if(nb_local == 0 && end_global_line == last_line)
-        return(0);
+        /** We're done **/
+        if(nb_local == 0 && end_global_line == last_line)
+            return(0);
 
-      /** Aucun label local dans l'intervalle, on va au suivant **/
-      if(nb_local == 0 && end_global_line != NULL)
+        /** No local label in the meantime, we go to the next **/
+        if(nb_local == 0 && end_global_line != NULL)
         {
-          begin_global_line = end_global_line;
-          continue;
+            begin_global_line = end_global_line;
+            continue;
         }
 
-      /** il y a du label local dans l'intervalle, on traite **/
-      if(nb_local > 0)
+        /** there is local label in the meantime, process it **/
+        if(nb_local > 0)
         {
-          /** On va passer toutes les lignes de l'intervalle en revue pour y corriger tous les labels locaux **/
-          for(current_line=begin_global_line; current_line; current_line=current_line->next)
+            /** We will review all the lines of the interval to correct all local labels **/
+            for(current_line=begin_global_line; current_line; current_line=current_line->next)
             {
-              /* Saute les lignes non valides */
-              if(current_line->is_valid == 0)
-                continue;
+                /* Skips invalid rows */
+                if(current_line->is_valid == 0)
+                    continue;
 
-              /** On recherche un Label local **/
-              if(current_line->label_txt[0] == ':')
+                /** We are looking for a local Label **/
+                if(current_line->label_txt[0] == ':')
                 {
-                  /* Création d'un label unique */
-                  GetUNID(unique_label);
-                  
-                  /** On effectue le remplacement dans tout l'intervalle **/
-                  for(replace_line=begin_global_line; replace_line; replace_line=replace_line->next)
+                    /* Creation of a unique label */
+                    GetUNID(unique_label);
+
+                    /** Replacement is made throughout the interval **/
+                    for(replace_line=begin_global_line; replace_line; replace_line=replace_line->next)
                     {
-                      /** Remplace le Label dans l'Operand **/
-                      if(replace_line->type == LINE_CODE || replace_line->type == LINE_DATA || replace_line->type == LINE_MACRO)
+                        /** Replaces the Label in the Operand **/
+                        if(replace_line->type == LINE_CODE || replace_line->type == LINE_DATA || replace_line->type == LINE_MACRO)
                         {
-                          new_operand = ReplaceInOperand(replace_line->operand_txt,current_line->label_txt,unique_label,SEPARATOR_REPLACE_LABEL,replace_line);
-                          if(new_operand != replace_line->operand_txt)
+                            new_operand = ReplaceInOperand(replace_line->operand_txt,current_line->label_txt,unique_label,SEPARATOR_REPLACE_LABEL,replace_line);
+                            if(new_operand != replace_line->operand_txt)
                             {
-                              free(replace_line->operand_txt);
-                              replace_line->operand_txt = new_operand;
+                                free(replace_line->operand_txt);
+                                replace_line->operand_txt = new_operand;
                             }
                         }
-                                              
-                      /* Fin de zone */
-                      if(replace_line == end_global_line)
-                        break;
+
+                        /* End of zone */
+                        if(replace_line == end_global_line)
+                            break;
                     }
                     
-                  /** Remplace le label de la ligne **/
-                  new_label = strdup(unique_label);
-                  if(new_label == NULL)
-                    my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new local label");
-                  free(current_line->label_txt);
-                  current_line->label_txt = new_label;
-                  current_line->was_local_label = 1;     /* Ce label a été un label local */
+                    /** Replaces the label of the line **/
+                    new_label = strdup(unique_label);
+                    if(new_label == NULL)
+                        my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new local label");
+                    free(current_line->label_txt);
+                    current_line->label_txt = new_label;
+                    current_line->was_local_label = 1;     /* This label is a local label */
                 }
                 
-              /* Fin de la zone */
-              if(current_line == end_global_line)
-                break;
+                /* Zone ends */
+                if(current_line == end_global_line)
+                    break;
             }
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*******************************************************************************************************/
-/*  ProcessMacroLineLocalLabel() :  On remplace les labels locaux par des unid_ des lignes des Macros. */
-/*******************************************************************************************************/
-static int ProcessMacroLineLocalLabel(struct macro_line *first_line, struct macro_line *last_line, struct macro *current_macro, struct omf_segment *current_omfsegment)
+/****************************************************************************************/
+/*  ProcessMacroLineLocalLabel() :  We replace local labels with unid_ lines of Macros. */
+/****************************************************************************************/
+static int ProcessMacroLineLocalLabel(struct macro_line *first_line, struct macro_line *last_line)
 {
-  struct macro_line *current_line;
-  struct macro_line *begin_global_line;
-  struct macro_line *end_global_line;
-  struct macro_line *replace_line;
-  int nb_local;
-  char *new_label;
-  char *new_operand;
-  char unique_label[256];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct macro_line *current_line = NULL;
+    struct macro_line *begin_global_line = NULL;
+    struct macro_line *end_global_line = NULL;
+    struct macro_line *replace_line = NULL;
+    int nb_local = 0;
+    char *new_label = NULL;
+    char *new_operand = NULL;
+    char unique_label[256];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /** On recherche le premier Label global **/
-  for(begin_global_line=first_line; begin_global_line; begin_global_line=begin_global_line->next)
+    /** We are looking for the first Global Label **/
+    for(begin_global_line=first_line; begin_global_line; begin_global_line=begin_global_line->next)
     {
-      /* On ignore les lignes commentaires / celles sans labels / Celles avec des labels Variable ] */
-       if(strlen(begin_global_line->label) == 0)
-         continue;
-       if(begin_global_line->label[0] == ']')
-         continue;
+        /* Comment / non-label lines are ignored / those with variable labels ] */
+        if(strlen(begin_global_line->label) == 0)
+            continue;
+        if(begin_global_line->label[0] == ']')
+            continue;
         
-      /* On est sur le 1er Label global */
-      break;
+        /* We are on the 1st Global Label */
+        break;
     }
     
-  /* Aucun Label global dans le source => On prend la 1ère ligne comme référence */
-  if(begin_global_line == NULL)
-    begin_global_line = first_line;
+    /* No global label in the source => We take the 1st line as reference */
+    if(begin_global_line == NULL)
+        begin_global_line = first_line;
     
-  /** On traite les Label locaux situées entre 2 labels globaux **/
-  while(begin_global_line)
+    /** Process local labels located between 2 global labels **/
+    while(begin_global_line)
     {
-      /* Recherche le label global suivant */
-      for(nb_local=0,end_global_line = begin_global_line->next; end_global_line; end_global_line=end_global_line->next)
+        /* Search the following global label */
+        for(nb_local=0,end_global_line = begin_global_line->next; end_global_line; end_global_line=end_global_line->next)
         {
-          /* On saute */
-          if(strlen(end_global_line->label) == 0)
-             continue;
-          if(end_global_line->label[0] == ']')
-             continue;
+            /* We jump */
+            if(strlen(end_global_line->label) == 0)
+                continue;
+            if(end_global_line->label[0] == ']')
+                continue;
             
-          /* Comptabilise */ 
-          if(end_global_line->label[0] == ':')
+            /* Count matches */
+            if(end_global_line->label[0] == ':')
             {
-              nb_local++;
-              continue;
+                nb_local++;
+                continue;
             }
             
-          /* Nouveau label global */
-          break;
+            /* New global label */
+            break;
         }
 
-      /* On a atteind la fin sans rencontrer de Label Global */
-      if(end_global_line == NULL)
-        end_global_line = last_line;
+        /* We reached the end without meeting a Global Label */
+        if(end_global_line == NULL)
+            end_global_line = last_line;
 
-      /** On a fini **/
-      if(nb_local == 0 && end_global_line == last_line)
-        return(0);
+        /** We're done **/
+        if(nb_local == 0 && end_global_line == last_line)
+            return(0);
 
-      /** Aucun label local dans l'intervalle, on va au suivant **/
-      if(nb_local == 0 && end_global_line != NULL)
+        /** No local label in the meantime, we go to the next **/
+        if(nb_local == 0 && end_global_line != NULL)
         {
-          begin_global_line = end_global_line;
-          continue;
+            begin_global_line = end_global_line;
+            continue;
         }
 
-      /** il y a du label local dans l'intervalle, on traite **/
-      if(nb_local > 0)
+        /** there is local label in the meantime, process it **/
+        if(nb_local > 0)
         {
-          /** On va passer toutes les lignes de l'intervalle en revue pour y corriger tous les labels locaux **/
-          for(current_line=begin_global_line; current_line; current_line=current_line->next)
+            /** We will review all the lines of the interval to correct all local labels **/
+            for(current_line=begin_global_line; current_line; current_line=current_line->next)
             {
-              /** On recherche un Label local **/
-              if(current_line->label[0] == ':')
+                /** We are looking for a local Label **/
+                if(current_line->label[0] == ':')
                 {
-                  /* Création d'un label unique */
-                  GetUNID(unique_label);
-                  
-                  /** On effectue le remplacement dans tout l'intervalle **/
-                  for(replace_line=begin_global_line; replace_line; replace_line=replace_line->next)
+                    /* Creation of a unique label */
+                    GetUNID(unique_label);
+
+                    /** Replacement is made throughout the interval **/
+                    for(replace_line=begin_global_line; replace_line; replace_line=replace_line->next)
                     {
-                      /** Remplace le Label dans l'Operand **/
-                      new_operand = ReplaceInOperand(replace_line->operand,current_line->label,unique_label,SEPARATOR_REPLACE_LABEL,NULL);
-                      if(new_operand != replace_line->operand)
+                        /** Replaces the Label in the Operand **/
+                        new_operand = ReplaceInOperand(replace_line->operand,current_line->label,unique_label,SEPARATOR_REPLACE_LABEL,NULL);
+                        if(new_operand != replace_line->operand)
                         {
-                          free(replace_line->operand);
-                          replace_line->operand = new_operand;
+                            free(replace_line->operand);
+                            replace_line->operand = new_operand;
                         }
-                                              
-                      /* Fin de zone */
-                      if(replace_line == end_global_line)
-                        break;
+
+                        /* End of zone */
+                        if(replace_line == end_global_line)
+                            break;
                     }
                     
-                  /** Remplace le label de la ligne **/
-                  new_label = strdup(unique_label);
-                  if(new_label == NULL)
-                    my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new local label in Macro");
-                  free(current_line->label);
-                  current_line->label = new_label;
+                    /** Replaces the label of the line **/
+                    new_label = strdup(unique_label);
+                    if(new_label == NULL)
+                        my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new local label in Macro");
+                    free(current_line->label);
+                    current_line->label = new_label;
                 }
                 
-              /* Fin de la zone */
-              if(current_line == end_global_line)
-                break;
+                /* Zone ends */
+                if(current_line == end_global_line)
+                    break;
             }
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*********************************************************************************/
-/*  ProcessAllVariableLabel() :  On remplace les ]labels Variable par des unid_. */
-/*********************************************************************************/
+/************************************************************************/
+/*  ProcessAllVariableLabel() :  Variable labels are replaced by unid_. */
+/************************************************************************/
 int ProcessAllVariableLabel(struct omf_segment *current_omfsegment)
 {
-  int i, error, nb_macro;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct source_line *last_line = NULL;
-  struct macro *current_macro;
+    int error = 0, nb_macro = 0;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct source_line *last_line = NULL;
+    struct macro *current_macro = NULL;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE, &first_file, NULL, current_omfsegment);
 
-  /** On traite les lignes du Source **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
-    if(current_line->next == NULL)
-      last_line = current_line;
-  error = ProcessSourceLineVariableLabel(first_file->first_line,last_line,current_omfsegment);
+    /** Process the lines in the Source file **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+        if(current_line->next == NULL)
+            last_line = current_line;
+    error = ProcessSourceLineVariableLabel(first_file->first_line);
 
-  /** On traite les Macros **/
-  my_Memory(MEMORY_GET_MACRO_NB,&nb_macro,NULL,current_omfsegment);
-  for(i=1; i<=nb_macro; i++)
+    /** Process the Macros **/
+    my_Memory(MEMORY_GET_MACRO_NB,&nb_macro,NULL,current_omfsegment);
+    for(int i=1; i<=nb_macro; i++)
     {
-      my_Memory(MEMORY_GET_MACRO,&i,&current_macro,current_omfsegment);
+        my_Memory(MEMORY_GET_MACRO,&i,&current_macro,current_omfsegment);
 
-      /** Traite les lignes de cette Macro **/
-      error = ProcessMacroLineVariableLabel(current_macro->first_line,current_macro->last_line,current_macro,current_omfsegment);
+        /** Process the lines of this Macro **/
+        error = ProcessMacroLineVariableLabel(current_macro->first_line,current_macro);
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/**************************************************************************************************/
-/*  ProcessSourceLineVariableLabel() :  On remplace les ]labels variable du source par des unid_. */
-/**************************************************************************************************/
-int ProcessSourceLineVariableLabel(struct source_line *first_line, struct source_line *last_line, struct omf_segment *current_omfsegment)
+/*************************************************************************************************/
+/*  ProcessSourceLineVariableLabel() :  We replace the variable labels of the source with unid_. */
+/*************************************************************************************************/
+int ProcessSourceLineVariableLabel(struct source_line *first_line)
 {
-  struct source_line *replace_line;
-  struct source_line *begin_variable_line;
-  struct source_line *end_variable_line;
-  int use_address;
-  char *new_label;
-  char *new_operand;
-  char unique_label[256];
-  char buffer_error[1024];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct source_line *replace_line = NULL;
+    struct source_line *begin_variable_line = NULL;
+    struct source_line *end_variable_line = NULL;
+    int use_address = 0;
+    char *new_label = NULL;
+    char *new_operand = NULL;
+    char unique_label[256];
+    char buffer_error[1024];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /*** Traite tous les Labels Variable ]label ***/
-  for(begin_variable_line=first_line; begin_variable_line; begin_variable_line=begin_variable_line->next)
+    /*** Process all Variable Labels ]label ***/
+    for(begin_variable_line=first_line; begin_variable_line; begin_variable_line=begin_variable_line->next)
     {
-      /* On ignore les lignes commentaires / celles sans labels */
-      if(begin_variable_line->type == LINE_COMMENT || strlen(begin_variable_line->label_txt) == 0 || begin_variable_line->is_valid == 0)
-        continue;
-      if(begin_variable_line->type == LINE_VARIABLE)
-        {
-          /* Il faut différencer une vrai Equivalence d'un label ]LP = * */
-          if(strchr(begin_variable_line->operand_txt,'*') == NULL)
+        /* We ignore comment lines / those without labels */
+        if(begin_variable_line->type == LINE_COMMENT || strlen(begin_variable_line->label_txt) == 0 || begin_variable_line->is_valid == 0)
             continue;
-
-          /** Peut t'on détecter un * utilisé comme valeur ? **/
-          use_address = UseCurrentAddress(begin_variable_line->operand_txt,&buffer_error[0],begin_variable_line);
-          if(strlen(buffer_error) > 0)
-            {
-              printf("    Error : Impossible to analyze Operand '%s' in source file '%s' (line %d) : %s.\n",
-                     begin_variable_line->operand_txt,begin_variable_line->file->file_name,begin_variable_line->file_line_number,buffer_error);
-              return(1);
-            }
-          if(use_address == 0)
-            continue;
-         }
-
-      /** Début de la zone de recherche **/
-      if(begin_variable_line->label_txt[0] == ']')
+        if(begin_variable_line->type == LINE_VARIABLE)
         {
-          /** Cherche la fin de la zone de recherche = Autre Label variable avec le même nom **/
-          for(end_variable_line=begin_variable_line->next; end_variable_line; end_variable_line=end_variable_line->next)
-            {
-              /* On ignore les lignes commentaires / celles sans labels */
-               if(end_variable_line->type == LINE_COMMENT || strlen(end_variable_line->label_txt) == 0 || end_variable_line->is_valid == 0)
-                 continue;
-
-               /* On recherche le même Label (Case sensitive) */
-               if(!strcmp(begin_variable_line->label_txt,end_variable_line->label_txt))
-                 break;
-            }
-
-          /* Création d'un label unique */
-          GetUNID(unique_label);
-
-          /** On remplace sur la zone **/
-          for(replace_line=begin_variable_line; replace_line != end_variable_line; replace_line=replace_line->next)
-            {
-              /* On ne traite pas les lignes invalides */
-              if(replace_line->is_valid == 0)
+            /* It is necessary to differentiate a true Equivalence of a label ]LP = * */
+            if(strchr(begin_variable_line->operand_txt,'*') == NULL)
                 continue;
 
-              /** Remplace le Label dans l'Operand **/
-              new_operand = ReplaceInOperand(replace_line->operand_txt,begin_variable_line->label_txt,unique_label,SEPARATOR_REPLACE_VARIABLE,replace_line);
-              if(new_operand != replace_line->operand_txt)
+            /** Detected * used as a value? **/
+            use_address = UseCurrentAddress(begin_variable_line->operand_txt,&buffer_error[0],begin_variable_line);
+            if(strlen(buffer_error) > 0)
+            {
+                printf("    Error : Impossible to analyze Operand '%s' in source file '%s' (line %d) : %s.\n",
+                       begin_variable_line->operand_txt,begin_variable_line->file->file_name,begin_variable_line->file_line_number,buffer_error);
+                return(1);
+            }
+            if(use_address == 0)
+                continue;
+        }
+
+        /** Start of the search area **/
+        if(begin_variable_line->label_txt[0] == ']')
+        {
+            /** Search to the end of the search range for = Other Variable Label with the same name **/
+            for(end_variable_line=begin_variable_line->next; end_variable_line; end_variable_line=end_variable_line->next)
+            {
+                /* We ignore comment lines / those without labels */
+                if(end_variable_line->type == LINE_COMMENT || strlen(end_variable_line->label_txt) == 0 || end_variable_line->is_valid == 0)
+                    continue;
+
+                /* We are looking for the same Label (Case sensitive) */
+                if(!strcmp(begin_variable_line->label_txt,end_variable_line->label_txt))
+                    break;
+            }
+
+            /* Creation of a unique label */
+            GetUNID(unique_label);
+
+            /** We replace on the zone **/
+            for(replace_line=begin_variable_line; replace_line != end_variable_line; replace_line=replace_line->next)
+            {
+                /* We do not process invalid lines */
+                if(replace_line->is_valid == 0)
+                    continue;
+
+                /** Replaces the Label in the Operand **/
+                new_operand = ReplaceInOperand(replace_line->operand_txt,begin_variable_line->label_txt,unique_label,SEPARATOR_REPLACE_VARIABLE,replace_line);
+                if(new_operand != replace_line->operand_txt)
                 {
-                  free(replace_line->operand_txt);
-                  replace_line->operand_txt = new_operand;
+                    free(replace_line->operand_txt);
+                    replace_line->operand_txt = new_operand;
                 }
             }
 
-          /** Remplace le label de la ligne **/
-          new_label = strdup(unique_label);
-          if(new_label == NULL)
-            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new variable label");
-          free(begin_variable_line->label_txt);
-          begin_variable_line->label_txt = new_label;
+            /** Replaces the label of the line **/
+            new_label = strdup(unique_label);
+            if(new_label == NULL)
+                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new variable label");
+            free(begin_variable_line->label_txt);
+            begin_variable_line->label_txt = new_label;
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/****************************************************************************************************/
-/*  ProcessMacroLineVariableLabel() :  On remplace les ]labels variable d'une Macro par des unid_. */
-/****************************************************************************************************/
-int ProcessMacroLineVariableLabel(struct macro_line *first_line, struct macro_line *last_line, struct macro *current_macro, struct omf_segment *current_omfsegment)
+/*******************************************************************************************/
+/*  ProcessMacroLineVariableLabel() :  We replace the variable labels of a Macro by unid_. */
+/*******************************************************************************************/
+int ProcessMacroLineVariableLabel(struct macro_line *first_line, struct macro *current_macro)
 {
-  struct macro_line *replace_line;
-  struct macro_line *begin_variable_line;
-  struct macro_line *end_variable_line;
-  int use_address;
-  char *new_label;
-  char *new_operand;
-  char buffer_error[1024];
-  char unique_label[256];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct macro_line *replace_line = NULL;
+    struct macro_line *begin_variable_line = NULL;
+    struct macro_line *end_variable_line = NULL;
+    int use_address = 0;
+    char *new_label = NULL;
+    char *new_operand = NULL;
+    char buffer_error[1024];
+    char unique_label[256];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /*** Traite tous les Labels Variable ]label ***/
-  for(begin_variable_line=first_line; begin_variable_line; begin_variable_line=begin_variable_line->next)
+    /*** Process all Variable Labels ]label ***/
+    for(begin_variable_line=first_line; begin_variable_line; begin_variable_line=begin_variable_line->next)
     {
-      /* On ignore les lignes commentaires / celles sans labels */
-      if(strlen(begin_variable_line->label) == 0)
-        continue;
-      if(!strcmp(begin_variable_line->opcode,"="))
+        /* We ignore comment lines / those without labels */
+        if(strlen(begin_variable_line->label) == 0)
+            continue;
+        if(!strcmp(begin_variable_line->opcode,"="))
         {
-          /* Il faut différencer une vrai Equivalence d'un label ]LP = * */
-          if(strchr(begin_variable_line->operand,'*') == NULL)
-            continue;
+            /* It is necessary to differentiate a true Equivalence of a label ]LP = * */
+            if(strchr(begin_variable_line->operand,'*') == NULL)
+                continue;
 
-          /** Peut t'on détecter un * utilisé comme valeur ? **/
-          use_address = UseCurrentAddress(begin_variable_line->operand,&buffer_error[0],NULL);
-          if(strlen(buffer_error) > 0)
+            /** Detected * used as a value? **/
+            use_address = UseCurrentAddress(begin_variable_line->operand,&buffer_error[0],NULL);
+            if(strlen(buffer_error) > 0)
             {
-              printf("    Error : Impossible to analyze Operand '%s' in Macro %s : %s.\n",begin_variable_line->operand,current_macro->name,buffer_error);
-              return(1);
+                printf("    Error : Impossible to analyze Operand '%s' in Macro %s : %s.\n",begin_variable_line->operand,current_macro->name,buffer_error);
+                return(1);
             }
-          if(use_address == 0)
-            continue;
+            if(use_address == 0)
+                continue;
         }
 
-      /** Début de la zone de recherche **/
-      if(begin_variable_line->label[0] == ']')
+        /** Start of the search area **/
+        if(begin_variable_line->label[0] == ']')
         {
-          /** Cherche la fin de la zone de recherche = Autre Label variable avec le même nom **/
-          for(end_variable_line=begin_variable_line->next; end_variable_line; end_variable_line=end_variable_line->next)
+            /** Search to the end of the search range for = Other Variable Label with the same name **/
+            for(end_variable_line=begin_variable_line->next; end_variable_line; end_variable_line=end_variable_line->next)
             {
-              /* On ignore les lignes commentaires / celles sans labels */
-               if(strlen(end_variable_line->label) == 0)
-                 continue;
+                /* We ignore comment lines / those without labels */
+                if(strlen(end_variable_line->label) == 0)
+                    continue;
 
-               /* On recherche le même Label (Case sensitive) */
-               if(!strcmp(begin_variable_line->label,end_variable_line->label))
-                 break;
+                /* We are looking for the same Label (Case sensitive) */
+                if(!strcmp(begin_variable_line->label,end_variable_line->label))
+                    break;
             }
 
-          /* Création d'un label unique */
-          GetUNID(unique_label);
+            /* Creation of a unique label */
+            GetUNID(unique_label);
 
-          /** On remplace sur la zone **/
-          for(replace_line=begin_variable_line; replace_line != end_variable_line; replace_line=replace_line->next)
+            /** We replace on the zone **/
+            for(replace_line=begin_variable_line; replace_line != end_variable_line; replace_line=replace_line->next)
             {
-              /** Remplace le Label dans l'Operand **/
-              new_operand = ReplaceInOperand(replace_line->operand,begin_variable_line->label,unique_label,SEPARATOR_REPLACE_VARIABLE,NULL);
-              if(new_operand != replace_line->operand)
+                /** Replaces the Label in the Operand **/
+                new_operand = ReplaceInOperand(replace_line->operand,begin_variable_line->label,unique_label,SEPARATOR_REPLACE_VARIABLE,NULL);
+                if(new_operand != replace_line->operand)
                 {
-                  free(replace_line->operand);
-                  replace_line->operand = new_operand;
+                    free(replace_line->operand);
+                    replace_line->operand = new_operand;
                 }
             }
 
-          /** Remplace le label de la ligne **/
-          new_label = strdup(unique_label);
-          if(new_label == NULL)
-            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new variable label in Macro");
-          free(begin_variable_line->label);
-          begin_variable_line->label = new_label;
+            /** Replaces the label of the line **/
+            new_label = strdup(unique_label);
+            if(new_label == NULL)
+                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for new variable label in Macro");
+            free(begin_variable_line->label);
+            begin_variable_line->label = new_label;
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*******************************************************/
-/*  ProcessEquivalence() :  Remplace les Equivalences. */
-/*******************************************************/
+/***************************************************/
+/*  ProcessEquivalence() :  Replaces Equivalences. */
+/***************************************************/
 int ProcessEquivalence(struct omf_segment *current_omfsegment)
 {
-  struct source_file *first_file;
-  struct source_line *current_line;
-  int nb_modified;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    int nb_modified = 0;
 
-  /* Init */
-  nb_modified = 0;
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
-
-  /*** Traite tous les Operands pouvant contenir des Equivalence ***/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /*** Process all Operands that may contain Equivalence ***/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On ignore les lignes commentaires / celles sans labels */
-      if(current_line->type == LINE_COMMENT || current_line->type == LINE_EMPTY || current_line->type == LINE_GLOBAL || strlen(current_line->operand_txt) == 0)
-        continue;
+        /* We ignore comment lines / those without labels */
+        if(current_line->type == LINE_COMMENT || current_line->type == LINE_EMPTY || current_line->type == LINE_GLOBAL || strlen(current_line->operand_txt) == 0)
+            continue;
 
-      /* On ne fait pas de remplacement sur les lignes de Data HEX */
-      if(current_line->type == LINE_DATA && !my_stricmp(current_line->opcode_txt,"HEX"))
-        continue;
+        /* No replacement on Data HEX lines */
+        if(current_line->type == LINE_DATA && !my_stricmp(current_line->opcode_txt,"HEX"))
+            continue;
 
-      /* Remplace les Equivalences sur la Ligne */
-      nb_modified += ProcessLineEquivalence(current_line,current_omfsegment);
+        /* Replaces Equivalences on the Line */
+        nb_modified += ProcessLineEquivalence(current_line,current_omfsegment);
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/************************************************************************/
-/*  ProcessLineEquivalence() :  Remplace les équivalences pour 1 ligne. */
-/************************************************************************/
+/******************************************************************/
+/*  ProcessLineEquivalence() :  Replaces equivalences for 1 line. */
+/******************************************************************/
 int ProcessLineEquivalence(struct source_line *current_line, struct omf_segment *current_omfsegment)
 {
-  int i, modified, nb_element, is_variable, is_label, is_hexa, nb_byte;
-  char **tab_element;
-  char *new_operand;
-  char variable_name[1024];
-  struct equivalence *current_equivalence;
-  struct variable *current_variable;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    int modified = 0, nb_element = 0, is_variable = 0, is_label = 0, is_hexa = 0, nb_byte = 0;
+    char **tab_element = NULL;
+    char *new_operand = NULL;
+    char variable_name[1024];
+    struct equivalence *current_equivalence = NULL;
+    struct variable *current_variable = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Init */
-  modified = 0;
-
-  /** On va découper l'opérande en plusieurs éléments unitaires **/
-  tab_element = DecodeOperandeAsElementTable(current_line->operand_txt,&nb_element,SEPARATOR_REPLACE_LABEL,current_line);
-  if(tab_element == NULL)
-    my_RaiseError(ERROR_RAISE,"Impossible to decode Operand as element table");
+    /** We will cut the operand into several unitary elements **/
+    tab_element = DecodeOperandeAsElementTable(current_line->operand_txt,&nb_element,SEPARATOR_REPLACE_LABEL,current_line);
+    if(tab_element == NULL)
+        my_RaiseError(ERROR_RAISE,"Impossible to decode Operand as element table");
     
-  /** On reconstruit la chaine en remplaçant les valeurs (case sensitive) **/
-  for(i=0,param->buffer_operand[0]='\0'; i<nb_element; i++)
+    /** We rebuild the chain by replacing the values (case sensitive) **/
+    param->buffer_operand[0]='\0';
+    for(int i=0; i<nb_element; i++)
     {
-      my_Memory(MEMORY_SEARCH_EQUIVALENCE,tab_element[i],&current_equivalence,current_omfsegment);
-      if(current_equivalence != NULL)
+        my_Memory(MEMORY_SEARCH_EQUIVALENCE,tab_element[i],&current_equivalence,current_omfsegment);
+        if(current_equivalence != NULL)
         {
-          /* Cas particulier d'une variable ]var ou d'un label ]var et d'une équivalence var */
-          is_variable = 0;
-          is_label = 0;
-          is_hexa = 0;
-          if(i > 0)
+            /* Particular case of a variable ]var or a label ]var and an equivalence var */
+            is_variable = 0;
+            is_label = 0;
+            is_hexa = 0;
+            if(i > 0)
             {
-              if(!strcmp(tab_element[i-1],"]"))
+                if(!strcmp(tab_element[i-1],"]"))
                 {
-                  sprintf(variable_name,"]%s",tab_element[i]);
-                  my_Memory(MEMORY_SEARCH_VARIABLE,variable_name,&current_variable,current_omfsegment);
-                  if(current_variable != NULL)
-                    is_variable = 1;
-                  else
+                    sprintf(variable_name,"]%s",tab_element[i]);
+                    my_Memory(MEMORY_SEARCH_VARIABLE,variable_name,&current_variable,current_omfsegment);
+                    if(current_variable != NULL)
+                        is_variable = 1;
+                    else
                     {
-                      /* On regarde s'il n'existerait pas un label local portant ce nom */
-                      if(IsLocalLabel(variable_name,current_omfsegment))
-                        is_label = 1;
+                        /* We are looking to see if there is no local label with this name */
+                        if(IsLocalLabel(variable_name,current_omfsegment))
+                            is_label = 1;
                     }
                 }
-              else if(!strcmp(tab_element[i-1],"$"))
+                else if(!strcmp(tab_element[i-1],"$"))
                 {
-                  /* Peut t'on interpretter $variable comme un nombre Hexa ? */
-                  sprintf(variable_name,"$%s",tab_element[i]);
-                  if(IsHexaDecimal(variable_name,&nb_byte))
-                    is_hexa = 1;
+                    /* Can we interpret $ variable as a Hexa number? */
+                    sprintf(variable_name,"$%s",tab_element[i]);
+                    if(IsHexaDecimal(variable_name,&nb_byte))
+                        is_hexa = 1;
                 }
             }
 
-          /* On ne va pas remplacer si c'est finalement une Variable / Label / une forme hexa */
-          if(is_variable || is_label || is_hexa)
-            strcat(param->buffer_operand,tab_element[i]);               /* Variable */
-          else
+            /* We will not replace if it's finally a Variable / Label / Hex form */
+            if(is_variable || is_label || is_hexa)
+                strcat(param->buffer_operand,tab_element[i]);               /* Variable */
+            else
             {
-              strcat(param->buffer_operand,"{");
-              strcat(param->buffer_operand,current_equivalence->value);   /* Equivalence */
-              strcat(param->buffer_operand,"}");
+                strcat(param->buffer_operand,"{");
+                strcat(param->buffer_operand,current_equivalence->value);   /* Equivalence */
+                strcat(param->buffer_operand,"}");
             }
         }
-      else
-        strcat(param->buffer_operand,tab_element[i]);
+        else
+            strcat(param->buffer_operand,tab_element[i]);
     }
-  
-  /* Libération mémoire du tableau de valeurs */
-  mem_free_table(nb_element,tab_element);
 
-  /** Remplace l'Operande (si qqchose a été changé) **/
-  if(strcmp(param->buffer_operand,current_line->operand_txt))
+    /* Memory release of the table of values */
+    mem_free_table(nb_element,tab_element);
+
+    /** Replaces the Operand (if something has been changed) **/
+    if(strcmp(param->buffer_operand,current_line->operand_txt))
     {
-      /* Nouvelle chaine */
-      new_operand = strdup(param->buffer_operand);
-      if(new_operand == NULL)
-        my_RaiseError(ERROR_RAISE,"Impossible to allocate memory to replace an Equivalence");
+        /* New operand */
+        new_operand = strdup(param->buffer_operand);
+        if(new_operand == NULL)
+            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory to replace an Equivalence");
 
-      /* Libère l'ancienne */
-      free(current_line->operand_txt);
+        /* Free the old */
+        free(current_line->operand_txt);
 
-      /* ositionne la nouvelle */
-      current_line->operand_txt = new_operand;
+        /* store the new */
+        current_line->operand_txt = new_operand;
 
-      /* Modification */
-      modified = 1;
+        /* Note that we modified the line */
+        modified = 1;
     }
 
-  /* At t'on modifié la ligne ? */
-  return(modified);
+    /* Return if we changed the line */
+    return(modified);
 }
 
 
-/**********************************************/
-/*  IsLocalLabel() :  Est-ce un label local ? */
-/**********************************************/
+/*******************************************/
+/*  IsLocalLabel() :  Is it a local label? */
+/*******************************************/
 static int IsLocalLabel(char *label_name, struct omf_segment *current_omfsegment)
 {
-  struct source_line *current_line;
-  struct source_file *first_file;
+    struct source_line *current_line = NULL;
+    struct source_file *first_file = NULL;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ne prend pas les Variables dans les Macro */
-      if(current_line->type != LINE_CODE && current_line->type_aux != LINE_DATA)
-        continue;
+        /* We do not process Variables in Macro */
+        if(current_line->type != LINE_CODE && current_line->type_aux != LINE_DATA)
+            continue;
 
-      /* Recherche le ]label */
-      if(strcmp(current_line->label_txt,label_name))
-        return(1);
+        /* Search for local ]label */
+        if(strcmp(current_line->label_txt,label_name))
+            return(1);
     }
 
-  /* Pas trouvé */
-  return(0);
+    /* Pas trouvé */
+    return(0);
 }
 
 
-/*******************************************************************/
-/*  BuildVariableTable() :  Construction des tables des Variables. */
-/*******************************************************************/
+/***********************************************************/
+/*  BuildVariableTable() :  Construct the Variable Tables. */
+/***********************************************************/
 int BuildVariableTable(struct omf_segment *current_omfsegment)
 {
-  struct variable *current_variable;
-  struct source_line *current_line;
-  struct source_file *first_file;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct variable *current_variable = NULL;
+    struct source_line *current_line = NULL;
+    struct source_file *first_file = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /* Init */
-  my_Memory(MEMORY_SORT_VARIABLE,NULL,NULL,current_omfsegment);
+    /* Init */
+    my_Memory(MEMORY_SORT_VARIABLE,NULL,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On ne prend pas les Variables dans les Macro */
-      if(current_line->type == LINE_DIRECTIVE && current_line->type_aux == LINE_MACRO_DEF)
-        continue;
+        /* We do not process Variables in Macro */
+        if(current_line->type == LINE_DIRECTIVE && current_line->type_aux == LINE_MACRO_DEF)
+            continue;
 
-      /* On ne prend que les lignes avec label */
-      if(strlen(current_line->label_txt) == 0)
-        continue;
+        /* We only take lignes avec label */
+        if(strlen(current_line->label_txt) == 0)
+            continue;
 
-      /* On ne prend que les Variables ]XX = */
-      if(current_line->type != LINE_VARIABLE)
-        continue;
+        /* We only take Variables ]XX = */
+        if(current_line->type != LINE_VARIABLE)
+            continue;
 
-      /** Recherche d'une variable de même nom déjà existante **/
-      my_Memory(MEMORY_SEARCH_VARIABLE,current_line->label_txt,&current_variable,current_omfsegment);
+        /** Search for a variable of the same name already exist **/
+        my_Memory(MEMORY_SEARCH_VARIABLE,current_line->label_txt,&current_variable,current_omfsegment);
 
-      /** Allocation d'une nouvelle structure Variable **/
-      if(current_variable == NULL)
+        /** Allocate a new variable structure **/
+        if(current_variable == NULL)
         {
-          current_variable = (struct variable *) calloc(1,sizeof(struct variable));
-          if(current_variable == NULL)
-            my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure variable");
-          current_variable->name = strdup(current_line->label_txt);
-          if(current_variable->name == NULL)
+            current_variable = (struct variable *) calloc(1,sizeof(struct variable));
+            if(current_variable == NULL)
+                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure variable");
+            current_variable->name = strdup(current_line->label_txt);
+            if(current_variable->name == NULL)
             {
-              free(current_variable);
-              my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure variable");
+                free(current_variable);
+                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure variable");
             }
 
-          /* Initialisation à 0 */
-          current_variable->value = 0;
+            current_variable->value = 0;
 
-          /* Format $, #$ */
-          if(current_line->operand_txt[0] == '$')
-            current_variable->is_dollar = 1;
-          else if(current_line->operand_txt[0] == '#')
+            /* Format $, #$ */
+            if(current_line->operand_txt[0] == '$')
+                current_variable->is_dollar = 1;
+            else if(current_line->operand_txt[0] == '#')
             {
-              if(current_line->operand_txt[1] == '$')
-                current_variable->is_pound_dollar = 1;
-              else
-                current_variable->is_pound = 1;
+                if(current_line->operand_txt[1] == '$')
+                    current_variable->is_pound_dollar = 1;
+                else
+                    current_variable->is_pound = 1;
             }
 
-          /* Déclaration de la structure */
-          my_Memory(MEMORY_ADD_VARIABLE,current_variable,NULL,current_omfsegment);
+            /* Create the structure */
+            my_Memory(MEMORY_ADD_VARIABLE,current_variable,NULL,current_omfsegment);
         }
 
-      /* On fait pointer cette ligne vers la variable */
-      current_line->variable = current_variable;
+        /* This line is pointed at the variable */
+        current_line->variable = current_variable;
     }
 
-  /* Tri les Variables */
-  my_Memory(MEMORY_SORT_VARIABLE,NULL,NULL,current_omfsegment);
+    /* Sort the Variables */
+    my_Memory(MEMORY_SORT_VARIABLE,NULL,NULL,current_omfsegment);
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*******************************************************************/
-/*  BuildReferenceTable() :  Construction des tables de référence. */
-/*******************************************************************/
+/***************************************************************/
+/*  BuildReferenceTable() :  Construction of reference tables. */
+/***************************************************************/
 void BuildReferenceTable(struct omf_segment *current_omfsegment)
 {
-  int i;
+    /** Opcode **/
+    for(int i=0; opcode_list[i]!=NULL; i++)
+        my_Memory(MEMORY_ADD_OPCODE,opcode_list[i],NULL,current_omfsegment);
+    my_Memory(MEMORY_SORT_OPCODE,NULL,NULL,current_omfsegment);
 
-  /** Opcode **/
-  for(i=0; opcode_list[i]!=NULL; i++)
-    my_Memory(MEMORY_ADD_OPCODE,opcode_list[i],NULL,current_omfsegment);
-  my_Memory(MEMORY_SORT_OPCODE,NULL,NULL,current_omfsegment);
+    /** Data **/
+    for(int i=0; data_list[i]!=NULL; i++)
+        my_Memory(MEMORY_ADD_DATA,data_list[i],NULL,current_omfsegment);
+    my_Memory(MEMORY_SORT_DATA,NULL,NULL,current_omfsegment);
 
-  /** Data **/
-  for(i=0; data_list[i]!=NULL; i++)
-    my_Memory(MEMORY_ADD_DATA,data_list[i],NULL,current_omfsegment);
-  my_Memory(MEMORY_SORT_DATA,NULL,NULL,current_omfsegment);
+    /** Directive **/
+    for(int i=0; directive_list[i]!=NULL; i++)
+        my_Memory(MEMORY_ADD_DIRECTIVE,directive_list[i],NULL,current_omfsegment);
+    my_Memory(MEMORY_SORT_DIRECTIVE,NULL,NULL,current_omfsegment);
 
-  /** Directive **/
-  for(i=0; directive_list[i]!=NULL; i++)
-    my_Memory(MEMORY_ADD_DIRECTIVE,directive_list[i],NULL,current_omfsegment);
-  my_Memory(MEMORY_SORT_DIRECTIVE,NULL,NULL,current_omfsegment);
-
-  /** DirectiveEqu **/
-  for(i=0; equivalence_list[i]!=NULL; i++)
-    my_Memory(MEMORY_ADD_DIREQU,equivalence_list[i],NULL,current_omfsegment);
-  my_Memory(MEMORY_SORT_DIREQU,NULL,NULL,current_omfsegment);
+    /** DirectiveEqu **/
+    for(int i=0; equivalence_list[i]!=NULL; i++)
+        my_Memory(MEMORY_ADD_DIREQU,equivalence_list[i],NULL,current_omfsegment);
+    my_Memory(MEMORY_SORT_DIREQU,NULL,NULL,current_omfsegment);
 }
 
 
-/***********************************************************************/
-/*  ProcessMXDirective() :  On va reconnaitres les MX de chaque ligne. */
-/***********************************************************************/
+/*******************************************************************/
+/*  ProcessMXDirective() :  We will recognize the MX of each line. */
+/*******************************************************************/
 int ProcessMXDirective(struct omf_segment *current_omfsegment)
 {
-  BYTE byte_count, bit_shift;
-  WORD offset_reference;
-  DWORD address_long;
-  int is_reloc;
-  int64_t value;
-  char m, x;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct external *current_external;
-  char buffer_error[1024];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    BYTE byte_count = 0, bit_shift = 0;
+    WORD offset_reference = 0;
+    DWORD address_long = 0;
+    int is_reloc = 0;
+    int64_t value = 0;
+    char m  = '1', x = '1';
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct external *current_external = NULL;
+    char buffer_error[1024];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Init */
-  m = '1';
-  x = '1';
+    /* Recover the 1st source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    if(first_file == NULL)
+        return(0);
 
-  /* Récupère le 1er fichier source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
-  if(first_file == NULL)
-    return(0);
-
-  /*** Passe en revue toutes les lignes ***/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /*** Process all lines ***/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes invalides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /** Nouvelle valeur de M et X **/
-      if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"MX"))
+        /** New value of M and X **/
+        if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"MX"))
         {
-          /* Récupère la valeur */
-          value = EvalExpressionAsInteger(current_line->operand_txt,buffer_error,current_line,current_line->nb_byte-1,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-          if(strlen(buffer_error) > 0)
+            /* Recover the value */
+            value = EvalExpressionAsInteger(current_line->operand_txt,buffer_error,current_line,current_line->nb_byte-1,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+            if(strlen(buffer_error) > 0)
             {
-              sprintf(param->buffer_error,"Impossible to evaluate MX value '%s' (line %d from file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                sprintf(param->buffer_error,"Impossible to evaluate MX value '%s' (line %d from file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
-          if(value < 0 || value > 3)
+            if(value < 0 || value > 3)
             {
-              sprintf(param->buffer_error,"Bad value '%d' for MX directive '%s' (line %d from file '%s') : %s",(int)value,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                sprintf(param->buffer_error,"Bad value '%d' for MX directive '%s' (line %d from file '%s') : %s",(int)value,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
 
-          /* Décode M et X */
-          m = ((value & 0x02) == 0) ? '0' : '1';
-          x = ((value & 0x01) == 0) ? '0' : '1';
+            /* Decode M and X */
+            m = ((value & 0x02) == 0) ? '0' : '1';
+            x = ((value & 0x01) == 0) ? '0' : '1';
 
-          /** On place les valeurs MX sur la ligne **/
-          current_line->m[0] = m;
-          current_line->x[0] = x;
+            /** Put the MX values on the line **/
+            current_line->m[0] = m;
+            current_line->x[0] = x;
         }
-      else if(current_line->type == LINE_CODE && (!my_stricmp(current_line->opcode_txt,"REP") || !my_stricmp(current_line->opcode_txt,"SEP")))
+        else if(current_line->type == LINE_CODE && (!my_stricmp(current_line->opcode_txt,"REP") || !my_stricmp(current_line->opcode_txt,"SEP")))
         {
-          /* Récupère la valeur */
-          value = EvalExpressionAsInteger(current_line->operand_txt,buffer_error,current_line,1,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-          if(strlen(buffer_error) > 0)
+            /* Recover the value */
+            value = EvalExpressionAsInteger(current_line->operand_txt,buffer_error,current_line,1,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+            if(strlen(buffer_error) > 0)
             {
-              sprintf(param->buffer_error,"Impossible to evaluate %s value '%s' (line %d from file '%s') : %s",current_line->opcode_txt,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                sprintf(param->buffer_error,"Impossible to evaluate %s value '%s' (line %d from file '%s') : %s",current_line->opcode_txt,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
-          if(value < 0 || value > 256)
+            if(value < 0 || value > 256)
             {
-              sprintf(param->buffer_error,"Bad value '%d' for %s '%s' (line %d from file '%s') : %s",(int)value,current_line->opcode_txt,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
-            }
-
-          /* Décode M et X */
-          if(!my_stricmp(current_line->opcode_txt,"REP"))
-            {
-              m = ((value & 0x20) == 0) ? m : '0';
-              x = ((value & 0x10) == 0) ? x : '0';
-            }
-          else   /* SEP */
-            {
-              m = ((value & 0x20) == 0) ? m : '1';
-              x = ((value & 0x10) == 0) ? x : '1';
+                sprintf(param->buffer_error,"Bad value '%d' for %s '%s' (line %d from file '%s') : %s",(int)value,current_line->opcode_txt,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
 
-          /** On place les valeurs MX sur la ligne **/
-          current_line->m[0] = m;
-          current_line->x[0] = x;
+            /* Decode M and X */
+            if(!my_stricmp(current_line->opcode_txt,"REP"))
+            {
+                m = ((value & 0x20) == 0) ? m : '0';
+                x = ((value & 0x10) == 0) ? x : '0';
+            }
+            else   /* SEP */
+            {
+                m = ((value & 0x20) == 0) ? m : '1';
+                x = ((value & 0x10) == 0) ? x : '1';
+            }
+
+            /** Put the MX values on the line **/
+            current_line->m[0] = m;
+            current_line->x[0] = x;
         }
-      else if(current_line->type == LINE_CODE && !my_stricmp(current_line->opcode_txt,"SEC") && current_line->next != NULL)
+        else if(current_line->type == LINE_CODE && !my_stricmp(current_line->opcode_txt,"SEC") && current_line->next != NULL)
         {
-          /** On place les valeurs MX sur la ligne **/
-          current_line->m[0] = m;
-          current_line->x[0] = x;
+            /** Put the MX values on the line **/
+            current_line->m[0] = m;
+            current_line->x[0] = x;
 
-          /* On a un XCE qui suit => 8 bit */
-          if(current_line->next->is_valid == 1 && current_line->next->type == LINE_CODE && !my_stricmp(current_line->next->opcode_txt,"XCE"))
+            /* We have an XCE that follows => 8 bit */
+            if(current_line->next->is_valid == 1 && current_line->next->type == LINE_CODE && !my_stricmp(current_line->next->opcode_txt,"XCE"))
             {
-              m = '1';
-              x = '1';
+                m = '1';
+                x = '1';
             }
         }
-      else
+        else
         {
-          /** On place les valeurs MX sur la ligne **/
-          current_line->m[0] = m;
-          current_line->x[0] = x;
+            /** Put the MX values on the line **/
+            current_line->m[0] = m;
+            current_line->x[0] = x;
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
 /**********************************************************************/
-/*  EvaluateVariableLine() :  Evaluation de la variable sur sa ligne. */
+/*  EvaluateVariableLine() :  Evaluation of the variable on its line. */
 /**********************************************************************/
 int EvaluateVariableLine(struct source_line *current_line, struct omf_segment *current_omfsegment)
 {
-  int64_t value;
-  int is_reloc;
-  BYTE byte_count, bit_shift; 
-  WORD offset_reference;
-  DWORD address_long;
-  char buffer_error[1024] = "";
-  struct variable *current_variable;
-  struct external *current_external;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    int64_t value = 0;
+    int is_reloc = 0;
+    BYTE byte_count = 0, bit_shift = 0;
+    WORD offset_reference = 0;
+    DWORD address_long = 0;
+    char buffer_error[1024] = "";
+    struct variable *current_variable = NULL;
+    struct external *current_external = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /** On va rechercher la variable **/
-  my_Memory(MEMORY_SEARCH_VARIABLE,current_line->label_txt,&current_variable,current_omfsegment);
-  if(current_variable == NULL)
-    return(0);
+    /** Look for the variable **/
+    my_Memory(MEMORY_SEARCH_VARIABLE,current_line->label_txt,&current_variable,current_omfsegment);
+    if(current_variable == NULL)
+        return(0);
 
-  /** On va évaluer la variable **/
-  value = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,4,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-  if(strlen(buffer_error) > 0)
+    /** Evaluate the variable **/
+    value = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,4,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+    if(strlen(buffer_error) > 0)
     {
-      sprintf(param->buffer_error,"Impossible to evaluate Variable '%s' value '%s' (line %d, file '%s') : %s",
-              current_variable->name,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-      my_RaiseError(ERROR_RAISE,param->buffer_error);      
+        sprintf(param->buffer_error,"Impossible to evaluate Variable '%s' value '%s' (line %d, file '%s') : %s",
+                current_variable->name,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+        my_RaiseError(ERROR_RAISE,param->buffer_error);
     }
 
-  /* Stocke la valeur */
-  current_variable->value = value;
+    /* Stores the value */
+    current_variable->value = value;
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
 /***********************************************************************/
-/*  ComputeLineAddress() :  Détermine les adresses des lignes valides. */
+/*  ComputeLineAddress() : Determine the addresses of the valid lines. */
 /***********************************************************************/
 int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_project *current_omfproject)
 {
-  BYTE byte_count, bit_shift;
-  WORD offset_reference;
-  DWORD address_long;
-  int64_t new_address_64, dum_address_64;
-  int line_number, current_address, global_address, new_address, dum_address, nb_byte, has_previous_label, is_reloc, is_first_org, is_fix_address;
-  int current_bank, global_bank, new_bank, dum_bank;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct external *current_external;
-  char *next_sep;
-  char operand[1024];
-  char buffer_error[1024];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    BYTE byte_count = 0, bit_shift = 0;
+    WORD offset_reference = 0;
+    DWORD address_long = 0;
+    int64_t new_address_64 = 0, dum_address_64 = 0;
+    int line_number = 0, current_address = 0, global_address = 0, new_address = 0, dum_address = 0, nb_byte = 0, has_previous_label = 0, is_reloc = 0, is_first_org = 0, is_fix_address = 0;
+    int current_bank = 0, global_bank = 0, new_bank = 0, dum_bank = 0;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct external *current_external = NULL;
+    char *next_sep = NULL;
+    char operand[1024];
+    char buffer_error[1024];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Init */
-  if(current_omfproject->is_omf == 1)
+    /* Init */
+    if(current_omfproject->is_omf == 1)
     {
-      /* Le code OMF est relogeable */
-      current_bank = 0;
-      current_address = 0x0000;
-      current_omfsegment->is_omf = 1;
-      is_fix_address = 0;
+        /* The OMF code is relocatable */
+        current_bank = 0;
+        current_address = 0x0000;
+        current_omfsegment->is_omf = 1;
+        is_fix_address = 0;
     }
-  else if(current_omfproject->is_single_binary == 1)
+    else if(current_omfproject->is_single_binary == 1)
     {
-      /* L'adresse ORG est transmise de Segment en Segment (qui s'enchainent) */
-      current_bank = (current_omfsegment->org_address >> 16);
-      current_address = 0xFFFF & current_omfsegment->org_address;
-      is_fix_address = 0;
+        /* The ORG address is passed from Segment to Segment (which follow one another) */
+        current_bank = (current_omfsegment->org_address >> 16);
+        current_address = 0xFFFF & current_omfsegment->org_address;
+        is_fix_address = 0;
     }
-  else
+    else
     {
-      current_bank = 0;
-      current_address = 0x8000;
-      is_fix_address = 1;
+        current_bank = 0;
+        current_address = 0x8000;
+        is_fix_address = 1;
     }
-  global_bank = current_bank;
-  global_address = current_address;
-  has_previous_label = 0;
-  line_number = 1;
-  is_first_org = 1;
+    global_bank = current_bank;
+    global_address = current_address;
+    has_previous_label = 0;
+    line_number = 1;
+    is_first_org = 1;
 
-  /* Récupère le 1er fichier source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
-  if(first_file == NULL)
-    return(0);
+    /* Recover the 1st source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    if(first_file == NULL)
+        return(0);
 
-  /** Numérote toutes les lignes **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Number all lines **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes invalides */
-      if(current_line->is_valid == 0)
-        continue;
-
-      /* Numéro de la ligne du Projet */
-      current_line->line_number = line_number++;
-    }
-
-  /** Recherche un REL si on ne sait pas encore quel est le type de projet **/
-  if(current_omfproject->is_omf == 0 && current_omfproject->is_single_binary == 0 && current_omfproject->is_multi_fixed == 0)
-    {
-      for(current_line=first_file->first_line; current_line; current_line=current_line->next)
-        {
-          /* On ignore les lignes invalides */
-          if(current_line->is_valid == 0)
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
             continue;
 
-          /** On cherche le 1er REL **/
-          if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"REL"))
+        /* Set Line Number */
+        current_line->line_number = line_number++;
+    }
+
+    /** Search an REL if we do not know yet what is the type of project **/
+    if(current_omfproject->is_omf == 0 && current_omfproject->is_single_binary == 0 && current_omfproject->is_multi_fixed == 0)
+    {
+        for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+        {
+            /* Invalid lines are ignored */
+            if(current_line->is_valid == 0)
+                continue;
+
+            /** We are looking for the first REL **/
+            if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"REL"))
             {
-              /* On ne doit rien y avoir avant */
-              if(has_previous_label == 1)
+                /* We must not have anything before */
+                if(has_previous_label == 1)
                 {
-                  sprintf(param->buffer_error,"Error : The REL directive should be located at the top of the file (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Error : The REL directive should be located at the top of the file (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
 
-              /* L'assemblage va commence en $0000 */
-              current_bank = 0;
-              current_address = 0x0000;
-              global_bank = 0;
-              global_address = 0x0000;
+                /* The assembly will start in $0000 */
+                current_bank = 0;
+                current_address = 0x0000;
+                global_bank = 0;
+                global_address = 0x0000;
 
-              /* Le fichier est relogeable au format OMF */
-              current_omfsegment->is_omf = 1;
-              current_omfproject->is_omf = 1;
-              is_fix_address = 0;
-              break;
+                /* The file can be relocated in OMF format */
+                current_omfsegment->is_omf = 1;
+                current_omfproject->is_omf = 1;
+                is_fix_address = 0;
+                break;
             }
-          else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"USE"))
-            has_previous_label = 1;
-          else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"PUT"))
-            has_previous_label = 1;
-          else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"PUTBIN"))
-            has_previous_label = 1;
-          else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"OBJ") && current_omfsegment->is_omf == 1)
+            else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"USE"))
+                has_previous_label = 1;
+            else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"PUT"))
+                has_previous_label = 1;
+            else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"PUTBIN"))
+                has_previous_label = 1;
+            else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"OBJ") && current_omfsegment->is_omf == 1)
             {
-              /* Never Here */
-              sprintf(param->buffer_error,"Error : The OBJ directive is not allowed with source code having already define a REL directive (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                /* Never Here */
+                sprintf(param->buffer_error,"Error : The OBJ directive is not allowed with source code having already define a REL directive (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
-          else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"ORG") && current_omfsegment->is_omf == 1)
+            else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"ORG") && current_omfsegment->is_omf == 1)
             {
-              /* Never Here */
-              sprintf(param->buffer_error,"Error : The ORG directive is not allowed with source code having already define a REL directive (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
-            }            
-          else if((current_line->type == LINE_CODE || current_line->type == LINE_DATA || current_line->type == LINE_MACRO || current_line->type == LINE_EMPTY || current_line->type == LINE_GLOBAL) && strlen(current_line->label_txt) > 0)
-            has_previous_label = 1;
+                /* Never Here */
+                sprintf(param->buffer_error,"Error : The ORG directive is not allowed with source code having already define a REL directive (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
+            }
+            else if((current_line->type == LINE_CODE || current_line->type == LINE_DATA || current_line->type == LINE_MACRO || current_line->type == LINE_EMPTY || current_line->type == LINE_GLOBAL) && strlen(current_line->label_txt) > 0)
+                has_previous_label = 1;
         }
     }
     
-  /*** Passe en revue toutes les lignes ***/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /*** Process all lines ***/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /** Directive modifiant l'adresse : ORG+DUM **/
-      if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"ORG"))
+        /** Directive amending the address: ORG + DUM **/
+        if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"ORG"))
         {
-          /** Org $Addr (pour les OMF et les SingleBinary, on a une zone [ORG $Addr - ORG] à adresse fixe) **/
-          if(strlen(current_line->operand_txt) > 0)
-            { 
-              /* Récupère la nouvelle addresse */
-              new_address_64 = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-              if(strlen(buffer_error) > 0)
+            /** Org $ Addr (for OMFs and SingleBinary, we have an area [ORG $ Addr - ORG] or fixed address) **/
+            if(strlen(current_line->operand_txt) > 0)
+            {
+                /* Retrieve the new address */
+                new_address_64 = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+                if(strlen(buffer_error) > 0)
                 {
-                  sprintf(param->buffer_error,"Error : Impossible to evaluate ORG Address : '%s' (line %d, file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Error : Impossible to evaluate ORG Address : '%s' (line %d, file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
-              /* On ne conserve que 32 bit */
-              new_address = (int) (0xFFFFFFFF & new_address_64);
+                /* We only keep 32 bits */
+                new_address = (int) (0xFFFFFFFF & new_address_64);
 
-              /* On reste dans les 64 KB */
-              new_bank = new_address >> 16;
-              new_address = new_address & 0xFFFF;
+                /* We stay in the 64 KB */
+                new_bank = new_address >> 16;
+                new_address = new_address & 0xFFFF;
 
-              /* Nouvelle addresse */
-              current_line->bank = current_bank;
-              current_line->address = current_address;
-              current_line->is_fix_address = is_fix_address;
-              current_line->global_bank = global_bank;          /* Adresse sans tenir compte des [ORG $Addr ORG] */
-              current_line->global_address = global_address;
-              current_bank = new_bank;
-              current_address = new_address;
+                /* Nouvelle addresse */
+                current_line->bank = current_bank;
+                current_line->address = current_address;
+                current_line->is_fix_address = is_fix_address;
+                current_line->global_bank = global_bank;          /* Address without consideration of [ORG $ Addr ORG] */
+                current_line->global_address = global_address;
+                current_bank = new_bank;
+                current_address = new_address;
 
-              /* Le premier ORG nous sert à définir l'adresse globale (pour les binaires à adresse fixe) */
-              if(is_first_org == 1 && current_omfproject->is_omf == 0 && current_omfproject->is_single_binary == 0)
+                /* The first ORG is used to define the global address (for fixed address binaries) */
+                if(is_first_org == 1 && current_omfproject->is_omf == 0 && current_omfproject->is_single_binary == 0)
                 {
-                  global_bank = new_bank;
-                  global_address = new_address;
-                  is_first_org = 0;
+                    global_bank = new_bank;
+                    global_address = new_address;
+                    is_first_org = 0;
                 }
                 
-              /* A partir de maintenant toutes les lignes sont en adresses Fixes => pas relogeable */
-              is_fix_address = 1;
-              continue;
+                /* From now on all lines are in Fixed addresses => not relocatable */
+                is_fix_address = 1;
+                continue;
             }
-          else    /* ORG */
+            else    /* ORG */
             {
-              /** On rétablit l'adresse du fichier global **/
-              current_bank = global_bank;
-              current_address = global_address;
-              
-              /* A partir de maintenant toutes les lignes OMF / SingleBinary ne sont plus en adresses Fixes */
-              if(current_omfproject->is_omf == 1 || current_omfproject->is_single_binary == 1)
-                is_fix_address = 0;
+                /** The address of the global file is reestablished **/
+                current_bank = global_bank;
+                current_address = global_address;
+
+                /* From now on all OMF / SingleBinary lines are no longer in Fixed addresses */
+                if(current_omfproject->is_omf == 1 || current_omfproject->is_single_binary == 1)
+                    is_fix_address = 0;
             }
         }
-      else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"DUM"))
+        else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"DUM"))
         {
-          /* Récupère la nouvelle addresse */
-          dum_address_64 = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-          if(strlen(buffer_error) > 0)
+            /* Retrieve the new address */
+            dum_address_64 = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+            if(strlen(buffer_error) > 0)
             {
-              sprintf(param->buffer_error,"Error : Impossible to evaluate DUM Address : '%s' (line %d, file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                sprintf(param->buffer_error,"Error : Impossible to evaluate DUM Address : '%s' (line %d, file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
-          /* On ne conserve que 32 bit */
-          dum_address = (int) (0xFFFFFFFF & dum_address_64);
+            /* We only keep 32 bits */
+            dum_address = (int) (0xFFFFFFFF & dum_address_64);
 
-          /* On reste dans les 64 KB */
-          dum_bank = dum_address >> 16;
-          dum_address = 0xFFFF & dum_address;
+            /* We stay in the 64 KB */
+            dum_bank = dum_address >> 16;
+            dum_address = 0xFFFF & dum_address;
         }
 
-      /* On met l'adresse courrante à la ligne */
-      if(current_line->is_dum == 1)
+        /* Put the running address on the line */
+        if(current_line->is_dum == 1)
         {
-          current_line->bank = dum_bank;
-          current_line->address = dum_address;
-          current_line->is_fix_address = is_fix_address;
-          current_line->global_bank = global_bank;          /* Adresse sans tenir compte des [ORG $Addr ORG] */
-          current_line->global_address = global_address;
+            current_line->bank = dum_bank;
+            current_line->address = dum_address;
+            current_line->is_fix_address = is_fix_address;
+            current_line->global_bank = global_bank;          /* Address without consideration of [ORG $ Addr ORG] */
+            current_line->global_address = global_address;
 
-          /* On définit l'adresse suivante */
-          if(current_line->nb_byte == 0xFFFF)
+            /* Define the following address */
+            if(current_line->nb_byte == 0xFFFF)
             {
-              /* Cas particulier des lignes DS \ : Alignement sur le prochain $100 */
-              nb_byte = 0x100 - (dum_address & 0x0000FF);
-              current_line->nb_byte = nb_byte;
-              dum_address += nb_byte;
+                /* Special case of DS lines: Alignment on the next $100 */
+                nb_byte = 0x100 - (dum_address & 0x0000FF);
+                current_line->nb_byte = nb_byte;
+                dum_address += nb_byte;
             }
-          else if(current_line->nb_byte == 0xFFFFF)
+            else if(current_line->nb_byte == 0xFFFFF)
             {
-              /** Cas particulier des lignes DS avec des Labels dedans : On essaye de ré-évaluer **/
-              /* Isole l'expression indiquant la longueur */
-              strcpy(operand,current_line->operand_txt);
-              next_sep = strchr(operand,',');
-              if(next_sep)
-                *next_sep = '\0';
+                /** Special case of DS lines with Labels in: We try to reevaluate **/
+                /* Isolate the expression indicating the length */
+                strcpy(operand,current_line->operand_txt);
+                next_sep = strchr(operand,',');
+                if(next_sep)
+                    *next_sep = '\0';
 
-              /* Calcule l'expression */
-              nb_byte = (int) EvalExpressionAsInteger(operand,&buffer_error[0],current_line,3,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-              if(strlen(buffer_error) > 0)
+                /* Calculate the expression */
+                nb_byte = (int) EvalExpressionAsInteger(operand,&buffer_error[0],current_line,3,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+                if(strlen(buffer_error) > 0)
                 {
-                  sprintf(param->buffer_error,"Error : Impossible to evaluate DS data size : '%s' (line %d, file '%s') : %s",operand,current_line->file_line_number,current_line->file->file_name,buffer_error);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Error : Impossible to evaluate DS data size : '%s' (line %d, file '%s') : %s",operand, current_line->file_line_number, current_line->file->file_name, buffer_error);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
-              if(nb_byte < 0)
+                if(nb_byte < 0)
                 {
-                  sprintf(param->buffer_error,"Error : Evaluation of DS data size ends up as negative value (%d) : '%d' (line %d, file '%s')",nb_byte,operand,current_line->file_line_number,current_line->file->file_name);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Error : Evaluation of DS data size ends up as negative value (%d) : '%s' (line %d, file '%s')",nb_byte, operand, current_line->file_line_number, current_line->file->file_name);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
                 
-              /* On a enfin la taille occupée par la ligne */
-              current_line->nb_byte = nb_byte;
-              dum_address += nb_byte;
+                /* We finally have the size occupied by the line */
+                current_line->nb_byte = nb_byte;
+                dum_address += nb_byte;
             }
-          else
+            else
             {
-              /* On saute de la taille de l'instruction */
-              dum_address += current_line->nb_byte;
+                /* We jump from the size of the instruction */
+                dum_address += current_line->nb_byte;
             }
 
-          /* Erreur : on dépasse 64 KB */
-          if(dum_address > 0xFFFF)
+            /* Error: exceeds 64 KB */
+            if(dum_address > 0xFFFF)
             {
-              sprintf(param->buffer_error,"Error : DUM Object code size > 64 KB (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                sprintf(param->buffer_error,"Error : DUM Object code size > 64 KB (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
         }
-      else
+        else
         {
-          /* Adresse de la ligne */
-          current_line->bank = current_bank;
-          current_line->address = current_address;
-          current_line->is_fix_address = is_fix_address;
-          current_line->global_bank = global_bank;          /* Adresse sans tenir compte des [ORG $Addr ORG] */
-          current_line->global_address = global_address;
+            /* Address of the line */
+            current_line->bank = current_bank;
+            current_line->address = current_address;
+            current_line->is_fix_address = is_fix_address;
+            current_line->global_bank = global_bank;          /* Address without consideration of [ORG $ Addr ORG] */
+            current_line->global_address = global_address;
 
-          /* On définit l'adresse suivante */
-          if(current_line->nb_byte == 0xFFFF)
+            /* Define the following address */
+            if(current_line->nb_byte == 0xFFFF)
             {
-              /* Cas particulier des lignes DS \ : Alignement sur le prochain $100 */
-              nb_byte = 0x100 - (current_address & 0x0000FF);
-              current_line->nb_byte = nb_byte;
-              current_address += nb_byte;
-              global_address += nb_byte;
+                /* Special case of DS lines: Alignment on the next $100 */
+                nb_byte = 0x100 - (current_address & 0x0000FF);
+                current_line->nb_byte = nb_byte;
+                current_address += nb_byte;
+                global_address += nb_byte;
             }
-          else if(current_line->nb_byte == 0xFFFFF)
+            else if(current_line->nb_byte == 0xFFFFF)
             {
-              /** Cas particulier des lignes DS avec des Labels dedans : On essaye de ré-évaluer **/
-              /* Isole l'expression indiquant la longueur */
-              strcpy(operand,current_line->operand_txt);
-              next_sep = strchr(operand,',');
-              if(next_sep)
-                *next_sep = '\0';
+                /** Special case of DS lines with Labels in: We try to reevaluate **/
+                /* Isolate the expression indicating the length */
+                strcpy(operand,current_line->operand_txt);
+                next_sep = strchr(operand,',');
+                if(next_sep)
+                    *next_sep = '\0';
 
-              /* Calcule l'expression */
-              nb_byte = (int) EvalExpressionAsInteger(operand,&buffer_error[0],current_line,3,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-              if(strlen(buffer_error) > 0)
+                /* Calculate the expression */
+                nb_byte = (int) EvalExpressionAsInteger(operand,&buffer_error[0],current_line,3,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+                if(strlen(buffer_error) > 0)
                 {
-                  sprintf(param->buffer_error,"Error : Impossible to evaluate DS data size : '%s' (line %d, file '%s') : %s",operand,current_line->file_line_number,current_line->file->file_name,buffer_error);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Error : Impossible to evaluate DS data size : '%s' (line %d, file '%s') : %s",operand,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
-              if(nb_byte < 0)
+                if(nb_byte < 0)
                 {
-                  sprintf(param->buffer_error,"Error : Evaluation of DS data size ends up as negative value (%d) : '%s' (line %d, file '%s')",nb_byte,operand,current_line->file_line_number,current_line->file->file_name);
-                  my_RaiseError(ERROR_RAISE,param->buffer_error);
+                    sprintf(param->buffer_error,"Error : Evaluation of DS data size ends up as negative value (%d) : '%s' (line %d, file '%s')",nb_byte,operand,current_line->file_line_number,current_line->file->file_name);
+                    my_RaiseError(ERROR_RAISE,param->buffer_error);
                 }
                 
-              /* On a enfin la taille occupée par la ligne */
-              current_line->nb_byte = nb_byte;
-              current_address += nb_byte;
-              global_address += nb_byte;
+                /* We finally have the size occupied by the line */
+                current_line->nb_byte = nb_byte;
+                current_address += nb_byte;
+                global_address += nb_byte;
             }
-          else if(current_line->nb_byte > 0)
+            else if(current_line->nb_byte > 0)
             {
-              /* On saute de la taille de l'instruction */
-              current_address += current_line->nb_byte;
-              global_address += current_line->nb_byte;
+                /* We jump from the size of the instruction */
+                current_address += current_line->nb_byte;
+                global_address += current_line->nb_byte;
             }
 
-          /* Erreur : on dépasse 64 KB */
-          if(current_address > 0x10000)     /* bug 0xFFFF */
+            /* Error: exceeds 64 KB */
+            if(current_address > 0x10000)     /* @TODO: why is this labelled a bug? 0xFFFF */
             {
-              sprintf(param->buffer_error,"Error : Object code size > 64 KB (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
-              my_RaiseError(ERROR_RAISE,param->buffer_error);
+                sprintf(param->buffer_error,"Error : Object code size > 64 KB (line %d, file '%s')",current_line->file_line_number,current_line->file->file_name);
+                my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/********************************************************************************/
-/*  BuildRelocateAddress() :  On signale une adresse comme devant être patchée. */
-/********************************************************************************/
+/*********************************************************************/
+/*  BuildRelocateAddress() :  An address is marked as to be patched. */
+/*********************************************************************/
 struct relocate_address *BuildRelocateAddress(BYTE ByteCnt, BYTE BitShiftCnt, WORD OffsetPatch, WORD OffsetReference, struct external *current_external, struct omf_segment *current_omfsegment)
 {
-  struct relocate_address *current_address;
-  struct relocate_address *next_address;
+    struct relocate_address *current_address = NULL;
+    struct relocate_address *next_address = NULL;
 
-  /* Allocation mémoire */
-  current_address = (struct relocate_address *) calloc(1,sizeof(struct relocate_address));
-  if(current_address == NULL)
-    my_RaiseError(ERROR_RAISE,"Error : Can't allocate memory for relocate_address structure.");
+    /* Memory allowance */
+    current_address = (struct relocate_address *) calloc(1,sizeof(struct relocate_address));
+    if(current_address == NULL)
+        my_RaiseError(ERROR_RAISE,"Error : Can't allocate memory for relocate_address structure.");
 
-  /* Remplissage */
-  current_address->ByteCnt = ByteCnt;
-  current_address->BitShiftCnt = BitShiftCnt;
-  current_address->OffsetPatch = OffsetPatch;
-  current_address->OffsetReference = OffsetReference;
+    /* Fill out structure */
+    current_address->ByteCnt = ByteCnt;
+    current_address->BitShiftCnt = BitShiftCnt;
+    current_address->OffsetPatch = OffsetPatch;
+    current_address->OffsetReference = OffsetReference;
 
-  /* Si on se référe à un label externe au Segment */
-  current_address->external = current_external;
+    /* Refer to a label external to the Segment */
+    current_address->external = current_external;
 
-  /* Attache en triant les adresses OffsetPath */
-  if(current_omfsegment->first_address == NULL)
+    /* Attaches by sorting OffsetPath addresses */
+    if(current_omfsegment->first_address == NULL)
     {
-      current_omfsegment->first_address = current_address;
-      current_omfsegment->last_address = current_address;
+        current_omfsegment->first_address = current_address;
+        current_omfsegment->last_address = current_address;
     }
-  else
+    else
     {
-      /* Ajoute en 1ère position */
-      if(current_address->OffsetPatch < current_omfsegment->first_address->OffsetPatch)
+        /* Add in 1st position */
+        if(current_address->OffsetPatch < current_omfsegment->first_address->OffsetPatch)
         {
-          current_address->next = current_omfsegment->first_address;
-          current_omfsegment->first_address = current_address;
+            current_address->next = current_omfsegment->first_address;
+            current_omfsegment->first_address = current_address;
         }
-      else if(current_address->OffsetPatch >= current_omfsegment->last_address->OffsetPatch)
+        else if(current_address->OffsetPatch >= current_omfsegment->last_address->OffsetPatch)
         {
-          /* Attache en dernière position */
-          current_omfsegment->last_address->next = current_address;
-          current_omfsegment->last_address = current_address;
+            /* Tie in last position */
+            current_omfsegment->last_address->next = current_address;
+            current_omfsegment->last_address = current_address;
         }
-      else
+        else
         {
-          /* Attache au milieu */
-          for(next_address=current_omfsegment->first_address; ; next_address=next_address->next)
-            if(next_address->next->OffsetPatch >= current_address->OffsetPatch)
-              {
-                current_address->next = next_address->next;
-                next_address->next = current_address;
-                break;
-              }
+            /* Attach in the middle */
+            for(next_address=current_omfsegment->first_address; ; next_address=next_address->next)
+                if(next_address->next->OffsetPatch >= current_address->OffsetPatch)
+                {
+                    current_address->next = next_address->next;
+                    next_address->next = current_address;
+                    break;
+                }
         }
     }
 
-  /* Une addresse de plus */
-  current_omfsegment->nb_address++;
+    /* go to next address */
+    current_omfsegment->nb_address++;
 
-  return(current_address);
+    return(current_address);
 }
 
 
-/**************************************************************************/
-/*  CheckForUnknownLine() :  Recherche toutes les lignes non identifiées. */
-/**************************************************************************/
+/************************************************************/
+/*  CheckForUnknownLine() :  Search all unidentified lines. */
+/************************************************************/
 int CheckForUnknownLine(struct omf_segment *current_omfsegment)
 {
-  int nb_error;
-  struct source_line *current_line;
-  struct source_file *first_file;
+    int nb_error = 0;
+    struct source_line *current_line = NULL;
+    struct source_file *first_file = NULL;
 
-  /* Init */
-  nb_error = 0;
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
-
-  /** Passe toutes les lignes en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On ne prend pas les Label dans les Macro */
-      if(current_line->type == LINE_UNKNOWN)
+        /* We do not take Label in Macro */
+        if(current_line->type == LINE_UNKNOWN)
         {
-          printf("      => [Error] Unkown line : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
-          nb_error++;
+            printf("      => [Error] Unkown line : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
+            nb_error++;
         }
     }
 
-  /* Renvoi le nombre d'erreur détectés */
-  return(nb_error);
+    /* Returns the number of Error detected */
+    return(nb_error);
 }
 
 
-/*************************************************************/
-/*  CheckForDumLine() :  Vérifie toutes les lignes DUM-DEND. */
-/*************************************************************/
+/***************************************************/
+/*  CheckForDumLine() :  Check all DUM-DEND lines. */
+/***************************************************/
 int CheckForDumLine(struct omf_segment *current_omfsegment)
 {
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct source_line *dend_line;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct source_line *dend_line = NULL;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all lines in to review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /* On va rechercher les zones DUM-DEND */
-      if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"DUM"))  
+        /* We will search the DUM-DEND areas */
+        if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"DUM"))
         {
-          /* On vérifie la présence d'un Opérand */
-          if(strlen(current_line->operand_txt) == 0)
+            /* Check for the presence of an Operand */
+            if(strlen(current_line->operand_txt) == 0)
             {
-              printf("      => [Error] Empty DUM line : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
-              return(1);
+                printf("      => [Error] Empty DUM line : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
+                return(1);
             }
 
-          /* On va rechercher le DEND et on marque toutes les lignes entre */
-          for(dend_line=current_line; dend_line; dend_line=dend_line->next)
+            /* We will search the DEND and we mark all the lines between */
+            for(dend_line=current_line; dend_line; dend_line=dend_line->next)
             {
-              /* On ignore les lignes non valides */
-              if(dend_line->is_valid == 0)
-                continue;
+                /* Invalid lines are ignored */
+                if(dend_line->is_valid == 0)
+                    continue;
 
-              /* On marque la ligne */
-              dend_line->is_dum = 1;
-              if(dend_line != current_line)
-                dend_line->dum_line = current_line;
+                /* Mark the line */
+                dend_line->is_dum = 1;
+                if(dend_line != current_line)
+                    dend_line->dum_line = current_line;
 
-              if(dend_line->type == LINE_DIRECTIVE && !my_stricmp(dend_line->opcode_txt,"DEND"))
-                break;
+                if(dend_line->type == LINE_DIRECTIVE && !my_stricmp(dend_line->opcode_txt,"DEND"))
+                    break;
 
-              /* On ne devrait pas retomber sur un DUM */
-              if(current_line != dend_line && dend_line->type == LINE_DIRECTIVE && !my_stricmp(dend_line->opcode_txt,"DUM"))
+                /* We should not fall back on a DUM */
+                if(current_line != dend_line && dend_line->type == LINE_DIRECTIVE && !my_stricmp(dend_line->opcode_txt,"DUM"))
                 {
-                  printf("      => [Error] DUM line with DUM found before DEND : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
-                  return(1);
+                    printf("      => [Error] DUM line with DUM found before DEND : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
+                    return(1);
                 }
             }
 
-          /* Pas de DEND ? */
-          if(dend_line == NULL)
+            /* Past the DEND? */
+            if(dend_line == NULL)
             {
-              printf("      => [Error] DUM line without DEND : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
-              return(1);
+                printf("      => [Error] DUM line without DEND : '%s  %s  %s' in file '%s' (line %d).\n",current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->file->file_name,current_line->file_line_number);
+                return(1);
             }
 
-          /* On continue après */
-          current_line = dend_line;
+            /* We continue after the DEND line */
+            current_line = dend_line;
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/*******************************************************/
-/*  CheckForErrLine() :  Evalue toutes les lignes ERR. */
-/*******************************************************/
+/**************************************************/
+/*  CheckForErrLine() :  Evaluates all ERR lines. */
+/**************************************************/
 int CheckForErrLine(struct omf_segment *current_omfsegment)
 {
-  int64_t value;
-  int is_reloc;
-  BYTE byte_count, bit_shift; 
-  WORD offset_reference;
-  DWORD address_long;
-  char buffer_error[1024] = "";
-  struct external *current_external;
-  struct source_file *first_file;
-  struct source_line *current_line;
+    int64_t value = 0;
+    int is_reloc = 0;
+    BYTE byte_count = 0, bit_shift = 0;
+    WORD offset_reference = 0;
+    DWORD address_long = 0;
+    char buffer_error[1024] = "";
+    struct external *current_external = NULL;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes ERR en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Pass all the ERR lines in review **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
-
-      /** On va rechercher les lignes ERR **/
-      if(current_line->type == LINE_CODE && !my_stricmp(current_line->opcode_txt,"ERR"))  
-        {
-          /* On repasse la ligne en Directive pour le fichier Output */
-          current_line->type = LINE_DIRECTIVE;
-
-          /* On vérifie la présence d'un Opérand, sinon on considère qu'il n'y a pas d'erreur */
-          if(strlen(current_line->operand_txt) == 0)
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
             continue;
 
-          /** On va évaluer l'Opérande **/
-          value = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,4,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
-          if(strlen(buffer_error) > 0)
+        /** Search for ERR lines **/
+        if(current_line->type == LINE_CODE && !my_stricmp(current_line->opcode_txt,"ERR"))
+        {
+            /* We pass the line in Directive for the Output file */
+            current_line->type = LINE_DIRECTIVE;
+
+            /* Check for the presence of an Operand, otherwise we consider that there is no Error */
+            if(strlen(current_line->operand_txt) == 0)
+                continue;
+
+            /** Evaluater the operand **/
+            value = EvalExpressionAsInteger(current_line->operand_txt, &buffer_error[0], current_line, 4, &is_reloc, &byte_count, &bit_shift, &offset_reference, &address_long, &current_external, current_omfsegment);
+            if(strlen(buffer_error) > 0)
             {
-              /* Erreur dans l'évaluation */
-              printf("      => [Error] Impossible to evaluate ERR expression '%s' (line %d, file '%s') : %s\n",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
-              return(1);
+                /* Error in the evaluation */
+                printf("      => [Error] Impossible to evaluate ERR expression '%s' (line %d, file '%s') : %s\n",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
+                return(1);
             }
 
-          /** Si c'est différent de Zéro, c'est une erreur **/
-          if((int) value != 0)
+            /** If it's different from Zero, it's an Error **/
+            if((int) value != 0)
             {
-              /* On force une erreur */
-              printf("      => [Error] The evaluation of ERR expression '%s' is '0x%X' (line %d, file '%s')\n",current_line->operand_txt,(int)value,current_line->file_line_number,current_line->file->file_name);
-              return(1);
+                /* Force Error */
+                printf("      => [Error] The evaluation of ERR expression '%s' is '0x%X' (line %d, file '%s')\n",current_line->operand_txt,(int)value,current_line->file_line_number,current_line->file->file_name);
+                return(1);
             }
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
-/***********************************************************************/
-/*  CheckForDirectPageLine() :  Vérifie toutes les lignes Page Direct. */
-/***********************************************************************/
+/*************************************************************/
+/*  CheckForDirectPageLine() :  Check all Direct Page lines. */
+/*************************************************************/
 int CheckForDirectPageLine(struct omf_segment *current_omfsegment)
 {
-  struct source_file *first_file;
-  struct source_line *current_line;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
 
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
-  /** Passe toutes les lignes Page Direct en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /** Review all Direct Page lines **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
-
-      /** On va rechercher les lignes de code Page Direct **/
-      if(current_line->type == LINE_CODE && IsPageDirectAddressMode(current_line->address_mode))  
-        {
-          /* On vérifie la présence d'un Opérande valide */
-          if(current_line->operand_value == 0xFFFFFFFF)
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
             continue;
 
-          /** Si l'opérande n'est pas une addresse Page Direct => Error **/
-          if((current_line->operand_value & 0xFFFFFF00) != 0x00000000)
+        /** We will search the lines of code Page Direct **/
+        if(current_line->type == LINE_CODE && IsPageDirectAddressMode(current_line->address_mode))
+        {
+            /* Check for the presence of a valid Operand */
+            if(current_line->operand_value == 0xFFFFFFFF)
+                continue;
+
+            /** If the operand is not an address Page Redirect => Error **/
+            if((current_line->operand_value & 0xFFFFFF00) != 0x00000000)
             {
-              /* On force une erreur */
-              printf("      => [Bad Address Mode] Operand address '%s' (=0x%X) is located outside of the Direct Page (line %d, file '%s')\n",current_line->operand_txt,current_line->operand_value,current_line->file_line_number,current_line->file->file_name);
-              return(1);
+                /* Force Error */
+                printf("      => [Bad Address Mode] Operand address '%s' (=0x%X) is located outside of the Direct Page (line %d, file '%s')\n",current_line->operand_txt,current_line->operand_value,current_line->file_line_number,current_line->file->file_name);
+                return(1);
             }
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
 
 /**************************************************************************************************/
-/*  ProcessDirectiveWithLabelLine() :  Conversion des Lignes Directive avec Label en Ligne vides. */
+/*  ProcessDirectiveWithLabelLine() :  Conversion of Directive Lines with Label into Empty Lines. */
 /**************************************************************************************************/
 int ProcessDirectiveWithLabelLine(struct omf_segment *current_omfsegment)
 {
-  int found;
-  struct source_file *first_file;
-  struct source_line *current_line;
-  struct source_line *other_line;
-  
-  /* Récupère le fichier Source */
-  my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+    int found = 0;
+    struct source_file *first_file = NULL;
+    struct source_line *current_line = NULL;
+    struct source_line *other_line = NULL;
 
-  /** Passe toutes les lignes Page Direct en revue **/
-  for(current_line=first_file->first_line; current_line; current_line=current_line->next)
+    /* Recover the Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+
+    /** Review all Direct Page lines **/
+    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
     {
-      /* On ignore les lignes non valides */
-      if(current_line->is_valid == 0)
-        continue;
+        /* Invalid lines are ignored */
+        if(current_line->is_valid == 0)
+            continue;
 
-      /** On va rechercher les lignes DIRECTIVE **/
-      if(current_line->type == LINE_DIRECTIVE && current_line->is_inside_macro == 0 && strlen(current_line->label_txt) > 0)  
+        /** Search lines for DIRECTIVE **/
+        if(current_line->type == LINE_DIRECTIVE && current_line->is_inside_macro == 0 && strlen(current_line->label_txt) > 0)
         {
-          /* On vérifie que le label est utilisé = pointé par une autre ligne */
-          for(other_line=first_file->first_line,found=0; other_line; other_line=other_line->next)
+            /* We check that the label is used = pointed by another line */
+            for(other_line=first_file->first_line,found=0; other_line; other_line=other_line->next)
             {
-              /* On ignore les lignes non valides */
-              if(other_line->is_valid == 0)
-                continue;
+                /* Invalid lines are ignored */
+                if(other_line->is_valid == 0)
+                    continue;
                 
-              /* Cette ligne pointe vers la ligne DIRECTIVE */
-              if(other_line->operand_address_long == current_line->address)
+                /* This line points to the DIRECTIVE line */
+                if(other_line->operand_address_long == (DWORD)current_line->address)
                 {
-                  found = 1;
-                  break;
+                    found = 1;
+                    break;
                 }
             }
 
-          /** On passe la ligne en ligne EMPTY pour qu'elle soit affichée dans l'output **/
-          if(found == 1)
-            current_line->type = LINE_EMPTY;
+            /** We pass the online line EMPTY for it to be displayed in the output **/
+            if(found == 1)
+                current_line->type = LINE_EMPTY;
         }
     }
 
-  /* OK */
-  return(0);
+    /* OK */
+    return(0);
 }
 
-/*********************************************************/
-/*  BuildSourceLine() :  Décodage d'une ligne de Source. */
-/*********************************************************/
+/*************************************************/
+/*  BuildSourceLine() :  Decoding a Source Line. */
+/*************************************************/
 struct source_line *BuildSourceLine(struct source_file *current_file, int line_number)
 {
-  struct source_line *current_line;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    struct source_line *current_line = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Allocation mémoire */
-  current_line = (struct source_line *) calloc(1,sizeof(struct source_line));
-  if(current_line == NULL)
-    return(NULL);
-  current_line->type = LINE_UNKNOWN;
+    /* Memory allowance */
+    current_line = (struct source_line *) calloc(1,sizeof(struct source_line));
+    if(current_line == NULL)
+        return(NULL);
+    current_line->type = LINE_UNKNOWN;
 
-  /* Remplissage */
-  current_line->file_line_number = line_number+1;
-  current_line->line_data = current_file->tab_line[line_number];
-  current_line->file = current_file;
-  
-  /* Cette ligne était dans le fichier Source (contrairement aux lignes venant des Macro ou des Lup) */
-  current_line->is_in_source = 1;
+    /* Fill out structure */
+    current_line->file_line_number = line_number+1;
+    current_line->line_data = current_file->tab_line[line_number];
+    current_line->file = current_file;
 
-  /* Par défaut, toute ligne est valide */
-  current_line->is_valid = 1;
+    /* This line was in the Source file (unlike lines coming from Macro or Lup) */
+    current_line->is_in_source = 1;
 
-  /* Valeurs de E, C, M et X */ 
-  strcpy(current_line->m,"?");
-  strcpy(current_line->x,"?");
+    /* By default, any line is valid */
+    current_line->is_valid = 1;
 
-  /* Reloc */
-  strcpy(current_line->reloc,"         ");
+    /* Values of E, C, M and X */
+    strcpy(current_line->m,"?");
+    strcpy(current_line->x,"?");
 
-  /* Adresse */
-  current_line->address = -1;    /* Pas encore déterminée */
+    /* Reloc */
+    strcpy(current_line->reloc,"         ");
 
-  /* Taille du code objet */
-  current_line->nb_byte = -1;    /* Pas encore déterminé */
+    /* Address */
+    current_line->address = -1;    /* Not yet determined */
 
-  /* La ligne interdit t'elle le Page Direct ? */
-  current_line->no_direct_page = 0;
+    /* Object code size */
+    current_line->nb_byte = -1;    /* Not yet determined */
 
-  /* Valeur de l'Opérande */
-  current_line->operand_value = 0xFFFFFFFF;
+    /* Does the line forbid  Direct Page? */
+    current_line->no_direct_page = 0;
 
-  /* Adresse Longue du Label pointé par l'opérande  */
-  current_line->operand_address_long = 0xFFFFFFFF;
+    /* Value of the Operand */
+    current_line->operand_value = 0xFFFFFFFF;
 
-  /** Lignes commentaire **/
-  strcpy(param->buffer_line,current_line->line_data);
-  CleanBuffer(param->buffer_line);
-  if(strlen(param->buffer_line) == 0 || param->buffer_line[0] == ';' || param->buffer_line[0] == '*')
+    /* Long address of the label pointed by the operand  */
+    current_line->operand_address_long = 0xFFFFFFFF;
+
+    /** Comment lines **/
+    strcpy(param->buffer_line,current_line->line_data);
+    CleanBuffer(param->buffer_line);
+    if(strlen(param->buffer_line) == 0 || param->buffer_line[0] == ';' || param->buffer_line[0] == '*')
     {
-      /* On met du vide dans les champs */
-      current_line->label_txt = strdup("");
-      current_line->opcode_txt = strdup("");
-      current_line->operand_txt = strdup("");
-      current_line->comment_txt = strdup("");
-      if(current_line->label_txt == NULL || current_line->opcode_txt == NULL ||
-         current_line->operand_txt == NULL || current_line->comment_txt == NULL)
+        /* Empty the fields */
+        current_line->label_txt = strdup("");
+        current_line->opcode_txt = strdup("");
+        current_line->operand_txt = strdup("");
+        current_line->comment_txt = strdup("");
+        if(current_line->label_txt == NULL || current_line->opcode_txt == NULL ||
+           current_line->operand_txt == NULL || current_line->comment_txt == NULL)
         {
-          mem_free_sourceline(current_line);
-          return(NULL);
+            mem_free_sourceline(current_line);
+            return(NULL);
         }
-      current_line->type = (strlen(param->buffer_line) == 0) ? LINE_EMPTY : LINE_COMMENT;
-      return(current_line);
+        current_line->type = (strlen(param->buffer_line) == 0) ? LINE_EMPTY : LINE_COMMENT;
+        return(current_line);
     }
 
-  /*** Découpage de la ligne en 4 bloc : Label / Opcode / Operand / Commentaire ***/
-  DecodeLine(current_line->line_data,param->buffer_label,param->buffer_opcode,param->buffer_operand,param->buffer_comment);
-  current_line->label_txt = strdup(param->buffer_label);
-  current_line->opcode_txt = strdup(param->buffer_opcode);
-  current_line->operand_txt = strdup(param->buffer_operand);
-  current_line->comment_txt = strdup(param->buffer_comment);
-  if(current_line->label_txt == NULL || current_line->opcode_txt == NULL ||
-     current_line->operand_txt == NULL || current_line->comment_txt == NULL)
+    /*** Cutting the line in 4 blocks: Label / Opcode / Operand / Comment ***/
+    DecodeLine(current_line->line_data,param->buffer_label,param->buffer_opcode,param->buffer_operand,param->buffer_comment);
+    current_line->label_txt = strdup(param->buffer_label);
+    current_line->opcode_txt = strdup(param->buffer_opcode);
+    current_line->operand_txt = strdup(param->buffer_operand);
+    current_line->comment_txt = strdup(param->buffer_comment);
+    if(current_line->label_txt == NULL || current_line->opcode_txt == NULL ||
+       current_line->operand_txt == NULL || current_line->comment_txt == NULL)
     {
-      mem_free_sourceline(current_line);
-      return(NULL);
+        mem_free_sourceline(current_line);
+        return(NULL);
     }
 
-  /* Renvoi la ligne */
-  return(current_line);
+    /* Return line */
+    return(current_line);
 }
 
 
-/*********************************************************/
-/*  DuplicateSourceLine() :  Duplique une ligne de Code. */
-/*********************************************************/
+/*******************************************************/
+/*  DuplicateSourceLine() :  Duplicate a line of Code. */
+/*******************************************************/
 struct source_line *DuplicateSourceLine(struct source_line *current_line)
 {
-  struct source_line *new_line;
-  
-  /* Allocation mémoire */
-  new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
-  if(new_line == NULL)
-    return(NULL);
-  
-  /* Recopie les valeurs */
-  new_line->line_number = current_line->line_number;
-  new_line->file_line_number = current_line->file_line_number;
-  new_line->file = current_line->file;
-  new_line->type = current_line->type;
-  new_line->type_aux = current_line->type_aux;
-  new_line->is_in_source = current_line->is_in_source;
-  new_line->is_valid = current_line->is_valid;
-  new_line->no_direct_page = current_line->no_direct_page;
-  new_line->use_direct_page = current_line->use_direct_page;
-  new_line->is_inside_macro = current_line->is_inside_macro;
-  new_line->is_dum = current_line->is_dum;
-  new_line->dum_line = current_line->dum_line;
-  new_line->cond_level = current_line->cond_level;
-  strcpy(new_line->m,current_line->m);
-  strcpy(new_line->x,current_line->x);
-  new_line->variable = current_line->variable;
-  new_line->macro = current_line->macro;
-  new_line->bank = current_line->bank;
-  new_line->address = current_line->address;
-  new_line->operand_value = current_line->operand_value;
-  new_line->operand_address_long = current_line->operand_address_long;
-  new_line->nb_byte = current_line->nb_byte;
-  new_line->opcode_byte = current_line->opcode_byte;
-  new_line->address_mode = current_line->address_mode;
-  new_line->address_is_rel = current_line->address_is_rel;
-  memcpy(new_line->operand_byte,current_line->operand_byte,4);
-  strcpy(new_line->reloc,current_line->reloc);
-  new_line->next = NULL;
-  
-  /* Duplique certaines valeurs */
-  if(current_line->line_data != NULL)
+    /* Memory allowance */
+    struct source_line *new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
+    if(new_line == NULL)
+        return(NULL);
+
+    /* Copy the values */
+    new_line->line_number = current_line->line_number;
+    new_line->file_line_number = current_line->file_line_number;
+    new_line->file = current_line->file;
+    new_line->type = current_line->type;
+    new_line->type_aux = current_line->type_aux;
+    new_line->is_in_source = current_line->is_in_source;
+    new_line->is_valid = current_line->is_valid;
+    new_line->no_direct_page = current_line->no_direct_page;
+    new_line->use_direct_page = current_line->use_direct_page;
+    new_line->is_inside_macro = current_line->is_inside_macro;
+    new_line->is_dum = current_line->is_dum;
+    new_line->dum_line = current_line->dum_line;
+    new_line->cond_level = current_line->cond_level;
+    strcpy(new_line->m,current_line->m);
+    strcpy(new_line->x,current_line->x);
+    new_line->variable = current_line->variable;
+    new_line->macro = current_line->macro;
+    new_line->bank = current_line->bank;
+    new_line->address = current_line->address;
+    new_line->operand_value = current_line->operand_value;
+    new_line->operand_address_long = current_line->operand_address_long;
+    new_line->nb_byte = current_line->nb_byte;
+    new_line->opcode_byte = current_line->opcode_byte;
+    new_line->address_mode = current_line->address_mode;
+    new_line->address_is_rel = current_line->address_is_rel;
+    memcpy(new_line->operand_byte,current_line->operand_byte,4);
+    strcpy(new_line->reloc,current_line->reloc);
+    new_line->next = NULL;
+
+    /* Duplicate some values */
+    if(current_line->line_data != NULL)
     {
-      new_line->line_data = strdup(current_line->line_data);
-      if(new_line->line_data == NULL)
+        new_line->line_data = strdup(current_line->line_data);
+        if(new_line->line_data == NULL)
         {
-          mem_free_sourceline(new_line);
-          return(NULL);
+            mem_free_sourceline(new_line);
+            return(NULL);
         }
-    }  
-  if(current_line->data != NULL)
+    }
+    if(current_line->data != NULL)
     {
-      new_line->data = current_line->data = (unsigned char *) calloc(new_line->nb_byte+1,sizeof(unsigned char));
-      if(new_line->data == NULL)
+        new_line->data = current_line->data = (unsigned char *) calloc(new_line->nb_byte+1,sizeof(unsigned char));
+        if(new_line->data == NULL)
         {
-          mem_free_sourceline(new_line);
-          return(NULL);
+            mem_free_sourceline(new_line);
+            return(NULL);
         }
-      memcpy(new_line->data,current_line->data,new_line->nb_byte+1);
+        memcpy(new_line->data,current_line->data,new_line->nb_byte+1);
     }
-  new_line->label_txt = strdup(current_line->label_txt);
-  new_line->opcode_txt = strdup(current_line->opcode_txt);
-  new_line->operand_txt = strdup(current_line->operand_txt);
-  new_line->comment_txt = strdup(current_line->comment_txt);
-  if(new_line->label_txt == NULL || new_line->opcode_txt == NULL || new_line->operand_txt == NULL || new_line->comment_txt == NULL)
+    new_line->label_txt = strdup(current_line->label_txt);
+    new_line->opcode_txt = strdup(current_line->opcode_txt);
+    new_line->operand_txt = strdup(current_line->operand_txt);
+    new_line->comment_txt = strdup(current_line->comment_txt);
+    if(new_line->label_txt == NULL || new_line->opcode_txt == NULL || new_line->operand_txt == NULL || new_line->comment_txt == NULL)
     {
-      mem_free_sourceline(new_line);
-      return(NULL);
+        mem_free_sourceline(new_line);
+        return(NULL);
     }
-  
-  /* Renvoie la ligne */
-  return(new_line);
+
+    /* Returns the line */
+    return(new_line);
 }
 
 
-/************************************************************************/
-/*  BuildEmptyLabelLine() :  Crée une ligne de Code vide avec un Label. */
-/************************************************************************/
+/*********************************************************************/
+/*  BuildEmptyLabelLine() :  Create an empty Code line with a Label. */
+/*********************************************************************/
 struct source_line *BuildEmptyLabelLine(char *label, struct source_line *current_line)
 {
-  struct source_line *new_line;
-  
-  /* Allocation mémoire */
-  new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
-  if(new_line == NULL)
-    return(NULL);
-  
-  /* Recopie les valeurs */
-  new_line->line_number = current_line->line_number;
-  new_line->file_line_number = current_line->file_line_number;
-  new_line->file = current_line->file;
-  new_line->type = LINE_EMPTY;
-  new_line->type_aux = current_line->type_aux;
-  new_line->is_in_source = current_line->is_in_source;
-  new_line->is_valid = current_line->is_valid;
-  new_line->no_direct_page = current_line->no_direct_page;
-  new_line->use_direct_page = current_line->use_direct_page;
-  new_line->is_inside_macro = current_line->is_inside_macro;
-  new_line->is_dum = current_line->is_dum;
-  new_line->dum_line = current_line->dum_line;
-  new_line->cond_level = current_line->cond_level;
-  strcpy(new_line->m,current_line->m);
-  strcpy(new_line->x,current_line->x);
-  new_line->variable = NULL;
-  new_line->macro = NULL;
-  new_line->bank = current_line->bank;
-  new_line->address = current_line->address;
-  new_line->operand_value = current_line->operand_value;
-  new_line->operand_address_long = current_line->operand_address_long;
-  new_line->nb_byte = 0;
-  new_line->opcode_byte = 0x00;
-  new_line->address_mode = current_line->address_mode;
-  new_line->address_is_rel = current_line->address_is_rel;
-  memset(new_line->operand_byte,0,4);
-  strcpy(new_line->reloc,current_line->reloc);
-  new_line->next = NULL;
-  
-  /* Duplique certaines valeurs */
-  new_line->line_data = strdup("");
-  if(new_line->line_data == NULL)
+    /* Memory allowance */
+    struct source_line *new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
+    if(new_line == NULL)
+        return(NULL);
+
+    /* Copy the values */
+    new_line->line_number = current_line->line_number;
+    new_line->file_line_number = current_line->file_line_number;
+    new_line->file = current_line->file;
+    new_line->type = LINE_EMPTY;
+    new_line->type_aux = current_line->type_aux;
+    new_line->is_in_source = current_line->is_in_source;
+    new_line->is_valid = current_line->is_valid;
+    new_line->no_direct_page = current_line->no_direct_page;
+    new_line->use_direct_page = current_line->use_direct_page;
+    new_line->is_inside_macro = current_line->is_inside_macro;
+    new_line->is_dum = current_line->is_dum;
+    new_line->dum_line = current_line->dum_line;
+    new_line->cond_level = current_line->cond_level;
+    strcpy(new_line->m,current_line->m);
+    strcpy(new_line->x,current_line->x);
+    new_line->variable = NULL;
+    new_line->macro = NULL;
+    new_line->bank = current_line->bank;
+    new_line->address = current_line->address;
+    new_line->operand_value = current_line->operand_value;
+    new_line->operand_address_long = current_line->operand_address_long;
+    new_line->nb_byte = 0;
+    new_line->opcode_byte = 0x00;
+    new_line->address_mode = current_line->address_mode;
+    new_line->address_is_rel = current_line->address_is_rel;
+    memset(new_line->operand_byte,0,4);
+    strcpy(new_line->reloc,current_line->reloc);
+    new_line->next = NULL;
+
+    /* Duplicate some values */
+    new_line->line_data = strdup("");
+    if(new_line->line_data == NULL)
     {
-      mem_free_sourceline(new_line);
-      return(NULL);
+        mem_free_sourceline(new_line);
+        return(NULL);
     }
-  new_line->label_txt = strdup(label);
-  new_line->opcode_txt = strdup("");
-  new_line->operand_txt = strdup("");
-  new_line->comment_txt = strdup("");
-  if(new_line->label_txt == NULL || new_line->opcode_txt == NULL || new_line->operand_txt == NULL || new_line->comment_txt == NULL)
+    new_line->label_txt = strdup(label);
+    new_line->opcode_txt = strdup("");
+    new_line->operand_txt = strdup("");
+    new_line->comment_txt = strdup("");
+    if(new_line->label_txt == NULL || new_line->opcode_txt == NULL || new_line->operand_txt == NULL || new_line->comment_txt == NULL)
     {
-      mem_free_sourceline(new_line);
-      return(NULL);
+        mem_free_sourceline(new_line);
+        return(NULL);
     }
-  
-  /* Renvoie la ligne */
-  return(new_line);
+
+    /* Returns the line */
+    return(new_line);
 }
 
 
 /*****************************************************************/
-/*  DecodeLine() :  Décode une ligne en séparant les 4 éléments. */
+/*  DecodeLine() :  Decodes a line by separating the 4 elements. */
 /*****************************************************************/
 void DecodeLine(char *line_data, char *label_rtn, char *opcode_rtn, char *operand_rtn, char *comment_rtn)
 {
-  int has_data, nb_separator;
-  struct item *all_item;
-  struct item *current_item;
-  struct item *opcode_item = NULL;
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
+    int has_data = 0, nb_separator = 0;
+    struct item *all_item = NULL;
+    struct item *current_item = NULL;
+    struct item *opcode_item = NULL;
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Init */
-  strcpy(label_rtn,"");
-  strcpy(opcode_rtn,"");
-  strcpy(operand_rtn,"");
-  strcpy(comment_rtn,"");
+    /* Init */
+    strcpy(label_rtn,"");
+    strcpy(opcode_rtn,"");
+    strcpy(operand_rtn,"");
+    strcpy(comment_rtn,"");
 
-  /** Découpe la ligne en éléments séparés par des espaces ou des tab (en tenant compte des commentaires et des chaines '' ou "") **/
-  all_item = ExtractAllIem(line_data);
-  if(all_item == NULL)
-    return;                 /* Ligne vide */
+    /** Cut the line into separate elements by spaces or tabs (taking into account the comments and the chains '' or '') **/
+    all_item = ExtractAllIem(line_data);
+    if(all_item == NULL)
+        return;                 /* Empty line */
 
-  /** Cas particulier : Que des sépérateurs **/
-  for(has_data=0, current_item = all_item; current_item; current_item = current_item->next)
-    if(current_item->type == TYPE_DATA)
-      {
-        has_data = 1;
-        break;
-      }
-  if(has_data == 0)
+    /** Special cases **/
+    for(has_data=0, current_item = all_item; current_item; current_item = current_item->next)
     {
-      mem_free_item_list(all_item);
-      return;                 /* Ligne vide */
-    }
-
-  /** Cas particulier : Ligne de commentaire **/
-  for(current_item = all_item; current_item; current_item = current_item->next)
-    if(current_item->type == TYPE_DATA)
-      {
-        if(current_item->name[0] == '*' || current_item->name[0] == ';')
-          {
-            strcpy(comment_rtn,current_item->name);
-            mem_free_item_list(all_item);
-            return;
-          }
-        break;
-      }
-
-  /** Commentaire : Valeur qui commence par un ; **/
-  for(current_item = all_item; current_item->next; current_item = current_item->next)
-    if(current_item->next->type == TYPE_DATA && current_item->next->name[0] == ';')
-      {
-        /* Garde le commentaire, libère la suite */
-        strcpy(comment_rtn,current_item->next->name);
-        mem_free_item_list(current_item->next);
-        current_item->next = NULL;
-        break;
-      }
-
-  /** Label : Tout ce qui est collé à gauche **/
-  if(all_item->type == TYPE_DATA)
-    strcpy(label_rtn,all_item->name);
-
-  /** Opcode : DATA qui est après le 1er séparateur **/
-  for(nb_separator=0,current_item = all_item; current_item; current_item = current_item->next)
-    {
-      if(current_item->type == TYPE_SEPARATOR)
-        nb_separator++;
-      else if(current_item->type == TYPE_DATA && nb_separator == 1)
+        if(current_item->type == TYPE_DATA)
         {
-          strcpy(opcode_rtn,current_item->name);
-          opcode_item = current_item;
-          break;
+            has_data = 1;
+            break;
         }
     }
 
-  /** Operand : Ce qu'il reste (la partie commentaire a déjà été supprimée) **/
-  if(opcode_item != NULL)
+    // if we didn't find a TYPE_DATA then we are done
+    if(has_data == 0)
     {
-      for(current_item = opcode_item->next; current_item; current_item = current_item->next)
+        mem_free_item_list(all_item);
+        return;                 /* Empty line */
+    }
+
+    /** Special case: Comment line **/
+    for(current_item = all_item; current_item; current_item = current_item->next)
+    {
+        if(current_item->type == TYPE_DATA)
         {
-          if(current_item->type == TYPE_SEPARATOR)
+            if(current_item->name[0] == '*' || current_item->name[0] == ';')
             {
-              if(strlen(operand_rtn) > 0)
-                if(operand_rtn[strlen(operand_rtn)-1] != ' ')
-                  strcat(operand_rtn," ");
+                strcpy(comment_rtn,current_item->name);
+                mem_free_item_list(all_item);
+                return;
             }
-          else
-            strcat(operand_rtn,current_item->name);
+            break;
         }
     }
 
-  /* Libération mémoire */
-  mem_free_item_list(all_item);
-  
-  /** On supprime les espaces et les \t entourant les valeurs **/
-  CleanBuffer(label_rtn);
-  CleanBuffer(opcode_rtn);
-  CleanBuffer(operand_rtn);
-  CleanBuffer(comment_rtn);
+    /** Comment: Value that starts with one ; **/
+    for(current_item = all_item; current_item->next; current_item = current_item->next)
+    {
+        if(current_item->next->type == TYPE_DATA && current_item->next->name[0] == ';')
+        {
+            /* Keep the comment, free more */
+            strcpy(comment_rtn,current_item->next->name);
+            mem_free_item_list(current_item->next);
+            current_item->next = NULL;
+            break;
+        }
+    }
+
+    /** Label: All that is glued to the left **/
+    if(all_item->type == TYPE_DATA)
+        strcpy(label_rtn,all_item->name);
+
+    /** Opcode: DATA after the first separator **/
+    for(nb_separator=0,current_item = all_item; current_item; current_item = current_item->next)
+    {
+        if(current_item->type == TYPE_SEPARATOR)
+            nb_separator++;
+        else if(current_item->type == TYPE_DATA && nb_separator == 1)
+        {
+            strcpy(opcode_rtn,current_item->name);
+            opcode_item = current_item;
+            break;
+        }
+    }
+
+    /** Operand: What's left (the comment section has already been deleted) **/
+    if(opcode_item != NULL)
+    {
+        for(current_item = opcode_item->next; current_item; current_item = current_item->next)
+        {
+            if(current_item->type == TYPE_SEPARATOR)
+            {
+                if(strlen(operand_rtn) > 0)
+                    if(operand_rtn[strlen(operand_rtn)-1] != ' ')
+                        strcat(operand_rtn," ");
+            }
+            else
+                strcat(operand_rtn,current_item->name);
+        }
+    }
+
+    /* Memory release */
+    mem_free_item_list(all_item);
+
+    /** We remove spaces and tabs surrounding values **/
+    CleanBuffer(label_rtn);
+    CleanBuffer(opcode_rtn);
+    CleanBuffer(operand_rtn);
+    CleanBuffer(comment_rtn);
 }
 
 
-/*******************************************************************/
-/*  AddDateLine() :  Ajout d'une ligne Date pour la directive DAT. */
-/*******************************************************************/
-static void AddDateLine(struct source_line *current_line, struct omf_segment *current_omfsegment)
+/***************************************************************/
+/*  AddDateLine() :  Adding a Date line for the DAT directive. */
+/***************************************************************/
+static void AddDateLine(struct source_line *current_line)
 {
-  struct source_line *new_line;
-  char buffer[256];
-  struct parameter *param;
-  my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
-  
-  /* On va décoder le type de Date demandé */
-  if(!my_stricmp(current_line->operand_txt,"1"))
-    sprintf(buffer,"\"%s\"",param->date_1);
-  else if(!my_stricmp(current_line->operand_txt,"2"))
-    sprintf(buffer,"\"%s\"",param->date_2);
-  else if(!my_stricmp(current_line->operand_txt,"3"))
-    sprintf(buffer,"\"%s\"",param->date_3);
-  else if(!my_stricmp(current_line->operand_txt,"4"))
-    sprintf(buffer,"\"%s\"",param->date_4);
-  else if(!my_stricmp(current_line->operand_txt,"5"))
-    sprintf(buffer,"'%s'",param->date_1);
-  else if(!my_stricmp(current_line->operand_txt,"6"))
-    sprintf(buffer,"'%s'",param->date_2);
-  else if(!my_stricmp(current_line->operand_txt,"7"))
-    sprintf(buffer,"'%s'",param->date_3);
-  else if(!my_stricmp(current_line->operand_txt,"8"))
-    sprintf(buffer,"'%s'",param->date_4);
-  else
-    return;
-    
-  /** Création d'une Ligne DATA **/
-  new_line = BuildEmptyLabelLine("",current_line);
-  if(new_line == NULL)
-    {
-      printf("      => [Error] Impossible to allocate memory to insert DAT value (line %d, file '%s')\n",current_line->file_line_number,current_line->file->file_path);
-      return;
-    }
-  free(new_line->opcode_txt);
-  new_line->opcode_txt = NULL;
-  free(new_line->operand_txt);
-  new_line->operand_txt = NULL;
+    struct source_line *new_line = NULL;
+    char buffer[256];
+    struct parameter *param;
+    my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-  /* Nouvelles valeurs */    
-  new_line->type = LINE_DATA;
-  new_line->opcode_txt = strdup("ASC");
-  new_line->operand_txt = strdup(buffer);
-  if(new_line->opcode_txt == NULL || new_line->operand_txt == NULL)
+    /* We will decode the type of Date requested */
+    if(!my_stricmp(current_line->operand_txt,"1"))
+        sprintf(buffer,"\"%s\"",param->date_1);
+    else if(!my_stricmp(current_line->operand_txt,"2"))
+        sprintf(buffer,"\"%s\"",param->date_2);
+    else if(!my_stricmp(current_line->operand_txt,"3"))
+        sprintf(buffer,"\"%s\"",param->date_3);
+    else if(!my_stricmp(current_line->operand_txt,"4"))
+        sprintf(buffer,"\"%s\"",param->date_4);
+    else if(!my_stricmp(current_line->operand_txt,"5"))
+        sprintf(buffer,"'%s'",param->date_1);
+    else if(!my_stricmp(current_line->operand_txt,"6"))
+        sprintf(buffer,"'%s'",param->date_2);
+    else if(!my_stricmp(current_line->operand_txt,"7"))
+        sprintf(buffer,"'%s'",param->date_3);
+    else if(!my_stricmp(current_line->operand_txt,"8"))
+        sprintf(buffer,"'%s'",param->date_4);
+    else
+        return;
+    
+    /** Creation of a DATA Line **/
+    new_line = BuildEmptyLabelLine("",current_line);
+    if(new_line == NULL)
     {
-      mem_free_sourceline(new_line);
-      printf("      => [Error] Impossible to allocate memory to insert DAT value (line %d, file '%s')\n",current_line->file_line_number,current_line->file->file_path);
-      return;
+        printf("      => [Error] Impossible to allocate memory to insert DAT value (line %d, file '%s')\n",current_line->file_line_number,current_line->file->file_path);
+        return;
     }
-  
-  /* Insère la ligne après la ligne DAT */
-  new_line->next = current_line->next;
-  current_line->next = new_line;
+    free(new_line->opcode_txt);
+    new_line->opcode_txt = NULL;
+    free(new_line->operand_txt);
+    new_line->operand_txt = NULL;
+
+    /* New values */
+    new_line->type = LINE_DATA;
+    new_line->opcode_txt = strdup("ASC");
+    new_line->operand_txt = strdup(buffer);
+    if(new_line->opcode_txt == NULL || new_line->operand_txt == NULL)
+    {
+        mem_free_sourceline(new_line);
+        printf("      => [Error] Impossible to allocate memory to insert DAT value (line %d, file '%s')\n",current_line->file_line_number,current_line->file->file_path);
+        return;
+    }
+
+    /* Insert the line after the DAT line */
+    new_line->next = current_line->next;
+    current_line->next = new_line;
 }
 
 
-/*****************************************************************************/
-/*  mem_free_sourceline() :  Libération mémoire de la structure source_line. */
-/*****************************************************************************/
+/**************************************************************************/
+/*  mem_free_sourceline() :  Memory release of the source_line structure. */
+/**************************************************************************/
 void mem_free_sourceline(struct source_line *current_sourceline)
 {
-  if(current_sourceline)
+    if(current_sourceline)
     {
-      if(current_sourceline->label_txt)
-        free(current_sourceline->label_txt);
+        if(current_sourceline->label_txt)
+            free(current_sourceline->label_txt);
 
-      if(current_sourceline->opcode_txt)
-        free(current_sourceline->opcode_txt);
+        if(current_sourceline->opcode_txt)
+            free(current_sourceline->opcode_txt);
 
-      if(current_sourceline->operand_txt)
-        free(current_sourceline->operand_txt);
+        if(current_sourceline->operand_txt)
+            free(current_sourceline->operand_txt);
 
-      if(current_sourceline->comment_txt)
-        free(current_sourceline->comment_txt);
+        if(current_sourceline->comment_txt)
+            free(current_sourceline->comment_txt);
 
-      if(current_sourceline->data)
-        free(current_sourceline->data);
+        if(current_sourceline->data)
+            free(current_sourceline->data);
 
-      free(current_sourceline);
+        free(current_sourceline);
     }
 }
 
 
 /*******************************************************************/
-/*  mem_free_sourceline_list() :  Libère la liste de ligne source. */
+/*  mem_free_sourceline_list() :  Free the source line list. */
 /*******************************************************************/
 void mem_free_sourceline_list(struct source_line *first_sourceline)
 {
-  struct source_line *current_sourceline;
-  struct source_line *next_sourceline;
-  
-  /** Libère la liste chainée de structure **/
-  for(current_sourceline = first_sourceline; current_sourceline; )
+    /** Release the structured chain list **/
+    for(struct source_line *current_sourceline = first_sourceline; current_sourceline; )
     {
-      next_sourceline = current_sourceline->next;
-      mem_free_sourceline(current_sourceline);
-      current_sourceline = next_sourceline;
+        struct source_line *next_sourceline = current_sourceline->next;
+        mem_free_sourceline(current_sourceline);
+        current_sourceline = next_sourceline;
     }
 }
 
 
-/******************************************************************/
-/*  mem_free_label() :  Libération mémoire de la structure label. */
-/******************************************************************/
+/***************************************************************/
+/*  mem_free_label() :  Memory release of the label structure. */
+/***************************************************************/
 void mem_free_label(struct label *current_label)
 {
-  if(current_label)
+    if(current_label)
     {
-      if(current_label->name)
-        free(current_label->name);
+        if(current_label->name)
+            free(current_label->name);
 
-      free(current_label);
+        free(current_label);
     }
 }
 
 
-/************************************************************************/
-/*  mem_free_variable() :  Libération mémoire de la structure variable. */
-/************************************************************************/
+/*********************************************************************/
+/*  mem_free_variable() :  Memory release of the variable structure. */
+/*********************************************************************/
 void mem_free_variable(struct variable *current_variable)
 {
-  if(current_variable)
+    if(current_variable)
     {
-      if(current_variable->name)
-        free(current_variable->name);
+        if(current_variable->name)
+            free(current_variable->name);
 
-      free(current_variable);
+        free(current_variable);
     }
 }
 
 
-/******************************************************************************/
-/*  mem_free_equivalence() :  Libération mémoire de la structure equivalence. */
-/******************************************************************************/
+/***************************************************************************/
+/*  mem_free_equivalence() :  Memory release of the equivalence structure. */
+/***************************************************************************/
 void mem_free_equivalence(struct equivalence *current_equivalence)
 {
-  if(current_equivalence)
+    if(current_equivalence)
     {
-      if(current_equivalence->name)
-        free(current_equivalence->name);
+        if(current_equivalence->name)
+            free(current_equivalence->name);
 
-      if(current_equivalence->value)
-        free(current_equivalence->value);
+        if(current_equivalence->value)
+            free(current_equivalence->value);
 
-      free(current_equivalence);
+        free(current_equivalence);
     }
 }
 
 
-/************************************************************************/
-/*  mem_free_external() :  Libération mémoire de la structure external. */
-/************************************************************************/
+/*********************************************************************/
+/*  mem_free_external() :  Memory release of the structure external. */
+/*********************************************************************/
 void mem_free_external(struct external *current_external)
 {
-  if(current_external)
+    if(current_external)
     {
-      if(current_external->name)
-        free(current_external->name);
+        if(current_external->name)
+            free(current_external->name);
 
-      free(current_external);
+        free(current_external);
     }
 }
 
 
-/********************************************************************/
-/*  mem_free_global() :  Libération mémoire de la structure global. */
-/********************************************************************/
+/******************************************************************/
+/*  mem_free_global() :  Memory release of the overall structure. */
+/******************************************************************/
 void mem_free_global(struct global *current_global)
 {
-  if(current_global)
+    if(current_global)
     {
-      if(current_global->name)
-        free(current_global->name);
+        if(current_global->name)
+            free(current_global->name);
 
-      free(current_global);
+        free(current_global);
     }
 }
-
-/***********************************************************************/
