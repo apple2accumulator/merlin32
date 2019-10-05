@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
       strcpy(source_file_path,argv[3]);
     }
 
-  /* Initialisation */
+  /* Initialization */
   my_Memory(MEMORY_INIT,NULL,NULL,NULL);
   my_File(FILE_INIT,NULL);
 
-  /* Initialisation du mécanisme de gestion d'Errors */
+  /* Initialization du mécanisme de gestion d'Errors */
   my_RaiseError(ERROR_INIT,NULL);
   context_value = setjmp(context);
   if(context_value)
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
           free(error_string);
         }
 
-      /* On récupère le OMF Segment courant (s'il existe) */
+      /* On récupère le OMF Segment courant (s'il exists) */
       my_Memory(MEMORY_GET_OMFSEGMENT,&current_omfsegment,NULL,NULL);
 
       /** On essaye de Dumper qqchose dans le File Error_Output.txt **/

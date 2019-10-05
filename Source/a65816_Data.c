@@ -164,7 +164,7 @@ static void BuildOneDataLineSize(struct source_line *current_line, char *buffer_
                 return;
             }
             else if(!strcmp(tab_element[i],","))
-                ;                     /* On ne fait rien */
+                ;                     /* On ne fait nothing */
             else
                 nb_valid_element++;   /* We count matches only valid elements */
 
@@ -235,7 +235,7 @@ static void BuildOneDataLineSize(struct source_line *current_line, char *buffer_
             return;
         }
 
-        /** Cas particulier du \ **/;
+        /** Particular case du \ **/;
         if(!strcmp(tab_element[0],"\\"))
         {
             /** Taille de la partie Data => il faudra complèter jusqu'à la Next page **/
@@ -494,7 +494,7 @@ static void BuildOneDataLineOperand(struct source_line *current_line, char *buff
                 /** Adresse Relogeable (interne ou externe au Segment) **/
                 if(is_reloc)
                 {
-                    /* Cas particulier du DDB qui reloge 2 adresses sur 1 byte, plutot qu'une adresse sur 2 bytes ! */
+                    /* Particular case du DDB qui reloge 2 adresses sur 1 byte, plutot qu'une adresse sur 2 bytes ! */
                     if(!my_stricmp(current_line->opcode_txt,"DDB"))
                     {
                         /* Adresse 1 : >> 8 */

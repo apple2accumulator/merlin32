@@ -254,6 +254,7 @@ int HasPriority(char *,char *);
 int BuildBestMVXWord(DWORD,DWORD);
 int IsPageDirectOpcode(char *);
 int IsPageDirectAddressMode(int);
+int isLabelForDirectPage(struct label *current_label, struct omf_segment *current_omfsegment);
 int IsDirectPageLabel(char *,struct omf_segment *);
 int UseCurrentAddress(char *,char *,struct source_line *);
 void ReplaceCurrentAddressInOperand(char **,char *,char *,struct source_line *);

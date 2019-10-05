@@ -420,7 +420,7 @@ DWORD BuildOMFBody(struct omf_segment *current_omfsegment)
                 one_byte = 0xF5;              /* cRELOC */
                 bo_memcpy(&buffer_body[offset],&one_byte,sizeof(BYTE));
                 offset += sizeof(BYTE);
-                /* Number of Byte to be relocated */
+                /* Number of bytes to be relocated */
                 one_byte = current_address->ByteCnt;
                 bo_memcpy(&buffer_body[offset],&one_byte,sizeof(BYTE));
                 offset += sizeof(BYTE);
@@ -829,7 +829,7 @@ DWORD BuildOMFBody(struct omf_segment *current_omfsegment)
                 one_byte = 0xF6;              /* cINTERSEG */
                 bo_memcpy(&buffer_body[offset],&one_byte,sizeof(BYTE));
                 offset += sizeof(BYTE);
-                /* Number of Byte to be relocated */
+                /* Number of bytes to be relocated */
                 one_byte = current_address->ByteCnt;
                 bo_memcpy(&buffer_body[offset],&one_byte,sizeof(BYTE));
                 offset += sizeof(BYTE);
@@ -935,9 +935,9 @@ void RelocateExternalFixedAddress(struct omf_segment *current_omfsegment)
 }
 
 
-/****************************************************/
-/*  BuildOMFHeader() :  Construction du Header OMF. */
-/****************************************************/
+/********************************************************/
+/*  BuildOMFHeader() :  Construction of the OMF Header. */
+/********************************************************/
 DWORD BuildOMFHeader(struct omf_segment *current_omfsegment)
 {
     int length;
@@ -965,11 +965,11 @@ DWORD BuildOMFHeader(struct omf_segment *current_omfsegment)
     one_byte = 0x00;
     bo_memcpy(&current_omfsegment->segment_header_file[offset],&one_byte,sizeof(BYTE));
     offset += sizeof(BYTE);
-    /** LABEL# (0 ou 10) **/
+    /** LABEL# (0 or 10) **/
     if(strlen(current_omfsegment->segment_name) <= 10)
         one_byte = (BYTE) 0x0A;
     else
-        one_byte = 0x00;            /* La longueur su seg_name est codée au début du texte sur 1 octet */
+        one_byte = 0x00;            /* The length of the segname is coded at the beginning of the 1-byte text */
     lab_length = (WORD) one_byte;
     bo_memcpy(&current_omfsegment->segment_header_file[offset],&one_byte,sizeof(BYTE));
     offset += sizeof(BYTE);
@@ -1026,12 +1026,12 @@ DWORD BuildOMFHeader(struct omf_segment *current_omfsegment)
     bo_memcpy(&current_omfsegment->segment_header_file[offset],&one_word,sizeof(WORD));
     offset += sizeof(WORD);
     /* dispdata */
-    one_word = 0x002C + 0x000A + (WORD) ((lab_length == 0) ? (1+strlen(current_omfsegment->segment_name)) : 0x000A);   /* 44 + 10 + (10 ou 1+strlen(seg_name)) */
+    one_word = 0x002C + 0x000A + (WORD) ((lab_length == 0) ? (1+strlen(current_omfsegment->segment_name)) : 0x000A);   /* 44 + 10 + (10 or 1+strlen(seg_name)) */
     bo_memcpy(&current_omfsegment->segment_header_file[offset],&one_word,sizeof(WORD));
     offset += sizeof(WORD);
 
     /* LOAD NAME : 10 bytes */
-    length = (int) ((strlen(current_omfsegment->load_name) > 10) ? 10 : strlen(current_omfsegment->load_name));   /* On ne dépasse pas plus de 10 */
+    length = (int) ((strlen(current_omfsegment->load_name) > 10) ? 10 : strlen(current_omfsegment->load_name));   /* We do not go more than 10 */
     memset(&current_omfsegment->segment_header_file[offset],0x20,10);
     for(int i=0; i<length; i++)
         current_omfsegment->segment_header_file[offset+i] = current_omfsegment->load_name[i];
@@ -1040,7 +1040,7 @@ DWORD BuildOMFHeader(struct omf_segment *current_omfsegment)
     /* SEG NAME */
     if(lab_length == 0)
     {
-        /* La longueur est codée sur 1 byte au début */
+        /* The length is coded on 1 byte at the beginning */
         one_byte = (BYTE) strlen(current_omfsegment->segment_name);
         bo_memcpy(&current_omfsegment->segment_header_file[offset],&one_byte,sizeof(BYTE));
         offset += sizeof(BYTE);
@@ -1060,11 +1060,11 @@ DWORD BuildOMFHeader(struct omf_segment *current_omfsegment)
     one_dword = offset + current_omfsegment->body_length;
     bo_memcpy(&current_omfsegment->segment_header_file[0],&one_dword,sizeof(DWORD));
 
-    /** On fait une copie partielle pour l'ExpressLoad **/
+    /** We make a partial copy for ExpressLoad **/
     current_omfsegment->header_xpress_length = offset - (3*sizeof(DWORD));
     memcpy(current_omfsegment->header_xpress_file,&current_omfsegment->segment_header_file[3*sizeof(DWORD)],current_omfsegment->header_xpress_length);
 
-    /* Renvoie la taille du Header */
+    /* Returns the size of the Header */
     return(offset);
 }
 
@@ -1094,15 +1094,15 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
         return(1);
     }
 
-    /* Attachement en 1ère position */
+    /* Attachment in 1st position */
     current_omfproject->nb_segment++;
     xpress_omfsegment->next = current_omfproject->first_segment;
     current_omfproject->first_segment = xpress_omfsegment;
 
-    /* ExpressLoad est toujours en 1ère position */
+    /* ExpressLoad is always in 1st position */
     xpress_omfsegment->segment_number = 1;
 
-    /* Taille des Data du Body de l'ExpressLoad */
+    /* Body Data Size of the ExpressLoad */
     body_lconst_length = sizeof(DWORD) + sizeof(WORD);
     for(current_omfsegment=xpress_omfsegment->next; current_omfsegment; current_omfsegment=current_omfsegment->next)
     {
@@ -1111,21 +1111,21 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
         body_lconst_length += (4*sizeof(DWORD) + current_omfsegment->header_xpress_length);    /* Segment Header Table */
     }
 
-    /* Memory allowance du Body */
-    xpress_omfsegment->segment_body_length = 1024 + body_lconst_length;         /* On prend large car on stocke aussi le code du LCONST et le END */
+    /* Memory allowance for Body */
+    xpress_omfsegment->segment_body_length = 1024 + body_lconst_length;         /* We take wide because we also store the code of LCONST and the END */
     xpress_omfsegment->segment_body_file = (unsigned char *) calloc(1,xpress_omfsegment->segment_body_length);
     if(xpress_omfsegment->segment_body_file == NULL)
         return(1);
 
-    /* On connait les tailles du Header et du Body avant de les remplir */
+    /* We know the sizes of Header and Body before filling them */
     xpress_omfsegment->header_length = 67;    /* 44 + 10 + (1+12) = 67 bytes */
     xpress_omfsegment->body_length = (sizeof(BYTE) + sizeof(DWORD)) + body_lconst_length + sizeof(BYTE);
 
-    /* Offset depuis le début du File */
+    /* Offset since the beginning of the File */
     file_offset = (xpress_omfsegment->header_length + xpress_omfsegment->body_length);
 
     /*******************************/
-    /***  Body de l'ExpressLoad  ***/
+    /***  Body of ExpressLoad  ***/
     /*******************************/
     offset = 0;
 
@@ -1134,7 +1134,7 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
     one_byte = 0xF2;
     bo_memcpy(&xpress_omfsegment->segment_body_file[offset],&one_byte,sizeof(BYTE));
     offset += sizeof(BYTE);
-    /* Number of byte */
+    /* Number of bytes */
     one_dword = body_lconst_length;
     bo_memcpy(&xpress_omfsegment->segment_body_file[offset],&one_dword,sizeof(DWORD));
     offset += sizeof(DWORD);
@@ -1152,7 +1152,7 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
     for(current_omfsegment=xpress_omfsegment->next; current_omfsegment; current_omfsegment=current_omfsegment->next)
     {
         /* Offset relative to segment Header Entry Table */
-        one_word = 0;    /* Place la vraie valeur plus bas */
+        one_word = 0;    /* Place the true value lower */
         bo_memcpy(&xpress_omfsegment->segment_body_file[offset],&one_word,sizeof(WORD));
         offset += sizeof(WORD);
         /* Reserved */
@@ -1175,11 +1175,11 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
     /** Segment Header Table **/
     for(i=0,current_omfsegment=xpress_omfsegment->next; current_omfsegment; current_omfsegment=current_omfsegment->next,i++)
     {
-        /* Finalise la valeur : Offset relative to segment Header Entry Table */
+        /* Finalizes the value: Offset Relative to Segment Header Entry Table */
         one_word = (WORD) (offset - (sizeof(BYTE) + sizeof(DWORD) + sizeof(DWORD) + sizeof(WORD) + (i*(2*sizeof(WORD) + sizeof(DWORD)))));
         bo_memcpy(&xpress_omfsegment->segment_body_file[sizeof(BYTE) + sizeof(DWORD) + sizeof(DWORD) + sizeof(WORD) + i*(2*sizeof(WORD) + sizeof(DWORD))],&one_word,sizeof(WORD));
 
-        /** Offset et Length des Data et Reloc **/
+        /** Offset and Length of Data and Reloc **/
         current_omfsegment->xpress_data_offset += (current_omfsegment->header_length + file_offset);
         bo_memcpy(&xpress_omfsegment->segment_body_file[offset],&current_omfsegment->xpress_data_offset,sizeof(DWORD));
         offset += sizeof(DWORD);
@@ -1195,7 +1195,7 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
         memcpy(&xpress_omfsegment->segment_body_file[offset],current_omfsegment->header_xpress_file,current_omfsegment->header_xpress_length);
         offset += current_omfsegment->header_xpress_length;
 
-        /* Offset depuis le début du File */
+        /* Offset since the beginning of the File */
         file_offset += (current_omfsegment->header_length + current_omfsegment->body_length);
     }
 
@@ -1205,10 +1205,10 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
     offset += sizeof(BYTE);
 
     /*********************************/
-    /***  Header de l'ExpressLoad  ***/
+    /***  Header of ExpressLoad  ***/
     /*********************************/
     offset = 0;
-    /* Segment Header size (ici 67 bytes) + Segment Body size */
+    /* Segment Header size (here 67 bytes) + Segment Body size */
     one_dword = 67 + xpress_omfsegment->body_length;
     bo_memcpy(&xpress_omfsegment->segment_header_file[offset],&one_dword,sizeof(DWORD));
     offset += sizeof(DWORD);
@@ -1217,14 +1217,14 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
     bo_memcpy(&xpress_omfsegment->segment_header_file[offset],&one_dword,sizeof(DWORD));
     offset += sizeof(DWORD);
     /* Length once in memory = LCONST Size */
-    one_dword = xpress_omfsegment->body_length - (sizeof(BYTE) + sizeof(DWORD) + sizeof(BYTE));   /* On enlève la taille de la structure LCONST + END */
+    one_dword = xpress_omfsegment->body_length - (sizeof(BYTE) + sizeof(DWORD) + sizeof(BYTE));   /* We remove the size of the LCONST + END structure */
     bo_memcpy(&xpress_omfsegment->segment_header_file[offset],&one_dword,sizeof(DWORD));
     offset += sizeof(DWORD);
     /* undefined #1 */
     one_byte = 0x00;
     bo_memcpy(&xpress_omfsegment->segment_header_file[offset],&one_byte,sizeof(BYTE));
     offset += sizeof(BYTE);
-    /* LABLEN => on met à zéro et on va utiliser un byte en début de chaine de caractère pour indiquer la longueur */
+    /* LABLEN => we put zero and we will use a byte at the beginning of string to indicate the length */
     one_byte = 0;
     bo_memcpy(&xpress_omfsegment->segment_header_file[offset],&one_byte,sizeof(BYTE));
     offset += sizeof(BYTE);
@@ -1303,7 +1303,7 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
 
 
 /*******************************************************************************/
-/*  UpdateFileInformation() :  MAJ / Create the File _FileInformation.txt. */
+/*  UpdateFileInformation() :  SHIFT / Create the File _FileInformation.txt. */
 /*******************************************************************************/
 void UpdateFileInformation(char *output_folder_path, char *output_file_name, struct omf_project *current_omfproject)
 {
@@ -1326,23 +1326,23 @@ void UpdateFileInformation(char *output_folder_path, char *output_file_name, str
     /* File Path _FileInformation.txt */
     sprintf(file_information_path,"%s_FileInformation.txt",output_folder_path);
 
-    /** Prépare la ligne du File **/
+    /** Prepares the first line of the File **/
     sprintf(local_buffer,"%s=Type(%02X),AuxType(%04X),VersionCreate(%02X),MinVersion(%02X),Access(%02X),FolderInfo1(%s),FolderInfo2(%s)",output_file_name,
             current_omfproject->type,current_omfproject->aux_type,version_created,min_version,access,folder_info1,folder_info2);
 
-    /** Charge en mémoire le File **/
+    /** Load the file into memory **/
     line_tab = BuildUniqueListFromFile(file_information_path,&nb_line);
     if(line_tab == NULL)
     {
-        /* Créer le File FileInformation */
+        /* Create FileInformation File */
         CreateBinaryFile(file_information_path,(unsigned char *)local_buffer,(int)strlen(local_buffer));
 
-        /* Rendre le File invisible */
+        /* Make the File invisible */
         my_SetFileAttribute(file_information_path,SET_FILE_HIDDEN);
         return;
     }
 
-    /* Rendre le File visible */
+    /* make the File visible */
     my_SetFileAttribute(file_information_path,SET_FILE_VISIBLE);
 
     /** Create the File **/
@@ -1353,7 +1353,7 @@ void UpdateFileInformation(char *output_folder_path, char *output_file_name, str
         return;
     }
 
-    /** Ajouts des lignes existantes **/
+    /** Additions of existing lines **/
     for(i=0; i<nb_line; i++)
     {
         /* Isole le File name */
@@ -1361,32 +1361,32 @@ void UpdateFileInformation(char *output_folder_path, char *output_file_name, str
         if(next_sep == NULL)
             continue;
 
-        /* Recherche le File actuel */
+        /* Search the current file */
         memcpy(file_name,line_tab[i],next_sep-line_tab[i]);
         file_name[next_sep-line_tab[i]] = '\0';
 
-        /* On ne recopie pas la ligne du File */
+        /* We do not copy the line of the File */
         if(my_stricmp(file_name,output_file_name))
             fprintf(fd,"%s\n",line_tab[i]);
     }
 
-    /* Nouvelle ligne */
+    /* New line */
     fprintf(fd,"%s\n",local_buffer);
 
-    /* Fermeture */
+    /* Closing */
     fclose(fd);
 
     /* Memory release */
     mem_free_list(nb_line,line_tab);
 
-    /* Rendre le File invisible */
+    /* Make the File invisible */
     my_SetFileAttribute(file_information_path,SET_FILE_HIDDEN);
 }
 
 
-/*****************************************************************************/
-/*  mem_free_omfproject() :  Memory release de la structure omf_project. */
-/*****************************************************************************/
+/**************************************************************************/
+/*  mem_free_omfproject() :  Memory release of the omf_project structure. */
+/**************************************************************************/
 void mem_free_omfproject(struct omf_project *current_omfproject)
 {
     int i;
@@ -1424,9 +1424,9 @@ void mem_free_omfproject(struct omf_project *current_omfproject)
 }
 
 
-/******************************************************************************/
-/*  mem_alloc_omfsegment() :  Memory allowance de la structure omf_segment. */
-/******************************************************************************/
+/*****************************************************************************/
+/*  mem_alloc_omfsegment() :  Memory allowance of the omf_segment structure. */
+/*****************************************************************************/
 struct omf_segment *mem_alloc_omfsegment(void)
 {
     struct omf_segment *current_omfsegment;
@@ -1436,23 +1436,23 @@ struct omf_segment *mem_alloc_omfsegment(void)
     if(current_omfsegment == NULL)
         return(NULL);
 
-    /* Valeurs par defaut */
+    /* Default values */
     current_omfsegment->alignment = ALIGN_NONE;
     current_omfsegment->bank_size = 0x10000;        /* 64 KB */
     current_omfsegment->org = 0;
     current_omfsegment->ds_end = 0;
     current_omfsegment->type_attributes = 0x1000;   /* Static, Code */
 
-    /* Initialisation */
+    /* Initialization */
     mem_init_omfsegment(current_omfsegment);
 
-    /* Renvoie la structure */
+    /* Returns the structure */
     return(current_omfsegment);
 }
 
 
 /*********************************************************************************/
-/*  mem_init_omfsegment() :  Initialisation mémoire de la structure omf_segment. */
+/*  mem_init_omfsegment() :  Initialization memory of the omf_segment structure. */
 /*********************************************************************************/
 static void mem_init_omfsegment(struct omf_segment *current_omfsegment)
 {
@@ -1522,9 +1522,9 @@ static void mem_init_omfsegment(struct omf_segment *current_omfsegment)
 }
 
 
-/*****************************************************************************/
-/*  mem_free_omfsegment() :  Memory release de la structure omf_segment. */
-/*****************************************************************************/
+/**************************************************************************/
+/*  mem_free_omfsegment() :  Memory release of the omf_segment structure. */
+/**************************************************************************/
 void mem_free_omfsegment(struct omf_segment *current_omfsegment)
 {
     int i;
@@ -1557,7 +1557,7 @@ void mem_free_omfsegment(struct omf_segment *current_omfsegment)
         if(current_omfsegment->segment_body_file)
             free(current_omfsegment->segment_body_file);
 
-        /** Zones mémoires **/
+        /** Memorized areas **/
         my_Memory(MEMORY_FREE_OPCODE,NULL,NULL,current_omfsegment);
         my_Memory(MEMORY_FREE_DATA,NULL,NULL,current_omfsegment);
         my_Memory(MEMORY_FREE_DIRECTIVE,NULL,NULL,current_omfsegment);
@@ -1570,7 +1570,7 @@ void mem_free_omfsegment(struct omf_segment *current_omfsegment)
         my_Memory(MEMORY_FREE_GLOBAL,NULL,NULL,current_omfsegment);
         my_Memory(MEMORY_FREE_FILE,NULL,NULL,current_omfsegment);
         
-        /* Libère toutes les allocations temporaires */
+        /* Release all temporary allowances */
         for(i=0; i<1024; i++)
             if(current_omfsegment->alloc_table[i] != NULL)
             {
@@ -1578,7 +1578,7 @@ void mem_free_omfsegment(struct omf_segment *current_omfsegment)
                 current_omfsegment->alloc_table[i] = NULL;
             }
 
-        /* Libère la structure */
+        /* Free the structure */
         free(current_omfsegment);
     }
 }

@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  Dc_Library.c : Module pour la bibliothèque générique de fonctions. */
+/*  Dc_Library.c : Module for the Generic Function Library.            */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
@@ -42,7 +42,7 @@ int compare_variable(const void *,const void *);
 int compare_external(const void *,const void *);
 
 /*********************************************/
-/*  my_RaiseError() :  Gestion des Errors.  */
+/*  my_RaiseError() :  Errors Management.    */
 /*********************************************/
 void my_RaiseError(int code, void *data)
 {
@@ -70,10 +70,10 @@ void my_RaiseError(int code, void *data)
         default :  /* ERROR_RAISE */
             if(error_state == ERROR_READY)
             {
-                /* Construction du message d'Error utilisateur */
+                /* Constructing the User Error Message */
                 error_string = strdup((char *) data);
 
-                /* Saut au début du code */
+                /* Jump to the beginning of the code */
                 error_state = ERROR_READY;
                 longjmp(*context,1);
             }
@@ -83,7 +83,7 @@ void my_RaiseError(int code, void *data)
 
 
 /**************************************************/
-/*  my_File() :  Gestion des ressources Files. */
+/*  my_File() :  Resource Management Files.       */
 /**************************************************/
 void my_File(int code, void *data)
 {
@@ -98,7 +98,7 @@ void my_File(int code, void *data)
             break;
 
         case FILE_FREE :
-            /* Fermeture des Directory */
+            /* Closing the Directory */
             for(i=0; i<256; i++)
                 if(hFile_tab[i] != 0)
                 {
@@ -134,7 +134,7 @@ void my_File(int code, void *data)
 
 
 /****************************************************/
-/*  my_Memory() :  Gestion des ressources mémoires. */
+/*  my_Memory() :  Memory Resource Management.      */
 /****************************************************/
 void my_Memory(int code, void *data, void *value, struct omf_segment *current_omfsegment)
 {
@@ -142,36 +142,36 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
     static struct omf_segment *curr_omfsegment = NULL;
     struct source_file *current_file = NULL;              /* Source file */
     struct source_file *next_file = NULL;
-    struct item *current_opcode = NULL;                   /* Liste des opcode */
+    struct item *current_opcode = NULL;                   /* List of opcodes */
     struct item *next_opcode = NULL;
     struct item *new_opcode = NULL;
-    struct item *current_data = NULL;                     /* Liste des data */
+    struct item *current_data = NULL;                     /* List of data */
     struct item *next_data = NULL;
     struct item *new_data = NULL;
-    struct item *current_directive = NULL;                /* Liste des directive */
+    struct item *current_directive = NULL;                /* List of directives */
     struct item *next_directive = NULL;
     struct item *new_directive = NULL;
-    struct item *current_direqu = NULL;                   /* Liste des directive equivalence */
+    struct item *current_direqu = NULL;                   /* List of directive equivalences */
     struct item *next_direqu = NULL;
     struct item *new_direqu = NULL;
     struct item **found_item_ptr = NULL;
-    struct macro *current_macro = NULL;                   /* Liste des macro */
+    struct macro *current_macro = NULL;                   /* List of macros */
     struct macro *next_macro = NULL;
     struct macro **found_macro_ptr = NULL;
-    struct label *current_label = NULL;                   /* Liste des label */
+    struct label *current_label = NULL;                   /* List of labels */
     struct label *next_label = NULL;
     struct label **found_label_ptr = NULL;
-    struct equivalence *current_equivalence = NULL;       /* Liste des equivalence */
+    struct equivalence *current_equivalence = NULL;       /* List of equivalences */
     struct equivalence *new_equivalence = NULL;
     struct equivalence *next_equivalence = NULL;
     struct equivalence **found_equivalence_ptr = NULL;
-    struct variable *current_variable = NULL;             /* Liste des variable */
+    struct variable *current_variable = NULL;             /* List of variables */
     struct variable *next_variable = NULL;
     struct variable **found_variable_ptr = NULL;
-    struct external *current_external = NULL;             /* Liste des external */
+    struct external *current_external = NULL;             /* List of externals */
     struct external *next_external = NULL;
     struct external **found_external_ptr = NULL;
-    struct global *current_global = NULL;                 /* Liste des global */
+    struct global *current_global = NULL;                 /* List of globals */
     struct global *next_global = NULL;
     struct global *new_global = NULL;
 
@@ -210,7 +210,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             break;
 
             /*************************************/
-            /*  Déclare les Memory allowances  */
+            /*  Declares Memory allowances  */
             /*************************************/
         case MEMORY_DECLARE_ALLOC :
             for(int i=0; i<1024; i++)
@@ -254,7 +254,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Opcode List  */
             /*****************/
         case MEMORY_ADD_OPCODE :
-            /* Déjà présent ? */
+            /* Already here? */
             for(current_opcode = current_omfsegment->first_opcode; current_opcode; current_opcode = current_opcode->next)
                 if(!my_stricmp(current_opcode->name,(char *) data))
                     return;
@@ -270,7 +270,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure item (opcode)");
             }
 
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_opcode == NULL)
                 current_omfsegment->first_opcode = new_opcode;
             else
@@ -287,18 +287,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_opcode)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_opcode)
             {
                 *((char **)value) = current_omfsegment->tab_opcode[(*((int *)data))-1]->name;
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_opcode = current_omfsegment->first_opcode;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_opcode = current_opcode->next;
@@ -316,15 +316,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_opcode == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_opcode table");
 
-            /* Place les item */
+            /* Place the items */
             current_opcode = current_omfsegment->first_opcode;
             for(int i=0; current_opcode; current_opcode=current_opcode->next,i++)
                 current_omfsegment->tab_opcode[i] = current_opcode;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_opcode,current_omfsegment->nb_opcode,sizeof(struct item *),compare_item);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_opcode; i++)
             {
                 if(i == current_omfsegment->nb_opcode-1)
@@ -340,7 +340,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct item **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_opcode != NULL)
             {
                 current_omfsegment->local_item.name = (char *)data;
@@ -370,7 +370,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Data List  */
             /***************/
         case MEMORY_ADD_DATA :
-            /* Déjà présent ? */
+            /* Already here? */
             for(current_data = current_omfsegment->first_data; current_data; current_data = current_data->next)
                 if(!my_stricmp(current_data->name,(char *) data))
                     return;
@@ -386,7 +386,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure item (data)");
             }
 
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_data == NULL)
                 current_omfsegment->first_data = new_data;
             else
@@ -403,18 +403,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_data)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_data)
             {
                 *((char **)value) = current_omfsegment->tab_data[(*((int *)data))-1]->name;
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_data = current_omfsegment->first_data;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_data = current_data->next;
@@ -432,15 +432,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_data == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_data table");
 
-            /* Place les item */
+            /* Place the items */
             current_data = current_omfsegment->first_data;
             for(int i=0; current_data; current_data=current_data->next,i++)
                 current_omfsegment->tab_data[i] = current_data;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_data,current_omfsegment->nb_data,sizeof(struct item *),compare_item);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_data; i++)
             {
                 if(i == current_omfsegment->nb_data-1)
@@ -456,7 +456,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct item **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_data != NULL)
             {
                 current_omfsegment->local_item.name = (char *) data;
@@ -486,7 +486,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Directive List  */
             /********************/
         case MEMORY_ADD_DIRECTIVE :
-            /* Déjà présent ? */
+            /* Already here? */
             for(current_directive = current_omfsegment->first_directive; current_directive; current_directive = current_directive->next)
                 if(!my_stricmp(current_directive->name,(char *) data))
                     return;
@@ -502,7 +502,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure item (directive)");
             }
 
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_directive == NULL)
                 current_omfsegment->first_directive = new_directive;
             else
@@ -519,18 +519,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_directive)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_directive)
             {
                 *((char **)value) = current_omfsegment->tab_directive[(*((int *)data))-1]->name;
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_directive = current_omfsegment->first_directive;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_directive = current_directive->next;
@@ -548,15 +548,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_directive == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_directive table");
 
-            /* Place les item */
+            /* Place the items */
             current_directive = current_omfsegment->first_directive;
             for(int i=0; current_directive; current_directive=current_directive->next,i++)
                 current_omfsegment->tab_directive[i] = current_directive;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_directive,current_omfsegment->nb_directive,sizeof(struct item *),compare_item);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_directive; i++)
             {
                 if(i == current_omfsegment->nb_directive-1)
@@ -572,7 +572,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct item **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_directive != NULL)
             {
                 current_omfsegment->local_item.name = (char *) data;
@@ -601,7 +601,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Directive Equivalence List  */
             /********************************/
         case MEMORY_ADD_DIREQU :
-            /* Déjà présent ? */
+            /* Already here? */
             for(current_direqu = current_omfsegment->first_direqu; current_direqu; current_direqu = current_direqu->next)
                 if(!my_stricmp(current_direqu->name,(char *) data))
                     return;
@@ -617,7 +617,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure item (equivalence)");
             }
 
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_direqu == NULL)
                 current_omfsegment->first_direqu = new_direqu;
             else
@@ -634,18 +634,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_direqu)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_direqu)
             {
                 *((char **)value) = current_omfsegment->tab_direqu[(*((int *)data))-1]->name;
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_direqu = current_omfsegment->first_direqu;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_direqu = current_direqu->next;
@@ -663,15 +663,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_direqu == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_direqu table");
 
-            /* Place les item */
+            /* Place the items */
             current_direqu = current_omfsegment->first_direqu;
             for(int i=0; current_direqu; current_direqu=current_direqu->next,i++)
                 current_omfsegment->tab_direqu[i] = current_direqu;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_direqu,current_omfsegment->nb_direqu,sizeof(struct item *),compare_item);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_direqu; i++)
             {
                 if(i == current_omfsegment->nb_direqu-1)
@@ -687,7 +687,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct item **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_direqu != NULL)
             {
                 current_omfsegment->local_item.name = (char *) data;
@@ -717,7 +717,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Opcode Macro  */
             /******************/
         case MEMORY_ADD_MACRO :
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_macro == NULL)
                 current_omfsegment->first_macro = (struct macro *) data;
             else
@@ -734,18 +734,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_macro)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_macro)
             {
                 *((struct macro **)value) = current_omfsegment->tab_macro[(*((int *)data))-1];
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_macro = current_omfsegment->first_macro;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_macro = current_macro->next;
@@ -763,15 +763,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_macro == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_macro table");
 
-            /* Place les item */
+            /* Place the items */
             current_macro = current_omfsegment->first_macro;
             for(int i=0; current_macro; current_macro=current_macro->next,i++)
                 current_omfsegment->tab_macro[i] = current_macro;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_macro,current_omfsegment->nb_macro,sizeof(struct macro *),compare_macro);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_macro; i++)
             {
                 if(i == current_omfsegment->nb_macro-1)
@@ -787,7 +787,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct macro **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_macro != NULL)
             {
                 current_omfsegment->local_macro.name = (char *) data;
@@ -817,7 +817,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Source Label  */
             /******************/
         case MEMORY_ADD_LABEL :
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_label == NULL)
                 current_omfsegment->first_label = (struct label *) data;
             else
@@ -834,18 +834,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_label)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_label)
             {
                 *((struct label **)value) = current_omfsegment->tab_label[(*((int *)data))-1];
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_label = current_omfsegment->first_label;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_label = current_label->next;
@@ -863,15 +863,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_label == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_label table");
 
-            /* Place les item */
+            /* Place the items */
             current_label = current_omfsegment->first_label;
             for(int i=0; current_label; current_label=current_label->next,i++)
                 current_omfsegment->tab_label[i] = current_label;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_label,current_omfsegment->nb_label,sizeof(struct label *),compare_label);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_label; i++)
             {
                 if(i == current_omfsegment->nb_label-1)
@@ -887,7 +887,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct label **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_label != NULL)
             {
                 current_omfsegment->local_label.name = (char *) data;
@@ -917,19 +917,19 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Source Equivalence  */
             /************************/
         case MEMORY_ADD_EQUIVALENCE :
-            /* Vérifie l'unicité */
+            /* Check the uniqueness */
             new_equivalence = (struct equivalence *) data;
             for(current_equivalence = current_omfsegment->first_equivalence; current_equivalence; current_equivalence=current_equivalence->next)
             {
                 if(!strcmp(current_equivalence->name,new_equivalence->name) &&
                    current_equivalence->source_line == new_equivalence->source_line)
                 {
-                    /* Existe déjà */
+                    /* Already Exists */
                     mem_free_equivalence(new_equivalence);
                     return;
                 }
             }
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_equivalence == NULL)
                 current_omfsegment->first_equivalence = (struct equivalence *) data;
             else
@@ -946,18 +946,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_equivalence)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_equivalence)
             {
                 *((struct equivalence **)value) = current_omfsegment->tab_equivalence[(*((int *)data))-1];
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_equivalence = current_omfsegment->first_equivalence;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_equivalence = current_equivalence->next;
@@ -975,15 +975,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_equivalence == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_equivalence table");
 
-            /* Place les item */
+            /* Place the items */
             current_equivalence = current_omfsegment->first_equivalence;
             for(int i=0; current_equivalence; current_equivalence=current_equivalence->next,i++)
                 current_omfsegment->tab_equivalence[i] = current_equivalence;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_equivalence,current_omfsegment->nb_equivalence,sizeof(struct equivalence *),compare_equivalence);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_equivalence; i++)
             {
                 if(i == current_omfsegment->nb_equivalence-1)
@@ -999,7 +999,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct equivalence **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_equivalence != NULL)
             {
                 current_omfsegment->local_equivalence.name = (char *) data;
@@ -1009,7 +1009,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             }
             else
             {
-                /* Recherche via la liste chainée */
+                /* Search via the chain list */
                 for(current_equivalence=current_omfsegment->first_equivalence; current_equivalence; current_equivalence=current_equivalence->next)
                     if(!strcmp(current_equivalence->name,(char *)data))
                     {
@@ -1039,7 +1039,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Source Variable  */
             /*********************/
         case MEMORY_ADD_VARIABLE :
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_variable == NULL)
                 current_omfsegment->first_variable = (struct variable *) data;
             else
@@ -1056,18 +1056,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_variable)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_variable)
             {
                 *((struct variable **)value) = current_omfsegment->tab_variable[(*((int *)data))-1];
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_variable = current_omfsegment->first_variable;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_variable = current_variable->next;
@@ -1085,15 +1085,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_variable == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_variable table");
 
-            /* Place les item */
+            /* Place the items */
             current_variable = current_omfsegment->first_variable;
             for(int i=0; current_variable; current_variable=current_variable->next,i++)
                 current_omfsegment->tab_variable[i] = current_variable;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_variable,current_omfsegment->nb_variable,sizeof(struct variable *),compare_variable);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_variable; i++)
             {
                 if(i == current_omfsegment->nb_variable-1)
@@ -1109,7 +1109,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct variable **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_variable != NULL)
             {
                 current_omfsegment->local_variable.name = (char *) data;
@@ -1119,7 +1119,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             }
             else
             {
-                /* Recherche via la liste chainée */
+                /* Search via the chain list */
                 for(current_variable=current_omfsegment->first_variable; current_variable; current_variable=current_variable->next)
                     if(!strcmp(current_variable->name,(char *)data))
                     {
@@ -1148,7 +1148,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /*  Source External  */
             /*********************/
         case MEMORY_ADD_EXTERNAL :
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_external == NULL)
                 current_omfsegment->first_external = (struct external *) data;
             else
@@ -1165,18 +1165,18 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_external)
                 return;
 
-            /* Accès direct par le tableau */
+            /* Direct access through the table */
             if(current_omfsegment->tab_external)
             {
                 *((struct external **)value) = current_omfsegment->tab_external[(*((int *)data))-1];
                 return;
             }
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_external = current_omfsegment->first_external;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_external = current_external->next;
@@ -1194,15 +1194,15 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             if(current_omfsegment->tab_external == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_external table");
 
-            /* Place les item */
+            /* Place the items */
             current_external = current_omfsegment->first_external;
             for(int i=0; current_external; current_external=current_external->next,i++)
                 current_omfsegment->tab_external[i] = current_external;
 
-            /* Tri */
+            /* Sort items */
             qsort(current_omfsegment->tab_external,current_omfsegment->nb_external,sizeof(struct external *),compare_external);
 
-            /* Replace les liens */
+            /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_external; i++)
             {
                 if(i == current_omfsegment->nb_external-1)
@@ -1218,7 +1218,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((struct external **)value) = NULL;
 
-            /** Recherche par le tableau **/
+            /** Search by the table **/
             if(current_omfsegment->tab_external != NULL)
             {
                 current_omfsegment->local_external.name = (char *) data;
@@ -1228,7 +1228,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             }
             else
             {
-                /* Recherche via la liste chainée */
+                /* Search via the chain list */
                 for(current_external=current_omfsegment->first_external; current_external; current_external=current_external->next)
                     if(!strcmp(current_external->name,(char *)data))
                     {
@@ -1253,11 +1253,11 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             current_omfsegment->tab_external = NULL;
             break;
 
-            /********************************************************************************/
-            /*  Label ENT qu'il faut recabler car défini sous la forme ENT Labal1,Label2... */
-            /********************************************************************************/
+            /*****************************************************************************/
+            /*  Label ENT which must be rewired because defined as ENT Labal1, Label2... */
+            /*****************************************************************************/
         case MEMORY_ADD_GLOBAL :
-            /* On ne veut pas deux fois le même Label */
+            /* We do not want the same label twice */
             for(current_global = current_omfsegment->first_global; current_global; current_global = current_global->next)
                 if(!strcmp(current_global->name,(char *)data))
                     return;
@@ -1274,7 +1274,7 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for global structure");
             }
 
-            /* Attache la structure */
+            /* Attaches the structure */
             if(current_omfsegment->first_global == NULL)
                 current_omfsegment->first_global = new_global;
             else
@@ -1291,11 +1291,11 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             /* Init */
             *((char **)value) = NULL;
 
-            /* Vérification d'un dépassement */
+            /* Verify expected value */
             if(*((int *)data) <= 0 || *((int *)data) > current_omfsegment->nb_global)
                 return;
 
-            /* Localise la strucure */
+            /* Locate the structure */
             current_global = current_omfsegment->first_global;
             for(int i=0; i<(*((int *)data))-1; i++)
                 current_global = current_global->next;
@@ -1320,9 +1320,9 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
 }
 
 
-/**********************************************************/
-/*  my_stricmp() :  Comparaison de chaines sans la casse. */
-/**********************************************************/
+/****************************************************/
+/*  my_stricmp() : Case insensitive string compare. */
+/****************************************************/
 int my_stricmp(char *string1, char *string2)
 {
 #if defined(WIN32) || defined(WIN64) 
@@ -1332,9 +1332,9 @@ int my_stricmp(char *string1, char *string2)
 #endif
 }
 
-/***********************************************************/
-/*  my_strnicmp() :  Comparaison de chaines sans la casse. */
-/***********************************************************/
+/**************************************************************/
+/*  my_strnicmp() :  Case insensitive string compare w/lenth. */
+/**************************************************************/
 int my_strnicmp(char *string1, char *string2, size_t length)
 {
 #if defined(WIN32) || defined(WIN64) 
@@ -1346,7 +1346,7 @@ int my_strnicmp(char *string1, char *string2, size_t length)
 
 
 /***********************************************/
-/*  my_printf64() :  Integer 64 bit en string. */
+/*  my_printf64() :  Integer 64 into a string. */
 /***********************************************/
 void my_printf64(int64_t value_64, char *buffer)
 {
@@ -1358,9 +1358,9 @@ void my_printf64(int64_t value_64, char *buffer)
 }
 
 
-/*********************************************/
-/*  my_atoi64() :  String en Integer 64 bit. */
-/*********************************************/
+/*************************************************/
+/*  my_atoi64() :  String into a Integer 64 bit. */
+/*************************************************/
 int64_t my_atoi64(char *expression)
 {
 #if defined(WIN32) || defined(WIN64) 
@@ -1371,9 +1371,9 @@ int64_t my_atoi64(char *expression)
 }
 
 
-/*****************************************************/
-/*  bo_memcpy() : Copie en respectant le Byte order. */
-/*****************************************************/
+/**************************************************/
+/*  bo_memcpy() : Copy respecting the Byte order. */
+/**************************************************/
 void bo_memcpy(void *dst, void *src, size_t nb_byte)
 {
     unsigned char data_src[10];
@@ -1411,7 +1411,7 @@ void bo_memcpy(void *dst, void *src, size_t nb_byte)
 
 
 /*******************************************************************/
-/*  GetFileProperCasePath() :  Recherche un File sans sa casse. */
+/*  GetFileProperCasePath() :  Case insensitive Search for a file. */
 /*******************************************************************/
 char *GetFileProperCasePath(char *file_path_arg)
 {
@@ -1427,11 +1427,11 @@ char *GetFileProperCasePath(char *file_path_arg)
     /* Init */
     strcpy(file_path_case,"");
 
-    /** On a besoin d'un chemin absolu **/
+    /** We need an absolute path **/
 #if defined(WIN32) || defined(WIN64)
     if(file_path_arg[1] != ':')
     {
-        /* Répertoire courrant */
+        /* Current directory */
         GetCurrentDirectory(1024,folder_current);
         if(strlen(folder_current) > 0)
             if(folder_current[strlen(folder_current)-1] != '\\')
@@ -1443,7 +1443,7 @@ char *GetFileProperCasePath(char *file_path_arg)
 #else
     if(file_path_arg[0] != '/')
     {
-        /* Répertoire courrant */
+        /* Current directory */
         getcwd(folder_current,1024);
         if(strlen(folder_current) > 0)
             if(folder_current[strlen(folder_current)-1] != '/')
@@ -1454,7 +1454,7 @@ char *GetFileProperCasePath(char *file_path_arg)
         strcpy(file_path,file_path_arg);
 #endif
 
-    /** Récupère le Dossier + File name **/
+    /** Retrieve the File + File name **/
     strcpy(folder_path,file_path);
     strcpy(file_name,file_path);
     for(i=(int)strlen(folder_path); i>=0; i--)
@@ -1465,12 +1465,12 @@ char *GetFileProperCasePath(char *file_path_arg)
             break;
         }
 
-    /** Liste des File du répertoire **/
+    /** List of Directory Lines **/
     tab_file_name = GetFolderFileList(folder_path,&nb_file_name,&is_error);
     if(tab_file_name == NULL)
         return(NULL);
 
-    /** Recherche le File **/
+    /** Search the Filename **/
     for(i=0,nb_found=0; i<nb_file_name; i++)
     {
         if(!my_stricmp(file_name,tab_file_name[i]))
@@ -1483,22 +1483,22 @@ char *GetFileProperCasePath(char *file_path_arg)
     /* Memory release */
     mem_free_list(nb_file_name,tab_file_name);
 
-    /* Rien trouvé */
+    /* Nothing found */
     if(nb_found == 0)
         return(NULL);
 
-    /* Plus d'un File => Ambiguité */
+    /* More than one File => ambiguous */
     if(nb_found > 1)
         return(NULL);
 
-    /* Un seul => OK */
+    /* Only one => OK */
     return(&file_path_case[0]);
 }
 
 
-/**************************************************************************/
-/*  GetFolderFileList() : Récupère la liste des Files d'un répertoire. */
-/**************************************************************************/
+/************************************************************************/
+/*  GetFolderFileList() : Retrieves the list of Files from a directory. */
+/************************************************************************/
 char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
 {
 #if defined(WIN32) || defined(WIN64)  
@@ -1528,14 +1528,14 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
     first_item = NULL;
     last_item = NULL;
     
-    /* Prépare le dossier */
+    /* Prepare the file */
     strcpy(param->buffer_folder_path,folder_path);
     if(strlen(param->buffer_folder_path) > 0)
         if(param->buffer_folder_path[strlen(param->buffer_folder_path)-1] != '\\' && param->buffer_folder_path[strlen(param->buffer_folder_path)-1] != '/')
             strcat(param->buffer_folder_path,FOLDER_SEPARATOR);
 
 #if defined(WIN32) || defined(WIN64)  
-    /** On boucle sur tous les Files présents **/
+    /** We loop on all the Files present **/
     sprintf(param->buffer_file_path,"%s*.*",param->buffer_folder_path);
     first_time = 1;
     while(1)
@@ -1549,18 +1549,18 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         else
             rc = _findnext(hFile,&c_file);
 
-        /* On analyse le résultat */
+        /* We analyze the result */
         if(rc == -1)
             break;    /* no more files */
 
-        /** On traite cette entrée **/
+        /** This entry is treated **/
         first_time++;
 
-        /* On ignore certaine entrée */
+        /* Some entry is unknown */
         if((c_file.attrib & _A_SUBDIR) == _A_SUBDIR)
             continue;
 
-        /** Garde le File **/
+        /** Keep the File **/
         /* Memory allowance */
         current_item = (struct item *) calloc(1,sizeof(struct item));
         if(current_item == NULL)
@@ -1594,7 +1594,7 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
             *is_error = 1;
             return(NULL);
         }
-        /* Ajout dans la liste */
+        /* Addition to the list */
         nb_item++;
         if(first_item == NULL)
             first_item = current_item;
@@ -1603,11 +1603,11 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         last_item = current_item;
     }
 
-    /* On ferme */
+    /* We are closing */
     my_File(FILE_FREE_DIRECTORY,&hFile);
     _findclose(hFile);
 #else  
-    /* Ouverture du répertoire */
+    /* Opening the directory */
     dp = opendir(folder_path);
     if(dp == NULL)
     {
@@ -1615,22 +1615,22 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         return(NULL);
     }
 
-    /** Boucle sur tous les Files **/
+    /** Loop on all Files **/
     for(;;)
     {
-        /* Récupère un entrée */
+        /* Retrieving an entry */
         dir_entry = readdir(dp);
         if(dir_entry == NULL)
             break;
 
-        /* On ne prend pas les Files invisibles */
+        /* Ignore Invisible Files */
         if(dir_entry->d_name[0] == '.')
             continue;
-        /* On ne prend pas les répertoires */
+        /* Ignore Directories */
         if(dir_entry->d_type == DT_DIR)
             continue;
 
-        /** Garde le File **/
+        /** Keep the File **/
         /* Memory allowance */
         current_item = (struct item *) calloc(1,sizeof(struct item));
         if(current_item == NULL)
@@ -1662,7 +1662,7 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
             *is_error = 1;
             return(NULL);
         }
-        /* Ajout dans la liste */
+        /* Addition to the list */
         nb_item++;
         if(first_item == NULL)
             first_item = current_item;
@@ -1671,7 +1671,7 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         last_item = current_item;
     }
 
-    /* Fermeture du répertoire */
+    /* Closing the directory */
     closedir(dp);
 #endif
 
@@ -1682,7 +1682,7 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         return(NULL);
     }
 
-    /** Conversion Liste -> Table **/
+    /** Conversion List -> Table **/
     tab_file_name = (char **) calloc(nb_item,sizeof(char *));
     if(tab_file_name == NULL)
     {
@@ -1698,26 +1698,26 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         return(NULL);
     }
 
-    /* Ajout des noms */
+    /* Adding names */
     for(current_item = first_item; current_item; current_item = current_item->next)
         tab_file_name[nb_file++] = current_item->name;
 
-    /* Libération de la liste (mais pas du name) */
+    /* Release list (but not name) */
     for(current_item = first_item; current_item; current_item = next_item)
     {
         next_item = current_item->next;
         free(current_item);
     }
 
-    /* Renvoi la liste */
+    /* Return the list */
     *nb_file_rtn = nb_file;
     return(tab_file_name);
 }
 
 
-/*****************************************************************/
-/*  my_IsFileExist() : Détermine si le File exite sur disque. */
-/*****************************************************************/
+/*************************************************************/
+/*  my_IsFileExist() : Determine if the File exists on disk. */
+/*************************************************************/
 int my_IsFileExist(char *file_path)
 {
     FILE *fd;
@@ -1725,55 +1725,55 @@ int my_IsFileExist(char *file_path)
     char *file_case_path = NULL;
     char file_path_OS[1024] = "";
 
-    /** Les noms ne sont pas case-sensitives sous Windows **/
+    /** Names are not case-sensitive on Windows **/
 #if defined(WIN32) || defined(WIN64) 
-    /* Chemin Windows */
+    /* Windows path */
     strcpy(file_path_OS,file_path);
     for(i=0; i<(int)strlen(file_path_OS); i++)
         if(file_path_OS[i] == '/')
             file_path_OS[i] = '\\';
 
-    /* Ouverture du File */
+    /* Opening the File */
     fd = fopen(file_path_OS,"r");
     if(fd == NULL)
-        return(0);     /* N'existe pas */
+        return(0);     /* Does not exist */
 
-    /* Fermeture */
+    /* Closing */
     fclose(fd);
 
-    /* Existe */
+    /* Exists */
     return(1);
 #else
-    /** Les noms sont case-sensitives sous Unix **/
-    /* Chemin Unix */
+    /** The names are case-sensitive under Unix **/
+    /* Unix Way */
     strcpy(file_path_OS,file_path);
     for(i=0; i<(int)strlen(file_path_OS); i++)
         if(file_path_OS[i] == '\\')
             file_path_OS[i] = '/';
 
-    /* Ouverture du File */
+    /* Opening the File */
     fd = fopen(file_path_OS,"r");
     if(fd != NULL)
     {
-        /* Existe */
+        /* Exists */
         fclose(fd);
         return(1);
     }
 
-    /** Recherche le nom exact du File dans le répertoire **/
+    /** Find the exact name of the File in the directory **/
     file_case_path = GetFileProperCasePath(file_path);
     if(file_case_path != NULL)
-        return(1);    /* Trouvé */
+        return(1);    /* found */
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 #endif
 }
 
 
-/*********************************************************************/
-/*  LoadTextFileData() :  Récupération des données d'un File Txt. */
-/*********************************************************************/
+/**********************************************************/
+/*  LoadTextFileData() :  Retrieve data from a text File. */
+/**********************************************************/
 unsigned char *LoadTextFileData(char *file_path, size_t *data_length_rtn)
 {
     FILE *fd;
@@ -1782,15 +1782,15 @@ unsigned char *LoadTextFileData(char *file_path, size_t *data_length_rtn)
     char *file_case_path = NULL;
     char file_path_OS[1024] = "";
 
-    /** Ouverture du File **/
+    /** Opening the File **/
     fd = fopen(file_path,"r");
     if(fd == NULL)
     {
 #if defined(WIN32) || defined(WIN64) 
         return(NULL);
 #else
-        /** Les noms sont case-sensitive sous Unix **/
-        /* Quick Win => On remplace le .s par .S */
+        /** The names are case-sensitive under Unix **/
+        /* Quick Win => replaces the .s with .S */
         if(strlen(file_path) > 2)
             if(file_path[strlen(file_path)-2] == '.' && toupper(file_path[strlen(file_path)-1]) == 'S')
             {
@@ -1805,7 +1805,7 @@ unsigned char *LoadTextFileData(char *file_path, size_t *data_length_rtn)
                 fd = fopen(file_path_OS,"r");
             }
 
-        /* Recherche le nom exact du File dans le répertoire */
+        /* Find the exact name of the File in the directory */
         if(fd == NULL)
         {
             file_case_path = GetFileProperCasePath(file_path);
@@ -1813,13 +1813,13 @@ unsigned char *LoadTextFileData(char *file_path, size_t *data_length_rtn)
                 fd = fopen(file_case_path,"r");
         }
 
-        /* Rien trouvé */
+        /* Nothing found */
         if(fd == NULL)
             return(NULL);
 #endif
     }
 
-    /* Taille du File */
+    /* File Size */
     fseek(fd,0L,SEEK_END);
     file_size = ftell(fd);
     fseek(fd,0L,SEEK_SET);
@@ -1832,7 +1832,7 @@ unsigned char *LoadTextFileData(char *file_path, size_t *data_length_rtn)
         return(NULL);
     }
 
-    /* Lecture des données */
+    /* Reading data */
     nb_read = fread(data,1,file_size,fd);
     if(nb_read < 0)
     {
@@ -1845,15 +1845,15 @@ unsigned char *LoadTextFileData(char *file_path, size_t *data_length_rtn)
     /* Close the File */
     fclose(fd);
 
-    /* Renvoi les données et la taille */
+    /* Return data and size */
     *data_length_rtn = nb_read;
     return(data);
 }
 
 
-/***********************************************************************/
-/*  LoadBinaryFileData() :  Récupération des données d'un File Bin. */
-/***********************************************************************/
+/**************************************************************/
+/*  LoadBinaryFileData() :  Retrieve data from a binary File. */
+/**************************************************************/
 unsigned char *LoadBinaryFileData(char *file_path, size_t *data_length_rtn)
 {
     FILE *fd;
@@ -1861,15 +1861,15 @@ unsigned char *LoadBinaryFileData(char *file_path, size_t *data_length_rtn)
     unsigned char *data;
     char *file_case_path = NULL;
 
-    /* Ouverture du File */
+    /* Opening the File */
 #if defined(WIN32) || defined(WIN64) 
     fd = fopen(file_path,"rb");
 #else
-    /** Les noms sont case-sensitive sous Unix **/
+    /** The names are case-sensitive under Unix **/
     fd = fopen(file_path,"r");
     if(fd == NULL)
     {
-        /* Recherche le nom exact du File dans le répertoire */
+        /* Find the exact name of the File in the directory */
         file_case_path = GetFileProperCasePath(file_path);
         if(file_case_path != NULL)
             fd = fopen(file_case_path,"r");
@@ -1878,7 +1878,7 @@ unsigned char *LoadBinaryFileData(char *file_path, size_t *data_length_rtn)
     if(fd == NULL)
         return(NULL);
 
-    /* Taille du File */
+    /* File Size */
     fseek(fd,0L,SEEK_END);
     file_size = ftell(fd);
     fseek(fd,0L,SEEK_SET);
@@ -1891,7 +1891,7 @@ unsigned char *LoadBinaryFileData(char *file_path, size_t *data_length_rtn)
         return(NULL);
     }
 
-    /* Lecture des données */
+    /* Reading data */
     nb_read = (int) fread(data,1,file_size,fd);
     if(nb_read < 0)
     {
@@ -1903,15 +1903,15 @@ unsigned char *LoadBinaryFileData(char *file_path, size_t *data_length_rtn)
     /* Close the File */
     fclose(fd);
 
-    /* Renvoi les données et la taille */
+    /* Return data and size */
     *data_length_rtn = nb_read;
     return(data);
 }
 
 
-/*****************************************************************/
-/*  GetLabelFromLine() :  Isole une des composantes de la ligne. */
-/*****************************************************************/
+/***************************************************************/
+/*  GetLabelFromLine() :  Isolates lablel component of a line. */
+/***************************************************************/
 int GetLabelFromLine(char *data, int offset, char *value_rtn)
 {
     int i, length;
@@ -1919,34 +1919,34 @@ int GetLabelFromLine(char *data, int offset, char *value_rtn)
     /* Init */
     strcpy(value_rtn,"");
 
-    /* A t'on qqchose ? */
+    /* Do we have something? */
     if(data[offset] == ' ' || data[offset] == '\n')
     {
-        /* Vide, on va donc rechercher le prochain caractère */
+        /* Empty, so we'll look for the next character */
         for(length=0; length<(int)strlen(data); length++)
             if(data[offset+length] != ' ' && data[offset+length] != '\t')
                 break;
     }
     else
     {
-        /* Recopie la valeur */
+        /* Copy the value */
         for(i=0; data[i+offset] != ' ' && data[i+offset] != '\t' && data[i+offset] != '\0'; i++)
             value_rtn[i] = data[i+offset];
         value_rtn[i] = '\0';
 
-        /* Elimine la zone vide qui suit */
+        /* Eliminate the empty area that follows */
         for(length=i; length<(int)strlen(data); length++)
             if(data[offset+length] != ' ' && data[offset+length] != '\t')
                 break;
     }
 
-    /* Renvoie le nouvel offset */
+    /* Returns the new offset */
     return(offset+length);
 }
 
 
 /******************************************************************/
-/*  GetOpcodeFromLine() :  Isole une des composantes de la ligne. */
+/*  GetOpcodeFromLine() :  Isolates opcode component of the line. */
 /******************************************************************/
 int GetOpcodeFromLine(char *data, int offset, char *value_rtn)
 {
@@ -1955,63 +1955,62 @@ int GetOpcodeFromLine(char *data, int offset, char *value_rtn)
     /* Init */
     strcpy(value_rtn,"");
 
-    /* Rien */
+    /* nothing */
     if(strlen(&data[offset]) == 0)
         return(offset);
 
-    /* Recopie la valeur */
+    /* Copy the value */
     for(i=0; data[i+offset] != ' ' && data[i+offset] != '\t' && data[i+offset] != '\0'; i++)
         value_rtn[i] = data[i+offset];
     value_rtn[i] = '\0';
 
-    /* Renvoie le nouvel offset */
+    /* Returns the new offset */
     return(offset+i);
 }
 
 
 /*****************************************************/
-/*  CleanBuffer() : On nettoy un buffer genre @Trim  */
+/*  CleanBuffer() : We clean up a buffer like @Trim  */
 /*****************************************************/
 void CleanBuffer(char *buffer)
 {
-    int i, j;
-    int length;
-
-    /* Nettoyage arrière */
-    length = (int) strlen(buffer);
-    for(i=length-1; i>=0; i--)
+    /* trim end of string */
+    int length = (int)strlen(buffer);
+    for(int i = length-1; i >= 0; i--)
+    {
         if(buffer[i] == '\0' || buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
             buffer[i] = '\0';
         else
             break;
+    }
 
-    /* Nettoyage avant */
-    length = (int) strlen(buffer);
-    for(i=0,j=0; i<length; i++)
+    /* trim start of string */
+    length = (int)strlen(buffer);
+    int j = 0;
+    for(int i = 0; i < length; i++)
+    {
         if(buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
             j++;
         else
             break;
+    }
 
-    /* On déplace si besoin */
+    /* move chars in string if needed */
     if(j > 0)
         memmove(&buffer[0],&buffer[j],(length-j)+1);
 }
 
 
 /*****************************************************/
-/*  CleanUpName() : Enlève les ' ou " autour du nom  */
+/*  CleanUpName() : Remove the 'or' around the name  */
 /*****************************************************/
 void CleanUpName(char *buffer)
 {
-    size_t length;
-
-    /* Longueur */
-    length = strlen(buffer);
+    size_t length = strlen(buffer);
     if(length < 2)
         return;
 
-    /* Y a t'il des ' ou des " autour du nom */
+    /* Are there 'or' around the name? */
     if((buffer[0] == '\'' && buffer[length-1] == '\'') || (buffer[0] == '"' && buffer[length-1] == '"'))
     {
         memmove(&buffer[0],&buffer[1],length-2);
@@ -2021,7 +2020,7 @@ void CleanUpName(char *buffer)
 
 
 /**************************************************************/
-/*  GetFolderFromPath() :  Extrait le répertoire d'un chemin. */
+/*  GetFolderFromPath() :  Extract the directory from a path. */
 /**************************************************************/
 void GetFolderFromPath(char *file_path, char *folder_path_rtn)
 {
@@ -2030,7 +2029,7 @@ void GetFolderFromPath(char *file_path, char *folder_path_rtn)
     /* Init */
     strcpy(folder_path_rtn,"");
 
-    /* On extrait le chemin */
+    /* extract the path */
     for(i=(int)strlen(file_path); i>=0; i--)
         if(file_path[i] == '\\' || file_path[i] == '/')
         {
@@ -2041,9 +2040,9 @@ void GetFolderFromPath(char *file_path, char *folder_path_rtn)
 }
 
 
-/*******************************************************************/
-/*  ExtractAllIem() :  Sépare les différents éléments d'une ligne. */
-/*******************************************************************/
+/******************************************************************/
+/*  ExtractAllIem() :  Separate the different elements of a line. */
+/******************************************************************/
 struct item *ExtractAllIem(char *data)
 {
     int end = 0, length = 0, offset = 0;
@@ -2053,35 +2052,35 @@ struct item *ExtractAllIem(char *data)
     int value_type = 0;
     char value[1024];
 
-    /* Cas particulier : Empty line */
+    /* Particular case : Empty line */
     length = (int) strlen(data);
     if(length == 0)
         return(NULL);
 
-    /* Cas particulier : Ligne commentaire */
+    /* Particular case : Line comment */
     if(data[0] == '*' || data[0] == ';')
     {
         current_item = mem_alloc_item(data,TYPE_DATA);
         return(current_item);
     }
 
-    /** Parcours la ligne **/
+    /** Walk the line **/
     value[0] = '\0';
     for(int i=0; i<length; i++)
     {
-        /** Gestion des séparateurs **/
+        /** Handle the separators **/
         if(data[i] == '\t' || data[i] == ' ')
         {
-            if(offset == 0)                          /* 1ère valeur */
+            if(offset == 0)                          /* 1st value */
             {
                 value[offset++] = data[i];
                 value_type = TYPE_SEPARATOR;
             }
-            else if(value_type == TYPE_SEPARATOR)   /* Continue dans les séparateurs */
+            else if(value_type == TYPE_SEPARATOR)   /* Continue with separators */
                 value[offset++] = data[i];
             else
             {
-                /* Fin de la valeur précédente DATA */
+                /* End of the previous value DATA */
                 value[offset] = '\0';
                 current_item = mem_alloc_item(value,value_type);
                 if(first_item == NULL)
@@ -2090,7 +2089,7 @@ struct item *ExtractAllIem(char *data)
                     last_item->next = current_item;
                 last_item = current_item;
 
-                /* Début d'une nouvelle valeur SEPARATOR */
+                /* Start of a new SEPARATOR value */
                 offset = 0;
                 value[offset++] = data[i];
                 value_type = TYPE_SEPARATOR;
@@ -2098,9 +2097,9 @@ struct item *ExtractAllIem(char *data)
         }
         else
         {
-            if(offset == 0)                          /* 1ère valeur */
+            if(offset == 0)                          /* 1st value */
             {
-                /* Cas particulier : une valeur DATA commencant par un ; est un commentaire qui va jusqu'à la fin de la ligne */
+                /* Particular case : a DATA value starting with one; is a comment that goes to the end of the line */
                 if(data[i] == ';')
                 {
                     current_item = mem_alloc_item(&data[i],TYPE_DATA);
@@ -2112,11 +2111,11 @@ struct item *ExtractAllIem(char *data)
                     return(first_item);
                 }
 
-                /* Cas particulier pour " et ' : On va jusqu'à la fin */
+                /* Particular case for "and ': We go until' the end */
                 if(data[i] == '"' || data[i] == '\'')
                 {
                     end = 0;
-                    /* Y a t'il une fin de chaine ? */
+                    /* Is there an end of chain? */
                     for(int j=i+1; j<length; j++)
                         if(data[j] == data[i])
                         {
@@ -2124,27 +2123,27 @@ struct item *ExtractAllIem(char *data)
                             break;
                         }
 
-                    /* On prend toutes ces data ensemble */
+                    /* We take all these data together */
                     if(end)
                     {
                         memcpy(&value[offset],&data[i],end-i+1);
                         offset += end-i+1;
-                        i += (end-i+1)-1;    /* -1 car i++ */
+                        i += (end-i+1)-1;    /* -1 or i++ */
                         continue;
                     }
                 }
 
-                /* 1ère valeur */
+                /* 1st value */
                 value[offset++] = data[i];
                 value_type = TYPE_DATA;
             }
-            else if(value_type == TYPE_DATA)   /* Continue dans les DATA */
+            else if(value_type == TYPE_DATA)   /* Continue in the DATA */
             {
-                /* Cas particulier pour " et ' : On va jusqu'à la fin */
+                /* Particular case for "and ': We go until' the end */
                 if(data[i] == '"' || data[i] == '\'')
                 {
                     end = 0;
-                    /* Y a t'il une fin de chaine ? */
+                    /* Is there an end of chain? */
                     for(int j=i+1; j<length; j++)
                         if(data[j] == data[i])
                         {
@@ -2152,22 +2151,22 @@ struct item *ExtractAllIem(char *data)
                             break;
                         }
 
-                    /* On prend toutes ces data ensemble */
+                    /* We take all these data together */
                     if(end)
                     {
                         memcpy(&value[offset],&data[i],end-i+1);
                         offset += end-i+1;
-                        i += (end-i+1)-1;    /* -1 car i++ */
+                        i += (end-i+1)-1;    /* -1 or i++ */
                         continue;
                     }
                 }
 
-                /* Une DATA de plus */
+                /* One more DATA */
                 value[offset++] = data[i];
             }
             else
             {
-                /* Fin de la valeur précédente SEPARATOR */
+                /* End of previous value SEPARATOR */
                 value[offset] = '\0';
                 current_item = mem_alloc_item(value,value_type);
                 if(first_item == NULL)
@@ -2176,12 +2175,12 @@ struct item *ExtractAllIem(char *data)
                     last_item->next = current_item;
                 last_item = current_item;
 
-                /* Nouvelle DATA */
+                /* new DATA */
                 offset = 0;
                 value_type = TYPE_DATA;
 
-                /** Début d'une nouvelle valeur DATA **/
-                /* Cas particulier : une valeur DATA commencant par un ; est un commentaire qui va jusqu'à la fin de la ligne */
+                /** Beginning of a new value DATA **/
+                /* Particular case : a DATA value starting with one; is a comment that goes to the end of the line */
                 if(data[i] == ';')
                 {
                     current_item = mem_alloc_item(&data[i],TYPE_DATA);
@@ -2193,11 +2192,11 @@ struct item *ExtractAllIem(char *data)
                     return(first_item);
                 }
 
-                /* Cas particulier pour " et ' : On va jusqu'à la fin */
+                /* Particular case for "and ': We go until' the end */
                 if(data[i] == '"' || data[i] == '\'')
                 {
                     end = 0;
-                    /* Y a t'il une fin de chaine ? */
+                    /* Is there an end of chain? */
                     for(int j=i+1; j<length; j++)
                         if(data[j] == data[i])
                         {
@@ -2205,23 +2204,23 @@ struct item *ExtractAllIem(char *data)
                             break;
                         }
 
-                    /* On prend toutes ces data ensemble */
+                    /* We take all these data together */
                     if(end)
                     {
                         memcpy(&value[offset],&data[i],end-i+1);
                         offset += end-i+1;
-                        i += (end-i+1)-1;    /* -1 car i++ */
+                        i += (end-i+1)-1;    /* -1 or i++ */
                         continue;
                     }
                 }
 
-                /* Nouvelle DATA */
+                /* new DATA */
                 value[offset++] = data[i];
             }
         }
     }
 
-    /** On gère le relicat de la valeur **/
+    /** Handle the remainder of the value **/
     if(offset > 0)
     {
         value[offset] = '\0';
@@ -2233,14 +2232,14 @@ struct item *ExtractAllIem(char *data)
         last_item = current_item;
     }
 
-    /* Renvoie la liste chainée */
+    /* Returns the chain list */
     return(first_item);
 }
 
 
-/************************************************/
-/*  IsDecimal() :  Est-ce une valeur Décimale ? */
-/************************************************/
+/******************************************/
+/*  IsDecimal() :  Is it a decimal value? */
+/******************************************/
 int IsDecimal(char *value, int *nb_byte_rtn)
 {
     int decimal = 0, is_negative = 0;
@@ -2249,20 +2248,20 @@ int IsDecimal(char *value, int *nb_byte_rtn)
     *nb_byte_rtn = 0;
     is_negative = 0;
 
-    /* Valeur vide */
+    /* Empty value */
     if(strlen(value) == 0)
         return(0);
 
-    /* On peut avoir un -3 */
+    /* We can have a -3 */
     if(value[0] == '-')
         is_negative = 1;
 
-    /* On teste la plage de caractère 0-9 */
+    /* Test the range of character 0-9 */
     for(int i=is_negative; i<(int)strlen(value); i++)
         if(value[i] < '0' || value[i] > '9')
             return(0);
 
-    /* Détermine le nombre d'octets */
+    /* Determine the number of bytes */
     decimal = atoi(value);
     if(decimal <= 0xFF)
         *nb_byte_rtn = 1;
@@ -2271,7 +2270,7 @@ int IsDecimal(char *value, int *nb_byte_rtn)
     else if(decimal <= 0xFFFFFF)
         *nb_byte_rtn = 3;
     else
-        return(0);     /* Valeur trop grande */
+        return(0);     /* Value too big */
 
     /* OK */
     return(1);
@@ -2294,20 +2293,20 @@ int IsHexaDecimal(char *value, int *nb_byte_rtn)
     if(value[0] != '$')
         return(0);
 
-    /* Valeur vide */
+    /* Empty value */
     if(strlen(value) == 1)
         return(0);
 
-    /* On peut avoir un $-3, attention ici 3 est en décimal ! */
+    /* We can have a $-3, attention ici 3 est en décimal ! */
     if(value[1] == '-')
         is_negative = 1;
 
-    /* On teste la plage de caractère 0-F */
+    /* Test the range of character 0-F */
     for(int i=1+is_negative; i<(int)strlen(value); i++)
         if(toupper(value[i]) < '0' || toupper(value[i]) > 'F')
             return(0);
 
-    /* Détermine le nombre d'octets (4 octets max pour le LONG) */
+    /* Determine the number of bytes (4 octets max pour le LONG) */
     if(is_negative == 1)
     {
         /* On convertit en Hexa */
@@ -2316,7 +2315,7 @@ int IsHexaDecimal(char *value, int *nb_byte_rtn)
         if((length%2) == 1)
             length++;
         if((length/2) > 4)
-            return(0);                      /* Valeur trop grande */
+            return(0);                      /* Value too big */
         *nb_byte_rtn = length/2;
     }
     else
@@ -2326,7 +2325,7 @@ int IsHexaDecimal(char *value, int *nb_byte_rtn)
         if((length%2) == 1)
             length++;
         if((length / 2) > 4)
-            return(0);                      /* Valeur trop grande */
+            return(0);                      /* Value too big */
         *nb_byte_rtn = length/2;
     }
 
@@ -2360,7 +2359,7 @@ int IsBinary(char *value, int *nb_byte_rtn)
             return(0);       /* Valeur Interdite */
     }
 
-    /* Valeur vide */
+    /* Empty value */
     if(nb_bit == 0)
         return(0);
 
@@ -2403,7 +2402,7 @@ int IsAscii(char *value, int *nb_byte_rtn)
     for(int i=1; i<(int)strlen(value)-1; i++)
         nb_char++;
 
-    /* Valeur vide */
+    /* Empty value */
     if(nb_char == 0)
         return(0);
 
@@ -2476,7 +2475,7 @@ int IsLabel(char *name, int *nb_byte_rtn, struct omf_segment *current_omfsegment
         return(1);
     }
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 }
 
@@ -2499,7 +2498,7 @@ int IsExternal(char *name, int *nb_byte_rtn, struct omf_segment *current_omfsegm
         return(1);
     }
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 }
 
@@ -2532,7 +2531,7 @@ void ProcessOZUNIDLine(char *label)
     int i, index;
     char buffer[256];
 
-    /* Cas particulier */
+    /* Particular case */
     if(strlen(label) <= strlen("ozunid_"))
         return;
 
@@ -2560,7 +2559,7 @@ char *ReplaceInOperand(char *string, char *search_string, char *replace_string, 
     char **tab_element;
     char *new_string = NULL;
 
-    /* Cas particuliers : current_line peut être NULL si on remplace dans une Macro */
+    /* Particular cases : current_line peut être NULL si on remplace dans une Macro */
     if(strlen(string) == 0 || strlen(search_string) == 0 || strlen(string) < strlen(search_string))
         return(string);
 
@@ -2573,7 +2572,7 @@ char *ReplaceInOperand(char *string, char *search_string, char *replace_string, 
             i += (int) strlen(search_string)-1;
         }
 
-    /* Rien trouvé */
+    /* Nothing found */
     if(nb_found == 0)
         return(string);
     
@@ -2609,13 +2608,15 @@ char *ReplaceInOperand(char *string, char *search_string, char *replace_string, 
 /**********************************************************************************/
 char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separator_mode, struct source_line *current_line)
 {
-    int i, j, k, found;
+    int j = 0;
+    int opLen = (int)strlen(string);
     char buffer[1024];
-    int nb_element;
-    char **tab_element;
+    int nb_element = 1;
+    char **tab_element = NULL;
 
     /** Détermine le nombre d'éléments (prévoit large) **/
-    for(i=0,nb_element=1; i<(int)strlen(string); i++)
+    for(int i = 0; i < opLen; i++)
+    {
         if(string[i] == '\'' || string[i] == '"' || string[i] == '[' || string[i] == ']' ||
            string[i] == '+' || string[i] == '-' || string[i] == '/' || string[i] == '*' ||
            string[i] == '%' || string[i] == '$' || string[i] == '#' || string[i] == '&' ||
@@ -2625,14 +2626,16 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
            string[i] == '|' || string[i] == '@' || string[i] == '{' || string[i] == '}' ||
            string[i] == '=' || string[i] == '\t' || string[i] == '\n')
             nb_element += 2;
+    }
     
     /* Memory allowance du tableau */
-    tab_element = (char **) calloc(nb_element,sizeof(char *));
+    tab_element = (char **)calloc(nb_element,sizeof(char *));
     if(tab_element == NULL)
         my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for a table");
 
     /*** On va placer les éléments dans le tableau ***/
-    for(i=0,j=0,nb_element=0; i<(int) strlen(string); i++)
+    nb_element = 0;
+    for(int i = 0; i < opLen; i++)
     {
         /***************************/
         /** Chaines de caractères **/
@@ -2655,7 +2658,9 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
 
             /* On stocke la chaine entourée par ses délimiteurs */
             buffer[j++] = string[i];
-            for(k=i+1,found=0; k<(int) strlen(string); k++)
+            int found = 0;
+            int k;
+            for(k = i + 1; k < opLen; k++)
             {
                 buffer[j++] = string[k];
                 if(string[k] == string[i])
@@ -2749,19 +2754,20 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                 continue;
             }
 
-            /*** Il faut gérer < > # et - comme des cas particuliers => ce ne sont pas forcément des séparateurs ***/
+            /*** Il faut gérer < > # et - comme des Particular cases => ce ne sont pas forcément des séparateurs ***/
 
-            /** Cas particulier : '-' comme opérateur unaire encapsulé (#-1 ou $-3 ou #$-2) **/
-            if(string[i] == '-' && j > 0)
-                if(buffer[j-1] == '#' || buffer[j-1] == '$')
-                    if((string[i+1] >= '0' && string[i+1] <= '9') || (toupper(string[i+1]) >= 'A' && toupper(string[i+1]) <= 'F'))   /* On gère le décimal et l'hexa */
-                    {
-                        /* On inclu le - comme signe de la valeur */
-                        buffer[j++] = string[i];
-                        continue;
-                    }
-
-            /** Cas particulier : < > et # utilisé comme mode d'adressage **/
+            /** Particular case : '-' comme opérateur unaire encapsulé (#-1 ou $-3 ou #$-2) **/
+            if(string[i] == '-' && j > 0 && (buffer[j-1] == '#' || buffer[j-1] == '$'))
+            {
+                /* On gère le décimal et l'hexa */
+                if((string[i+1] >= '0' && string[i+1] <= '9') || (toupper(string[i+1]) >= 'A' && toupper(string[i+1]) <= 'F'))
+                {
+                    /* On inclu le - comme signe de la valeur */
+                    buffer[j++] = string[i];
+                    continue;
+                }
+            }
+            /** Particular case : < > et # utilisé comme mode d'adressage **/
             if(string[i] == '<' || string[i] == '>' || string[i] == '#')
             {
                 /* Cas 1 : Tout au début de l'expression */
@@ -2773,13 +2779,12 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                 }
 
                 /* Cas 2 : < et > ont un # juste avant (#>LABEL ou #<LABEL) */
-                if((string[i] == '<' || string[i] == '>') && j == 1)
-                    if(buffer[0] == '#')
-                    {
-                        /* On inclu le <> comme 2ème lettre de la valeur en cours */
-                        buffer[j++] = string[i];
-                        continue;
-                    }
+                if((string[i] == '<' || string[i] == '>') && j == 1 && buffer[0] == '#')
+                {
+                    /* On inclu le <> comme 2ème lettre de la valeur en cours */
+                    buffer[j++] = string[i];
+                    continue;
+                }
 
                 /* Cas 3 : Un opérateur ou un sépatareur les précède */
                 if(j == 0 && nb_element > 0)
@@ -3297,7 +3302,7 @@ int64_t GetAddressValue(char *expression, int current_address, struct external *
     *is_dum_label_rtn = 0;               /* Par défaut, le label n'est pas DUM */
     *is_fix_label_rtn = 0;               /* Par défaut, le label n'est pas ORG */
 
-    /* Cas particulier du * */
+    /* Particular case du * */
     if(!strcmp(expression,"*"))
         return(current_address);
 
@@ -3785,7 +3790,7 @@ int64_t GetQuickValue(char *name, struct source_line *cond_line, int *is_error_r
     /* Memory release */
     free(tab_line);
 
-    /* On a pas trouvé */
+    /* On a Not found */
     *is_error_rtn = 1;
     return(-1);
 }
@@ -3854,7 +3859,7 @@ int64_t GetQuickVariable(char *variable_name, struct source_line *cond_line, int
         }
     }
 
-    /* On a pas trouvé */
+    /* On a Not found */
     *is_error_rtn = 1;
     return(-1);
 }
@@ -3929,7 +3934,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     /* Expression vide */
     if(nb_element == 0 || (nb_element == 1 && strlen(tab_element[0]) == 0))
     {
-        /* Cas particulier du BRK/COP/WDM sans signature */
+        /* Particular case du BRK/COP/WDM sans signature */
         if(!my_stricmp(current_line->opcode_txt,"BRK") || !my_stricmp(current_line->opcode_txt,"COP") || !my_stricmp(current_line->opcode_txt,"WDM"))
             return(0);
         
@@ -4097,7 +4102,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                             current_external = has_external;
                         else
                         {
-                            /* Error : L'utilisation de Label externe impose certaines contraintes dans les expressions */
+                            /* Error : L'utilisation de Label externe impose certaines contraintes in the expressions */
                             sprintf(buffer_error_rtn,"You can't use 2 External labels (%s and %s) in the same expression",current_external->name,has_external->name);
                             mem_free_table(nb_element,tab_element);
                             return(0);
@@ -4106,7 +4111,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                         /* L'expression fait déjà appel à au moins un Label Interne : on ne mélange pas Interne et Externe */
                         if(nb_address > 1)
                         {
-                            /* Error : L'utilisation de Label externe impose certaines contraintes dans les expressions */
+                            /* Error : L'utilisation de Label externe impose certaines contraintes in the expressions */
                             sprintf(buffer_error_rtn,"You can't mix an External label (%s) with an Internal label (%s) the same expression",has_external->name,&tab_element[i][has_extra_dash]);
                             mem_free_table(nb_element,tab_element);
                             return(0);
@@ -4117,7 +4122,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                         /** On ne mélange pas External et Internal **/
                         if(current_external != NULL)
                         {
-                            /* Error : L'utilisation de Label externe impose certaines contraintes dans les expressions */
+                            /* Error : L'utilisation de Label externe impose certaines contraintes in the expressions */
                             sprintf(buffer_error_rtn,"You can't mix an Internal label (%s) with an External label (%s) the same expression",&tab_element[i][has_extra_dash],current_external->name);
                             mem_free_table(nb_element,tab_element);
                             return(0);
@@ -4579,7 +4584,7 @@ int IsPageDirectOpcode(char *opcode)
         if(!my_stricmp(opcode_list[i],opcode))
             return(1);
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 }
 
@@ -4595,31 +4600,24 @@ int IsPageDirectAddressMode(int address_mode)
        address_mode == AM_DIRECT_PAGE_INDIRECT_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDIRECT_LONG_INDEXED_Y)
         return(1);
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 }
 
 
-/*********************************************************************/
-/*  IsDirectPageLabel() :  Ce Label peut t'il est placé dans une PD. */
-/*********************************************************************/
-int IsDirectPageLabel(char *label_name, struct omf_segment *current_omfsegment)
+/*********************************************************/
+/*  IsDirectPageLabel() :  returns 1 if label is for PD. */
+/*********************************************************/
+int isLabelForDirectPage(struct label *current_label, struct omf_segment *current_omfsegment)
 {
-    int64_t dum_address;
-    int is_reloc;
-    BYTE byte_count, bit_shift;
-    WORD offset_reference;
-    DWORD address_long;
-    struct label *current_label;
-    struct source_file *first_file;
-    struct external *current_external;
+    int64_t dum_address = 0;
+    int is_reloc = 0;
+    BYTE byte_count = 0, bit_shift = 0;
+    WORD offset_reference = 0;
+    DWORD address_long = 0;
+    struct external *current_external = NULL;
     char buffer_error[1024] = "";
 
-    /* Source file */
-    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
-
-    /* On recherche le Label */
-    my_Memory(MEMORY_SEARCH_LABEL,label_name,&current_label,current_omfsegment);
     if(current_label == NULL)
         return(0);
 
@@ -4641,6 +4639,23 @@ int IsDirectPageLabel(char *label_name, struct omf_segment *current_omfsegment)
 
     /* Peut être */
     return(1);
+}
+
+/*********************************************************************/
+/*  IsDirectPageLabel() :  Ce Label peut t'il est placé dans une PD. */
+/*********************************************************************/
+int IsDirectPageLabel(char *label_name, struct omf_segment *current_omfsegment)
+{
+    struct label *current_label;
+    struct source_file *first_file;
+
+    /* Source file */
+    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
+
+    /* On recherche le Label */
+    my_Memory(MEMORY_SEARCH_LABEL,label_name,&current_label,current_omfsegment);
+
+    return isLabelForDirectPage( current_label, current_omfsegment );
 }
 
 
@@ -4698,7 +4713,7 @@ int UseCurrentAddress(char *operand, char *buffer_error_rtn, struct source_line 
             if(!my_stricmp(tab_element[i],"*"))
             {
                 mem_free_table(nb_element,tab_element);
-                return(1);    /* Trouvé */
+                return(1);    /* found */
             }
             is_value = 0;
         }
@@ -4709,7 +4724,7 @@ int UseCurrentAddress(char *operand, char *buffer_error_rtn, struct source_line 
     /* Memory release */
     mem_free_table(nb_element,tab_element);
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 }
 
@@ -4886,7 +4901,7 @@ char **BuildUniqueListFromFile(char *file_path, int *nb_value)
     char **tab;
     char buffer_line[1024];
 
-    /* Ouverture du File */
+    /* Opening the File */
     fd = fopen(file_path,"r");
     if(fd == NULL)
         return(NULL);
@@ -4979,7 +4994,7 @@ char **BuildUniqueListFromText(char *text, char separator, int *nb_value_rtn)
                 /* Termine la valeur */
                 buffer_value[value_length] = '\0';
 
-                /* Vérifie qu'elle n'existe pas déjà */
+                /* Vérifie qu'elle Does not exist déjà */
                 for(j=0; j<nb_found; j++)
                     if(!strcmp(tab[j],buffer_value))
                     {
@@ -5014,7 +5029,7 @@ char **BuildUniqueListFromText(char *text, char separator, int *nb_value_rtn)
         /* Termine la valeur */
         buffer_value[value_length] = '\0';
 
-        /* Vérifie qu'elle n'existe pas déjà */
+        /* Vérifie qu'elle Does not exist déjà */
         for(j=0; j<nb_found; j++)
             if(!strcmp(tab[j],buffer_value))
             {
@@ -5217,7 +5232,7 @@ struct item *mem_alloc_item(char *name, int type)
     }
     current_item->type = type;
     
-    /* Renvoie la structure */
+    /* Returns the structure */
     return(current_item);
 }
 

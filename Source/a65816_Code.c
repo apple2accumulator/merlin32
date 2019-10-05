@@ -57,7 +57,7 @@ int BuildAllCodeLineSize(struct omf_segment *current_omfsegment)
             BuildOneCodeLineOpcode(current_line,current_omfsegment);
         }
         else if(current_line->type == LINE_DATA)
-            ;    /* On ne fait rien pour l'instant */
+            ;    /* On ne fait nothing pour l'instant */
         else
             current_line->nb_byte = 0;
     }
@@ -217,7 +217,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0x7F;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y car DP,Y n'existe pas */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y or DP,Y Does not exist */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0x79;
@@ -316,7 +316,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0x3F;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y car DP,Y n'existe pas */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y or DP,Y Does not exist */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0x39;
@@ -496,7 +496,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
     }
     else if(!my_stricmp(current_line->opcode_txt,"BRK"))
     {
-        if(address_mode == AM_IMPLICIT)      /* Le BRK existe avec ou sans octet de signature */
+        if(address_mode == AM_IMPLICIT)      /* Le BRK exists avec ou sans octet de signature */
         {
             current_line->nb_byte = 1;
             current_line->opcode_byte = 0x00;
@@ -628,7 +628,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0xDF;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y car DP,Y n'existe pas */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y or DP,Y Does not exist */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0xD9;
@@ -673,7 +673,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
     }
     else if(!my_stricmp(current_line->opcode_txt,"COP"))
     {
-        if(address_mode == AM_IMPLICIT)  /* Le COP existe avec ou sans octet de signature */
+        if(address_mode == AM_IMPLICIT)  /* Le COP exists avec ou sans octet de signature */
         {
             current_line->nb_byte = 1;
             current_line->opcode_byte = 0x02;
@@ -847,7 +847,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0x5F;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y car DP,Y n'existe pas */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y or DP,Y Does not exist */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0x59;
@@ -1054,7 +1054,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0xBF;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)   /* on avait un LDA $00,Y or le LDA DP,Y n'existe pas, donc ça devait être LDA $0000,Y */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)   /* on avait un LDA $00,Y or le LDA DP,Y Does not exist, donc ça devait être LDA $0000,Y */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0xB9;
@@ -1291,7 +1291,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0x1F;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y car DP,Y n'existe pas */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y or DP,Y Does not exist */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0x19;
@@ -1636,7 +1636,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0xFF;
             current_line->address_mode = AM_ABSOLUTE_LONG_INDEXED_X;
         }
-        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y car DP,Y n'existe pas */
+        else if(address_mode == AM_ABSOLUTE_INDEXED_Y || address_mode == AM_DIRECT_PAGE_INDEXED_Y)    /* $08,Y doit aussi pouvoir être interpretté comme $0008,Y or DP,Y Does not exist */
         {
             current_line->nb_byte = 3;
             current_line->opcode_byte = 0xF9;
@@ -2095,7 +2095,7 @@ static void BuildOneCodeLineOperand(struct source_line *current_line, int *has_e
     strcpy(buffer_error,"");
     is_multi_fixed = current_omfproject->is_multi_fixed;
     
-    /** On a rien à faire pour les lignes sans Operand (ERR, ...) **/
+    /** On a nothing à faire pour les lignes sans Operand (ERR, ...) **/
     if(current_line->nb_byte == 0 || current_line->nb_byte == 1)
         return;
     
@@ -2388,9 +2388,10 @@ static void BuildOneCodeLineOperand(struct source_line *current_line, int *has_e
 /**********************************************************/
 static int DecodeAddressMode(struct source_line *current_line, char *error_buffer_rtn, struct omf_segment *current_omfsegment)
 {
-    int opLen = 0, nb_byte, nb_byte_left, nb_byte_right, is_address;
-    char *next_char;
-    char operand[1024];
+    int opLen = 0, nb_byte = 0, nb_byte_left = 0, nb_byte_right = 0, is_address = 0;
+    char *next_char = NULL;
+    char operandBuf[1024];
+    char* operand = &operandBuf[0];
 
     /* On recopie l'Opérande pour le travailler (on supprime les {}) */
     for(int i = 0; i < (int)strlen(current_line->operand_txt); i++)
@@ -2441,7 +2442,7 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
         {
             /* Supprime les [] */
             opLen -= 2;
-            memmove(&operand[0],&operand[1],opLen);
+            operand += 1;
             operand[opLen] = '\0';
 
             /* Vérifie s'il s'agit d'une Page Direct */
@@ -2460,7 +2461,7 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
         {
             /* Supprime les (,S) */
             opLen -= 4;
-            memmove(&operand[0],&operand[1],opLen);
+            operand += 1;
             operand[opLen] = '\0';
 
             /* Vérifie s'il s'agit d'une Pile */
@@ -2477,10 +2478,10 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
         {
             /* Supprime les () */
             opLen -= 2;
-            memmove(&operand[0],&operand[1],opLen);
+            operand += 1;
             operand[opLen] = '\0';
 
-            /* Vérifie s'il s'agit d'une Page Direct (on peut avoir un Label en Page Direct) */
+            /* Vérifie s'il s'agit d'une Page Direct (We can have a Label en Page Direct) */
             nb_byte = GetOperandNbByte(operand,current_line,&is_address,error_buffer_rtn,current_omfsegment);
             if(nb_byte == 1 || nb_byte == 2)
                 return(AM_DIRECT_PAGE_INDIRECT_INDEXED_Y);
@@ -2525,7 +2526,7 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
     {
         /* Supprime les () */
         opLen -= 2;
-        memmove(&operand[0],&operand[1],opLen);
+        operand += 1;
         operand[opLen] = '\0';
 
         /** X INDEXED **/
@@ -2564,7 +2565,7 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
     {
         /* Supprime les () */
         opLen -= 2;
-        memmove(&operand[0],&operand[1],opLen);
+        operand += 1;
         operand[opLen] = '\0';
 
         /** On doit choisir entre [$@] et [$@@] **/
@@ -2607,7 +2608,7 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
     if(nb_byte > 0)
     {
         /** $Absolute **/
-        if(is_address == 1)
+        if(operand[0] != '#')
         {
             /** On doit choisir entre $@, $@@ et $@@@ **/
             if(nb_byte == 1 && current_line->no_direct_page == 0)
@@ -2635,22 +2636,14 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
 
 
 /****************************************************************************************************************/
-/*  GetOperandNbByte() :  Détermine le nombre d'octets d'un Operande et son Type (valeur ou adresse à patcher). */
+/*  GetOperandNbByte() :  Determine the number of bytes d'un Operande et son Type (valeur ou adresse à patcher). */
 /****************************************************************************************************************/
 static int GetOperandNbByte(char *operand, struct source_line *current_line, int *is_address_rtn, char *buffer_error_rtn, struct omf_segment *current_omfsegment)
 {
-    int i, nb_element, nb_max_byte, nb_byte, bit_mode, value_format, has_extra_dash;
-    int has_dash, has_less, has_more, has_exp, has_pipe, has_long_addr, is_block_copy;
-    int nb_address, is_address;
-    char **tab_element;
-    
-    /* Init */
-    nb_max_byte = 0;
-    nb_address = 0;
-    has_long_addr = 0;
-    is_block_copy= 0;
-    is_address = 1;
-    *is_address_rtn = 0;
+    int nb_element = 0, nb_max_byte = 0, nb_byte = 0, bit_mode = 0, value_format = 0, has_extra_dash = 0;
+    int has_dash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_long_addr = 0, is_block_copy = 0;
+    int nb_address = 0, is_address = 1;
+    char **tab_element = NULL;
     strcpy(buffer_error_rtn,"");
     
     /* Chaine vide : Pas d'opérand */
@@ -2683,12 +2676,12 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
         return(0);
     }
     
-    /** On va gérer le - au début => Ca ne change rien pour le nombre de byte de l'expression, on le supprime **/
+    /** On va gérer le - au début => Ca ne change nothing pour le nombre de byte de l'expression, on le supprime **/
     if(!strcmp(tab_element[0],"-") && nb_element > 1)
     {
         /* On peut supprimer le - */
         free(tab_element[0]);
-        for(i=1; i<nb_element; i++)
+        for(int i=1; i<nb_element; i++)
             tab_element[i-1] = tab_element[i];
         nb_element--;
     } 
@@ -2702,7 +2695,7 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
     }
     
     /*** Analyse les éléments du tableau ***/
-    for(i=0; i<nb_element; i++)
+    for(int i=0; i<nb_element; i++)
     {
         /** Value **/
         if(i%2 == 0)
@@ -2767,7 +2760,7 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
     /* Memory release */
     mem_free_table(nb_element,tab_element);
     
-    /* L'Operand est t'elle une adresse ? (Labl1+1 est une adresse, (Label1-Label2) est une valeur, #toto est une valeur) */
+    /* Is the Operand an address? (Labl1 + 1 is an address, (Label1-Label2) is a value, #toto is a value) */
     if(nb_address > 0)
         if(nb_address % 2 == 0)
             is_address = 0;

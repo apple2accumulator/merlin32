@@ -73,7 +73,7 @@ char *data_list[] =
 
 char *directive_list[] = 
 {
-    "ANOP","ORG","PUT","PUTBIN",         /* PUTBIN n'existe pas dans Merlin 16+ */
+    "ANOP","ORG","PUT","PUTBIN",         /* PUTBIN Does not exist dans Merlin 16+ */
     "START","END",
     "DUM","DEND",
     "MX","XC","LONGA","LONGI",
@@ -83,7 +83,7 @@ char *directive_list[] =
     "IF","DO","ELSE","FIN",
     "LUP","--^",
     "ERR","DAT",
-    "AST","CYC","EXP","LST","LSTDO","PAG","TTL","SKP","TR","KBD","PAU","SW","USR",   /* On ne fait rien avec ces Directives */
+    "AST","CYC","EXP","LST","LSTDO","PAG","TTL","SKP","TR","KBD","PAU","SW","USR",   /* On ne fait nothing avec ces Directives */
     NULL
 };
 
@@ -1898,7 +1898,7 @@ static int IsLocalLabel(char *label_name, struct omf_segment *current_omfsegment
             return(1);
     }
 
-    /* Pas trouvé */
+    /* Not found */
     return(0);
 }
 
@@ -2305,7 +2305,7 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
                 new_bank = new_address >> 16;
                 new_address = new_address & 0xFFFF;
 
-                /* Nouvelle addresse */
+                /* new addresse */
                 current_line->bank = current_bank;
                 current_line->address = current_address;
                 current_line->is_fix_address = is_fix_address;

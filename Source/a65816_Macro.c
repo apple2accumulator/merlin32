@@ -187,7 +187,7 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
             /* Macro Level */
             macro_level++;
 
-            /* Nouvelle Macro */
+            /* new Macro */
             current_macro = mem_alloc_macro(file_name,param->buffer_label,line_number);
             if(current_macro == NULL)
             {
@@ -316,7 +316,7 @@ void GetMacroFromSource(struct omf_segment *current_omfsegment)
     {
         if(!my_stricmp(current_line->opcode_txt,"MAC"))
         {
-            /* Nouvelle Macro */
+            /* new Macro */
             current_macro = mem_alloc_macro(current_line->file->file_name,current_line->label_txt,current_line->file_line_number);
             if(current_macro == NULL)
             {
@@ -826,7 +826,7 @@ int IsMacroFile(char *file_name, char *source_folder_path, char *macro_folder_pa
     /* Memory release */
     mem_free_sourcefile(macro_file,1);
 
-    /* Indique si on a trouvé des Macro */
+    /* Indique si on a found des Macro */
     return(found);
 }
 

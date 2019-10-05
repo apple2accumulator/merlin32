@@ -85,7 +85,7 @@ int LoadAllSourceFile(char *first_file_path, char *macro_folder_path, struct omf
                 /* Faut t'il ajouter un .s ? */
                 if(my_IsFileExist(param->buffer_file_path) == 0)
                 {
-                    /* Le File n'existe pas */
+                    /* Le File Does not exist */
                     if(strlen(param->buffer_file_name) > 2)
                         if(my_stricmp(&param->buffer_file_name[strlen(param->buffer_file_name)-2],".s"))
                         {

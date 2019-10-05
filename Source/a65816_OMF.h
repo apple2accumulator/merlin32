@@ -30,7 +30,7 @@ struct omf_project
   DWORD project_buffer_length;
   unsigned char *project_buffer_file;
 
-  /* Taille du File Projet */
+  /* File Size Projet */
   DWORD project_file_length;
 
   /* Type de Program */
