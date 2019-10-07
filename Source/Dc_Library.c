@@ -5413,13 +5413,13 @@ void mem_free_table(int nb_item, char **table)
 }
 
 
-/************************************************************************/
-/*  CopyString() :  Copie une chaîne de caractères                      */
-/*  1. Ne pas saturer le tampon cible                                   */
-/*  2. Garantit la terminaison nulle de la cible                        */
-/*  3. Ne gaspille pas les cycles du processeur en remplissant le reste */
-/*     de la cible avec des caractères '\0', comme le fait strncpy.     */
-/************************************************************************/
+/************************************************************/
+/*  CopyString() :  Copy a string of characters             */
+/*  1. Do not overwrite the target buffer                   */
+/*  2. Guarantees zero termination of the target            */
+/*  3. Do not waste processor cycles filling in the rest    */
+/*     of the target with '\0' characters, as does strncpy. */
+/************************************************************/
 char *CopyString(char *target, char *source, size_t target_size)
 {
     size_t count = 0;
@@ -5440,7 +5440,7 @@ char *CopyString(char *target, char *source, size_t target_size)
 
 
 /************************************************************************/
-/*  IsEmpty() :  Détermine si une chaîne de caractères est vide         */
+/*  IsEmpty() :  Determines whether a character string is empty         */
 /************************************************************************/
 int IsEmpty(char *s)
 {
@@ -5449,7 +5449,7 @@ int IsEmpty(char *s)
 
 
 /************************************************************************/
-/*  IsEmpty() :  Rend une chaîne de caractères vide                     */
+/*  IsEmpty() :  Makes an empty character string                        */
 /************************************************************************/
 char *ClearString(char *s)
 {
@@ -5459,8 +5459,7 @@ char *ClearString(char *s)
 
 
 /************************************************************************/
-/*  IsEmpty() :  Détermine si un nom fait référence à un répertoire     */
-/*               existant                                               */
+/*  IsEmpty() :  Determine if the filename is for a directory           */
 /************************************************************************/
 int IsDirectory(char *name)
 {
