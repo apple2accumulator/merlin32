@@ -1,9 +1,9 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_File.h : Header pour la gestion des fichiers.               */
+/*  a65816_File.h : Header for file management.                        */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 struct source_file 
@@ -17,7 +17,7 @@ struct source_file
   int nb_line;
   char **tab_line;
 
-  struct source_line *first_line;    /* Ligne de ce fichier Source */
+  struct source_line *first_line;    /* Line of this Source file */
   struct source_line *last_line;
 
   struct source_file *next;

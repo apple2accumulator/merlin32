@@ -1,9 +1,9 @@
 /***********************************************************************/
 /*                                                                     */
-/*  Dc_Library.h : Header pour la bibliothèque générique de fonctions. */
+/*  Dc_Library.h : Header for the Generic Library of Functions.        */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 #if defined(WIN32)
@@ -131,7 +131,7 @@ struct parameter
 
   int org_address;        /* Default is $8000 */
 
-  char source_folder_path[1024];  /* Dossier contenant les fichiers sources */
+  char source_folder_path[1024];  /* Folder containing the source files */
 
   char date_1[64];       /* 29-DEC-88 (9 bytes) */
   char date_2[64];       /* 12/29/88 (8 bytes) */
@@ -150,10 +150,10 @@ struct parameter
   char *buffer_operand;
   char *buffer_comment;
 
-  char buffer_string[64000];   /* Buffer utilise pour la conversion de String */
+  char buffer_string[64000];   /* Buffer uses for conversion of String */
 
   char output_file_path[1024];
-  char current_folder_path[1024];   /* Dossier où se trouvait le fichier Link */
+  char current_folder_path[1024];   /* Folder where the File Link was */
 
   char *buffer_error;
 
@@ -171,23 +171,23 @@ struct parameter
 #define IS_VALUE       1
 #define IS_CONSTANT    2    /* ( ) [ ] $ # % ,X ,Y ,S + - */
 #define IS_NUMERIC     3    /* 0123456789ABCDEF */
-#define IS_EXPANDABLE  4    /* la valeur doit être éclatée */
+#define IS_EXPANDABLE  4    /* the value must be broken */
 
 #define TYPE_DATA       1
 #define TYPE_SEPARATOR  2
  
-#define SEPARATOR_REPLACE_LABEL        0   /* Remplace un Label dans une Operande (tous les sépatareurs possibles) */
-#define SEPARATOR_REPLACE_VARIABLE     1   /* Remplace une ]Variable dans une Opérande (tous les séparateurs sauf le ]) */
-#define SEPARATOR_EVALUATE_EXPRESSION  2   /* Prépare l'évaluation d'une expression (on découpe selon les opérateurs : + - / * & . ! < = > #) et on gère les opérateurs ambigus (#><*) ou unaire (-) */
-#define SEPARATOR_DATA_VALUES          3   /* Sépare les différentes valeurs d'une ligne Data (juste le ,) */
+#define SEPARATOR_REPLACE_LABEL        0   /* Replaces a Label in a Operand (all possible separators) */
+#define SEPARATOR_REPLACE_VARIABLE     1   /* Replaces a ]Variable in an Operand (all separators except the]) */
+#define SEPARATOR_EVALUATE_EXPRESSION  2   /* Prepares the evaluation of an expression (we split according to the Operators: + - / * &.! <=> #) And we manage the Operators ambiguous (#> <*) or unary (-) */
+#define SEPARATOR_DATA_VALUES          3   /* Separate the different values of a Data line (just the,) */
 
-#define ASCII_TABLE    "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ !\"#$%&'()*+,-./0123456789:;<=>?`abcdefghijklmnopqrstuvwxyz{|}~"    /* Valide pour ASC, STR... */
-#define INVFLS_TABLE   "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ !\"#$%&'()*+,-./0123456789:;<=>?"                                   /* Valide pour INV et FLS */
+#define ASCII_TABLE    "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ !\"#$%&'()*+,-./0123456789:;<=>?`abcdefghijklmnopqrstuvwxyz{|}~"    /* Valid for ASC, STR... */
+#define INVFLS_TABLE   "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ !\"#$%&'()*+,-./0123456789:;<=>?"                                   /* Valid for INV and FLS */
 
 #define SET_FILE_VISIBLE 1
 #define SET_FILE_HIDDEN  2
 
-#define STATUS_DONT       0    /* Evaluation d'une condition */
+#define STATUS_DONT       0    /* Evaluation of a condition */
 #define STATUS_DO         1
 #define STATUS_UNKNWON    2
 
@@ -199,7 +199,7 @@ struct item
   struct item *next;
 };
 
-/* Pre-Déclaration des structures */
+/* Pre-Declaration of structures */
 struct omf_project;
 struct omf_segment;
 struct source_line;
@@ -216,8 +216,8 @@ int my_IsFileExist(char *);
 void bo_memcpy(void *,void *,size_t);
 char *GetFileProperCasePath(char *);
 char **GetFolderFileList(char *,int *,int *);
-unsigned char *LoadTextFileData(char *,int *);
-unsigned char *LoadBinaryFileData(char *,int *);
+unsigned char *LoadTextFileData(char *,size_t *);
+unsigned char *LoadBinaryFileData(char *,size_t *);
 int GetLabelFromLine(char *,int,char *);
 int GetOpcodeFromLine(char *,int,char *);
 void CleanBuffer(char *);
@@ -254,6 +254,7 @@ int HasPriority(char *,char *);
 int BuildBestMVXWord(DWORD,DWORD);
 int IsPageDirectOpcode(char *);
 int IsPageDirectAddressMode(int);
+int isLabelForDirectPage(struct label *current_label, struct omf_segment *current_omfsegment);
 int IsDirectPageLabel(char *,struct omf_segment *);
 int UseCurrentAddress(char *,char *,struct source_line *);
 void ReplaceCurrentAddressInOperand(char **,char *,char *,struct source_line *);

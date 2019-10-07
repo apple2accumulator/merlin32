@@ -1,17 +1,17 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Macro.h : Module pour la gestion des Macros  .              */
+/*  a65816_Macro.h : Module for Macros Management.                     */
 /*                                                                     */
 /***********************************************************************/
-/*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
+/*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
 struct macro
 {
   char *name;
 
-  char *file_name;         /* Nom du fichier Macro contenant cette Macro */
-  int file_line_number;    /* Numéro de ligne du fichier Macro où commence cette Macro */
+  char *file_name;         /* File name Macro contenant cette Macro */
+  int file_line_number;    /* File Macro line number where this macro starts */
 
   struct macro_line *first_line;
   struct macro_line *last_line;
