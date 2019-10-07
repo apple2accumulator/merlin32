@@ -613,7 +613,7 @@ static int Link65c816Segment(struct omf_project *current_omfproject, struct omf_
     else
         current_omfsegment->segment_body_length = 1024 + current_omfsegment->object_length + CRECORD_SIZE*current_omfsegment->nb_address + END_SIZE;
 
-    /** Memory allowance Segment Body **/
+    /** Allocate memory Segment Body **/
     current_omfsegment->segment_body_file = (unsigned char *) calloc(current_omfsegment->segment_body_length,sizeof(unsigned char));
     if(current_omfsegment->segment_body_file == NULL)
     {

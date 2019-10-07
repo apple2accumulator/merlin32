@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  Main.c : Module Assembleur d'un code source 65c816.                */
+/*  Main.c : Assembler module of a source code 65c816.                 */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
@@ -26,7 +26,7 @@
 int Assemble65c816(char *,char *,int);
 
 /****************************************************/
-/*  main() :  Fonction principale de l'application. */
+/*  main() :  Main function of the application.     */
 /****************************************************/
 int main(int argc, char *argv[])
 {
@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
   char macro_folder_path[2048];
 
   /* Message Information */
-  printf("%s v 1.0, (c) Brutal Deluxe 2011-2015\n",argv[0]);
+  printf("%s v 1.1, (c) Brutal Deluxe 2011-2015\n",argv[0]);
 
-  /* Vérification des paramètres */
+  /* Verification of parameters */
   if(argc != 3 && argc != 4)
     {
       printf("  Usage : %s [-V] <macro_folder_path> <source_file_path>.\n",argv[0]);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
       return(1);
     }
 
-  /* Décodage des paramètres */
+  /* Parameter decoding */
   if(argc == 3)
     {
       verbose_mode = 0;
@@ -77,25 +77,25 @@ int main(int argc, char *argv[])
   my_Memory(MEMORY_INIT,NULL,NULL,NULL);
   my_File(FILE_INIT,NULL);
 
-  /* Initialization du mécanisme de gestion d'Errors */
+  /* Initialization of Error Management */
   my_RaiseError(ERROR_INIT,NULL);
   context_value = setjmp(context);
   if(context_value)
     {
-      /* Récupération de la chaine contenant le message d'Error */
+      /* Retrieve of the string containing the error message */
       my_RaiseError(ERROR_GET_STRING,&error_string);
 
-      /* Message d'Error et fin */
+      /* Error and end message */
       if(error_string)
         {
           printf("      => [Error] %s.\n",error_string);
           free(error_string);
         }
 
-      /* On récupère le OMF Segment courant (s'il exists) */
+      /* We recover the OMF Current segment (if it exists) */
       my_Memory(MEMORY_GET_OMFSEGMENT,&current_omfsegment,NULL,NULL);
 
-      /** On essaye de Dumper qqchose dans le File Error_Output.txt **/
+      /** We try to Dump something in the File Error_Output.txt **/
       if(current_omfsegment != NULL)
         {
           strcpy(file_error_path,"error_output.txt");
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
           CreateOutputFile(file_error_path,current_omfsegment,NULL);
         }
         
-      /* Libération des ressources */
+      /* freeing of resources */
       my_Memory(MEMORY_FREE,NULL,NULL,NULL);
 
       /* Error */
@@ -114,18 +114,18 @@ int main(int argc, char *argv[])
     }
   my_RaiseError(ERROR_INIT,&context);
 
-  /* Memory allowance de la structure param */
+  /* Allocate memory of the param structure */
   param = mem_alloc_param();
   if(param == NULL)
     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure parameter");
   my_Memory(MEMORY_SET_PARAM,param,NULL,NULL);
 
-  /** Préparation du dossier Macro **/
+  /** Preparation of Macro folder **/
   if(strlen(macro_folder_path) > 0)
     if(macro_folder_path[strlen(macro_folder_path)-1] != '\\' && macro_folder_path[strlen(macro_folder_path)-1] != '/')
       strcat(macro_folder_path,FOLDER_SEPARATOR);
 
-  /** Prépare le chemin des Files Output **/
+  /** Prepares the Output file Path **/
   strcpy(param->output_file_path,source_file_path);
   for(i=(int)strlen(param->output_file_path); i>=0; i--)
     if(param->output_file_path[i] == '\\' || param->output_file_path[i] == '/')
@@ -137,14 +137,14 @@ int main(int argc, char *argv[])
     strcpy(param->output_file_path,"");
   strcpy(param->current_folder_path,param->output_file_path);
 
-  /*** Assemble et Link tous les Files du projet ***/
+  /*** Assemble and Link all Files of Project ***/
   error = AssembleLink65c816(source_file_path,macro_folder_path,verbose_mode);
 
-  /* Libération des ressources */
+  /* free the resources */
   my_File(FILE_FREE,NULL);
   my_Memory(MEMORY_FREE,NULL,NULL,NULL);
 
-  /* Fin de la gestion des Errors */
+  /* End of Errors Management */
   my_RaiseError(ERROR_END,NULL);
 
   /* OK */

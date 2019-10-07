@@ -67,7 +67,7 @@ char *data_list[] =
     "DA","DW","DDB","DFB","DB","ADR","ADRL","HEX","DS",
     "DC","DE",  /* ? */
     "ASC","DCI","INV","FLS","REV","STR","STRL",
-    "CHK",                                           /* Remplace par 1 Byte de Checksum */
+    "CHK",                                           /* Remplace par 1 Byte of Checksum */
     NULL
 };
 
@@ -83,11 +83,11 @@ char *directive_list[] =
     "IF","DO","ELSE","FIN",
     "LUP","--^",
     "ERR","DAT",
-    "AST","CYC","EXP","LST","LSTDO","PAG","TTL","SKP","TR","KBD","PAU","SW","USR",   /* On ne fait nothing avec ces Directives */
+    "AST","CYC","EXP","LST","LSTDO","PAG","TTL","SKP","TR","KBD","PAU","SW","USR",   /* Nothing to do avec ces Directives */
     NULL
 };
 
-char *equivalence_list[] =    /* Equivalence ou ]Variable */
+char *equivalence_list[] =    /* Equivalence or ]Variable */
 {
     "EQU","=",
     NULL
@@ -1931,7 +1931,7 @@ int BuildVariableTable(struct omf_segment *current_omfsegment)
         if(current_line->type == LINE_DIRECTIVE && current_line->type_aux == LINE_MACRO_DEF)
             continue;
 
-        /* We only take lignes avec label */
+        /* We only take Lines avec label */
         if(strlen(current_line->label_txt) == 0)
             continue;
 
@@ -2484,7 +2484,7 @@ struct relocate_address *BuildRelocateAddress(BYTE ByteCnt, BYTE BitShiftCnt, WO
     struct relocate_address *current_address = NULL;
     struct relocate_address *next_address = NULL;
 
-    /* Memory allowance */
+    /* Allocate memory */
     current_address = (struct relocate_address *) calloc(1,sizeof(struct relocate_address));
     if(current_address == NULL)
         my_RaiseError(ERROR_RAISE,"Error : Can't allocate memory for relocate_address structure.");
@@ -2795,7 +2795,7 @@ struct source_line *BuildSourceLine(struct source_file *current_file, int line_n
     struct parameter *param;
     my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
-    /* Memory allowance */
+    /* Allocate memory */
     current_line = (struct source_line *) calloc(1,sizeof(struct source_line));
     if(current_line == NULL)
         return(NULL);
@@ -2877,7 +2877,7 @@ struct source_line *BuildSourceLine(struct source_file *current_file, int line_n
 /*******************************************************/
 struct source_line *DuplicateSourceLine(struct source_line *current_line)
 {
-    /* Memory allowance */
+    /* Allocate memory */
     struct source_line *new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
     if(new_line == NULL)
         return(NULL);
@@ -2952,7 +2952,7 @@ struct source_line *DuplicateSourceLine(struct source_line *current_line)
 /*********************************************************************/
 struct source_line *BuildEmptyLabelLine(char *label, struct source_line *current_line)
 {
-    /* Memory allowance */
+    /* Allocate memory */
     struct source_line *new_line = (struct source_line *) calloc(1,sizeof(struct source_line));
     if(new_line == NULL)
         return(NULL);

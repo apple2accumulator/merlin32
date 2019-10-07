@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Lup.h : Header pour la gestion des Lup.                     */
+/*  a65816_Lup.h : Header for Lup Management.                          */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */

@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Macro.c : Module pour la gestion des Macros  .              */
+/*  a65816_Macro.c : Module for Macros Management.                     */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
@@ -31,9 +31,9 @@ static void BuildSubstituteValue(char *,char **,char *);
 struct macro *mem_alloc_macro(char *,char *,int);
 struct macro_line *mem_alloc_macroline(char *,char *,char *,char *);
 
-/******************************************************************/
-/*  LoadAllMacroFile() :  Chargement de tous les Files Macros. */
-/******************************************************************/
+/*******************************************************/
+/*  LoadAllMacroFile() :  Loading of all Macros Files. */
+/*******************************************************/
 void LoadAllMacroFile(char *folder_path, struct omf_segment *current_omfsegment)
 {
     int i, nb_file, is_error;
@@ -41,7 +41,7 @@ void LoadAllMacroFile(char *folder_path, struct omf_segment *current_omfsegment)
     struct parameter *param;
     my_Memory(MEMORY_GET_PARAM,&param,NULL,NULL);
 
-    /** Récupère les Files du répertoire **/
+    /** Retrieve the Files of Directory **/
     tab_file_name = GetFolderFileList(folder_path,&nb_file,&is_error);
     if(tab_file_name == NULL && is_error == 0)
         return;
@@ -51,22 +51,22 @@ void LoadAllMacroFile(char *folder_path, struct omf_segment *current_omfsegment)
         return;
     }
 
-    /* Prépare le nom du dossier */
+    /* Prepare the name of folder */
     strcpy(param->buffer_folder_path,folder_path);
     if(strlen(param->buffer_folder_path) > 0)
         if(param->buffer_folder_path[strlen(param->buffer_folder_path)-1] != '\\' && param->buffer_folder_path[strlen(param->buffer_folder_path)-1] != '/')
             strcat(param->buffer_folder_path,FOLDER_SEPARATOR);
 
-    /** On charge tous les Files .s présents **/
+    /** We load all the Files .s present **/
     for(i=0; i<nb_file; i++)
     {
-        /* On vérifie le .s à la fin */
+        /* We check the .s at the end */
         if(strlen(tab_file_name[i]) < 3)
             continue;
         if(my_stricmp(&(tab_file_name[i][strlen(tab_file_name[i])-2]),".s"))
             continue;
         
-        /** Charge le File **/
+        /** Load the File **/
         LoadOneMacroFile(param->buffer_folder_path,tab_file_name[i],NULL,current_omfsegment);
     }
     
@@ -75,9 +75,9 @@ void LoadAllMacroFile(char *folder_path, struct omf_segment *current_omfsegment)
 }
 
 
-/***********************************************************************/
-/*  LoadSourceMacroFile() :  Chargement des Files Macros du Source. */
-/***********************************************************************/
+/*************************************************************/
+/*  LoadSourceMacroFile() :  Loading Macros Files of Source. */
+/*************************************************************/
 void LoadSourceMacroFile(char *macro_folder_path, struct omf_segment *current_omfsegment)
 {
     int i;
@@ -96,10 +96,10 @@ void LoadSourceMacroFile(char *macro_folder_path, struct omf_segment *current_om
         if(current_line->type != LINE_UNKNOWN)
             continue;
 
-        /** On recherche les lignes USE **/
+        /** On recherche les Lines USE **/
         if(!my_stricmp(current_line->opcode_txt,"USE") && strlen(current_line->operand_txt) > 0)
         {
-            /* Ce File était peut être un File contenant du code */
+            /* Ce File était can be un File contenant of code */
             if(!IsMacroFile(current_line->operand_txt,param->source_folder_path,macro_folder_path))
                 continue;
 
@@ -113,7 +113,7 @@ void LoadSourceMacroFile(char *macro_folder_path, struct omf_segment *current_om
             if(my_stricmp(&param->buffer_file_name[strlen(param->buffer_file_name)-2],".s"))
                 strcat(param->buffer_file_name,".s");
 
-            /** Charge le File Macro **/
+            /** Load the File Macro **/
             printf("        - %s\n",param->buffer_file_name);
             LoadOneMacroFile(macro_folder_path,param->buffer_file_name,current_line,current_omfsegment);
         }
@@ -143,11 +143,11 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
     /* File Path */
     sprintf((char *)param->buffer,"%s%s",folder_path,file_name);
 
-    /* Chargement du File en mémoire (on recherche dans le dossier Library) */
+    /* Loading the file in memory (search in the Library folder) */
     data = (char *) LoadTextFileData((char *)param->buffer,&data_size);
     if(data == NULL)
     {
-        /* On va regarder dans le dossier des sources */
+        /* We will look in the sources folder */
         sprintf((char *)param->buffer,"%s%s",param->source_folder_path,file_name);
         data = (char *) LoadTextFileData((char *)param->buffer,&data_size);
         if(data == NULL)
@@ -161,12 +161,12 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
     }
     my_Memory(MEMORY_DECLARE_ALLOC,data,NULL,current_omfsegment);
 
-    /** Traite toutes les lignes du File **/
+    /** Process all Lines of File **/
     line_number = 0;
     begin_line = data;
     while(begin_line)
     {
-        /* Fin de la ligne */
+        /* End of the line */
         end_line = strchr(begin_line,'\n');
         if(end_line)
             *end_line = '\0';
@@ -180,7 +180,7 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
             continue;
         }
 
-        /** On recherche les lignes MAC **/
+        /** We are looking for MAC Lines **/
         DecodeLine(begin_line,param->buffer_label,param->buffer_opcode,param->buffer_operand,param->buffer_comment);
         if(!my_stricmp(param->buffer_opcode,"MAC"))
         {
@@ -196,7 +196,7 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
                 my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
 
-            /* Attache la macro */
+            /* Attach the macro */
             if(first_macro == NULL || last_macro == NULL)
                 first_macro = current_macro;
             else
@@ -205,12 +205,12 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
         }
         else if((!my_stricmp(param->buffer_opcode,"<<<") || !my_stricmp(param->buffer_opcode,"EOM")) && macro_level > 0)
         {
-            /** Si cette ligne contient un Label, on l'intègre dans la macro comme Empty line **/
+            /** If this line contains a Label, it is integrated in the macro as Empty line **/
             if(strlen(param->buffer_label) > 0)
             {
                 for(current_macro=first_macro; current_macro; current_macro=current_macro->next)
                 {
-                    /* Création de la ligne */
+                    /* Creation of the line */
                     current_line = mem_alloc_macroline(param->buffer_label,"","",param->buffer_comment);
                     if(current_line == NULL)
                     {
@@ -228,7 +228,7 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
                 }
             }
             
-            /** On va terminer toutes les macros en cours **/
+            /** We will finish all macros in progress **/
             for(current_macro=first_macro; current_macro; current_macro=current_macro->next)
                 my_Memory(MEMORY_ADD_MACRO,current_macro,NULL,current_omfsegment);
 
@@ -240,10 +240,10 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
         }
         else if(macro_level > 0)
         {
-            /** Ajoute cette macro_line aux macros enregistrées **/
+            /** Add this macro_line to the saved macros **/
             for(current_macro=first_macro; current_macro; current_macro=current_macro->next)
             {
-                /* Création de la ligne */
+                /* Creation of the line */
                 current_line = mem_alloc_macroline(param->buffer_label,param->buffer_opcode,param->buffer_operand,param->buffer_comment);
                 if(current_line == NULL)
                 {
@@ -262,7 +262,7 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
         }
         else
         {
-            /** On est à l'extérieur de la définition d'une Macro, il peut y avoir des EQU qui trainent (Util.Macs.s) **/
+            /** We are outside the definition of a Macro, there may be some EQU (Util.Macs.s) **/
             if((!my_stricmp(param->buffer_opcode,"=") || !my_stricmp(param->buffer_opcode,"EQU")) && strlen(param->buffer_label) > 0)
             {
                 /** Allocation of the structure Equivalence **/
@@ -292,9 +292,9 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
 }
 
 
-/*********************************************************************/
-/*  GetMacroFromSource() :  Récupère les macros des Files Source. */
-/*********************************************************************/
+/***********************************************************/
+/*  GetMacroFromSource() :  Retrieves Source Files macros. */
+/***********************************************************/
 void GetMacroFromSource(struct omf_segment *current_omfsegment)
 {
     struct macro *first_macro = NULL;
@@ -325,28 +325,28 @@ void GetMacroFromSource(struct omf_segment *current_omfsegment)
                 my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
 
-            /* Attache la macro */
+            /* Attach the macro */
             if(first_macro == NULL || last_macro == NULL)
                 first_macro = current_macro;
             else
                 last_macro->next = current_macro;
             last_macro = current_macro;
 
-            /* Cette ligne est de type définition de macro */
+            /* This line is of type definition of macro */
             current_line->type = LINE_DIRECTIVE;
             current_line->type_aux = LINE_MACRO_DEF;
 
-            /* Il s'agit d'une Macro déclarée dans le Source */
+            /* This is a Macro declared in the Source */
             current_line->is_inside_macro = 1;
         }
         else if(!my_stricmp(current_line->opcode_txt,"<<<") || !my_stricmp(current_line->opcode_txt,"EOM"))
         {
-            /** Si cette ligne contient un Label, on l'intègre dans la macro comme Empty line **/
+            /** If this line contains a Label, it is integrated in the macro as Empty line **/
             if(strlen(current_line->label_txt) > 0)
             {
                 for(current_macro=first_macro; current_macro; current_macro=current_macro->next)
                 {
-                    /* Création de la ligne */
+                    /* Creation of the line */
                     current_macroline = mem_alloc_macroline(current_line->label_txt,"","",current_line->comment_txt);
                     if(current_macroline == NULL)
                     {
@@ -364,26 +364,26 @@ void GetMacroFromSource(struct omf_segment *current_omfsegment)
                 }
             }
 
-            /** On va terminer toutes les macros en cours **/
+            /** We will finish all macros in progress **/
             for(current_macro=first_macro; current_macro; current_macro=current_macro->next)
                 my_Memory(MEMORY_ADD_MACRO,current_macro,NULL,current_omfsegment);
 
             /* Init */
             first_macro = NULL;
 
-            /* Cette ligne est de type définition de macro */
+            /* This line is of type definition of macro */
             current_line->type = LINE_DIRECTIVE;
             current_line->type_aux = LINE_MACRO_DEF;
 
-            /* Il s'agit d'une Macro déclarée dans le Source */
+            /* This is a Macro declared in the Source */
             current_line->is_inside_macro = 1;
         }
         else if(first_macro != NULL)
         {
-            /** Ajoute cette macro_line aux macros enregistrées **/
+            /** Add this macro_line to the saved macros **/
             for(current_macro=first_macro; current_macro; current_macro=current_macro->next)
             {
-                /* Création de la ligne */
+                /* Creation of the line */
                 current_macroline = mem_alloc_macroline(current_line->label_txt,current_line->opcode_txt,current_line->operand_txt,current_line->comment_txt);
                 if(current_line == NULL)
                 {
@@ -400,11 +400,11 @@ void GetMacroFromSource(struct omf_segment *current_omfsegment)
                 current_macro->last_line = current_macroline;
             }
 
-            /* Cette ligne est de type définition de macro */
+            /* This line is of type definition of macro */
             current_line->type = LINE_DIRECTIVE;
             current_line->type_aux = LINE_MACRO_DEF;
 
-            /* Il s'agit d'une Macro déclarée dans le Source */
+            /* This is a Macro declared in the Source */
             current_line->is_inside_macro = 1;
         }
     }
@@ -412,7 +412,7 @@ void GetMacroFromSource(struct omf_segment *current_omfsegment)
 
 
 /***********************************************************************/
-/*  CheckForDuplicatedMacro() :  Recherche de Macro ayant le même nom. */
+/*  CheckForDuplicatedMacro() :  Search for Macro with the same name. */
 /***********************************************************************/
 void CheckForDuplicatedMacro(struct omf_segment *current_omfsegment)
 {
@@ -434,9 +434,9 @@ void CheckForDuplicatedMacro(struct omf_segment *current_omfsegment)
 }
 
 
-/********************************************************************/
-/*  ReplaceMacroWithContent() :  Remplace les Macros par leur code. */
-/********************************************************************/
+/******************************************************************/
+/*  ReplaceMacroWithContent() :  Replaces Macros with their code. */
+/******************************************************************/
 int ReplaceMacroWithContent(struct omf_segment *current_omfsegment, struct omf_project *current_omfproject)
 {
     struct source_file *first_file;
@@ -458,21 +458,21 @@ int ReplaceMacroWithContent(struct omf_segment *current_omfsegment, struct omf_p
         if(current_line->is_valid == 0)
             continue;
 
-        /** Recherche les appels de Macro **/
+        /** Search the calls of Macro **/
         if(current_line->type == LINE_MACRO)
         {
-            /* Construit les lignes de codes de cette Macro en y intégrant les paramètres et en remplaçant les Labels */
+            /* Construct the code lines of this Macro by inserting the parameters and replacing the Labels */
             first_macro_line = BuildMacroLine(current_line,current_omfsegment,current_omfproject);
             if(first_macro_line == NULL)
             {
                 /* Error */
                 return(1);
             }
-            /* Last line de la Macro */
+            /* Last line of la Macro */
             for(last_macro_line = first_macro_line; last_macro_line->next != NULL; last_macro_line=last_macro_line->next)
                 ;
 
-            /** Insère les lignes de Code derrière l'appel de la Macro **/
+            /** Insert the lines lines behind the call of the Macro **/
             last_macro_line->next = current_line->next;
             current_line->next = first_macro_line;
 
@@ -486,9 +486,9 @@ int ReplaceMacroWithContent(struct omf_segment *current_omfsegment, struct omf_p
 }
 
 
-/************************************************************************/
-/*  BuildMacroLine() :  Création des lignes de code venant d'une Macro. */
-/************************************************************************/
+/**************************************************************/
+/*  BuildMacroLine() :  	Creating code lines from a Macro. */
+/**************************************************************/
 static struct source_line *BuildMacroLine(struct source_line *current_source_line, struct omf_segment *current_omfsegment, struct omf_project *current_omfproject)
 {
     struct macro *current_macro;
@@ -512,7 +512,7 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
     current_macro = current_source_line->macro;
 
     /****************************************/
-    /**  Extrait les variables de l'appel  **/
+    /**  Extract the variables of the call  **/
     /****************************************/
     /* Init */
     var_tab = (char **) calloc(9,sizeof(char *));
@@ -534,10 +534,10 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
         }
     }
 
-    /** On se positionne au début des paramètres **/
+    /** We position ourselves at the beginning of the parameters **/
     if(!my_stricmp(current_source_line->opcode_txt,"PMC") || !my_stricmp(current_source_line->opcode_txt,">>>"))
     {
-        /* Le nom de la Macro et les paramètres sont collés dans l'Operande */
+        /* The name of the Macro and the parameters are pasted into the Operand */
         for(i=0; i<(int)strlen(current_source_line->operand_txt); i++)
             if(current_source_line->operand_txt[i] == '.' || current_source_line->operand_txt[i] == '/' || current_source_line->operand_txt[i] == ',' ||
                current_source_line->operand_txt[i] == '-' || current_source_line->operand_txt[i] == '(' || current_source_line->operand_txt[i] == ' ')
@@ -549,12 +549,12 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
     else
         var_list = strlen(current_source_line->operand_txt) == 0 ? NULL : current_source_line->operand_txt;
 
-    /** Il n'y a que 8 variables maximum séparées par des ; **/
+    /** There are only 8 maximum variables separated by ; **/
     while(var_list)
     {
         next_sep = strchr(var_list,';');
 
-        /* Dernière entrées */
+        /* Latest entries */
         if(next_sep == NULL)
         {
             strcpy(var_tab[nb_var+1],var_list);
@@ -562,20 +562,20 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
             break;
         }
         
-        /* Copie l'entrée */
+        /* Copy the entry */
         memcpy(var_tab[nb_var+1],var_list,next_sep-var_list);
         var_tab[nb_var+1][next_sep-var_list] = '\0';
         nb_var++;
 
-        /* On avance */
+        /* advance to next list */
         var_list += (next_sep-var_list+1);
     }
     sprintf(var_tab[0],"%d",nb_var);
 
-    /*** Duplication des lignes de la Macro ***/
+    /*** Duplication of the Lines of the Macro ***/
     for(current_macro_line=current_macro->first_line; current_macro_line; current_macro_line=current_macro_line->next)
     {
-        /* Création de la ligne Source */
+        /* Creation of the line Source */
         new_source_line = BuildSourceMacroLine(current_source_line,current_macro_line,var_tab,current_omfsegment);
         if(new_source_line == NULL)
         {
@@ -586,7 +586,7 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
             my_RaiseError(ERROR_RAISE,param->buffer_error);
         }
 
-        /* Attachement de la ligne Source */
+        /* Attachment of the Source line */
         if(first_source_line == NULL)
             first_source_line = new_source_line;
         else
@@ -631,33 +631,33 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
         }
     }
 
-    /** On va analyser les nouvelles lignes pour déterminer leurs Types **/
+    /** We will analyze the new Lines to determine their types **/
     nb_error = DecodeLineType(first_source_line,current_macro,current_omfsegment,current_omfproject);
     if(nb_error > 0)
     {
-        /* Error : On efface tout et on sort en Error */
+        /* Error: We erase everything and we exit in Error */
         mem_free_sourceline_list(first_source_line);
         return(NULL);
     }
 
-    /** On a détecté une macro => Il faut substituer cet appel avec les lignes de code (récursivité) **/
+    /** We have detected a macro => We must substitute this call with the code lines (recursivity) **/
     for(new_source_line=first_source_line; new_source_line; new_source_line=new_source_line->next)
     {
         if(new_source_line->type == LINE_MACRO)
         {
-            /** Création des lignes substituées **/
+            /** Create the substituted lines **/
             first_source_macro_line = BuildMacroLine(new_source_line,current_omfsegment,current_omfproject);
             if(first_source_macro_line == NULL)
             {
-                /* Error : On efface tout et on sort en Error */
+                /* Error: We erase everything and we exit in Error */
                 mem_free_sourceline_list(first_source_line);
                 return(NULL);
             }
-            /* On se positionne à la fin */
+            /* We position ourselves at the end */
             for(last_source_macro_line=first_source_macro_line; last_source_macro_line->next != NULL; last_source_macro_line = last_source_macro_line->next)
                 ;
 
-            /** Insère les lignes substituées à leur place **/
+            /** Insert substituted Lines in their place **/
             last_source_macro_line->next = new_source_line->next;
             new_source_line->next = first_source_macro_line;
 
@@ -666,14 +666,14 @@ static struct source_line *BuildMacroLine(struct source_line *current_source_lin
         }
     }
     
-    /* Renvoi les lignes */
+    /* Return the Lines */
     return(first_source_line);
 }
 
 
-/****************************************************************************************/
-/*  BuildSourceMacroLine() :  Construction d'une ligne de Source provenant d'une Macro. */
-/****************************************************************************************/
+/**********************************************************************/
+/*  BuildSourceMacroLine() :  Building a line of Source from a Macro. */
+/**********************************************************************/
 static struct source_line *BuildSourceMacroLine(struct source_line *current_source_line, struct macro_line *current_macro_line, char **var_tab, struct omf_segment *current_omfsegment)
 {
     int is_modified;
@@ -698,7 +698,7 @@ static struct source_line *BuildSourceMacroLine(struct source_line *current_sour
     strcpy(new_source_line->x,"?");
     strcpy(new_source_line->reloc,"         ");
 
-    /** Transfert les éléments de la ligne Macro **/
+    /** Transfer the elements of the Macro line **/
     BuildSubstituteValue(current_macro_line->label,var_tab,buffer);
     new_source_line->label_txt = strdup(buffer);
     BuildSubstituteValue(current_macro_line->opcode,var_tab,buffer);
@@ -721,14 +721,14 @@ static struct source_line *BuildSourceMacroLine(struct source_line *current_sour
 }
 
 
-/***************************************************************************************/
-/*  BuildSubstituteValue() :  On remplace les ]x par les valeurs passées en paramètre. */
-/***************************************************************************************/
+/************************************************************************************/
+/*  BuildSubstituteValue() :  We replace the x's by the values passed in parameter. */
+/************************************************************************************/
 static void BuildSubstituteValue(char *src_string, char **var_tab, char *dst_string_rtn)
 {
     int j = 0;
 
-    /* On recherche un ] */
+    /* We are looking for a ] */
     for(int i = 0; i<(int)strlen(src_string); i++)
     {
         if(src_string[i] == ']' && (src_string[i+1] >= '0' && src_string[i+1] <= '8'))
@@ -740,14 +740,14 @@ static void BuildSubstituteValue(char *src_string, char **var_tab, char *dst_str
         else
             dst_string_rtn[j++] = src_string[i];
     }
-    /* Fin de chaine */
+    /* end of string */
     dst_string_rtn[j] = '\0';
 }
 
 
-/******************************************************************/
-/*  IsMacroFile() :  Détermine si ce File contient des Macros. */
-/******************************************************************/
+/*************************************************************/
+/*  IsMacroFile() :  Determine if this File contains Macros. */
+/*************************************************************/
 int IsMacroFile(char *file_name, char *source_folder_path, char *macro_folder_path)
 {
     int i, found;
@@ -760,7 +760,7 @@ int IsMacroFile(char *file_name, char *source_folder_path, char *macro_folder_pa
     /* Init */
     found = 0;
 
-    /* On va vite, on regarde le nom */
+    /* We go quickly, we look at the name */
     if(strlen(file_name) > strlen(".Macs.s"))
         if(!my_stricmp(&file_name[strlen(file_name)-strlen(".Macs.s")],".Macs.s"))
             return(1);
@@ -768,40 +768,40 @@ int IsMacroFile(char *file_name, char *source_folder_path, char *macro_folder_pa
         if(!my_stricmp(&file_name[strlen(file_name)-strlen(".Macs")],".Macs"))
             return(1);
 
-    /* On essaye d'ouvrir le File avec son nom */
+    /* We try to open the File with his name */
     sprintf(file_path,"%s%s",source_folder_path,file_name);
     macro_file = LoadOneSourceFile(file_path,file_name,0);
     if(macro_file == NULL)
     {
-        /** On ajoute un .S à la fin **/
+        /** We add a .S at the end **/
         strcat(file_path,".s");
         macro_file = LoadOneSourceFile(file_path,file_name,0);
 
-        /** On va nettoyer le File name **/
+        /** We will clean the File name **/
         if(macro_file == NULL)
         {
-            /* On va extraire le File name : 4/Locator.Macs => Locator.Macs.s */
+            /* We will extract the File name: 4 / Locator.Macs => Locator.Macs.s */
             for(i=(int)strlen(file_name); i>=0; i--)
                 if(file_name[i] == '/' || file_name[i] == ':')
                     break;
             strcpy(param->buffer_file_name,&file_name[i+1]);
 
-            /* Ajoute le .s final */
+            /* Add the final .s */
             if(my_stricmp(&param->buffer_file_name[strlen(param->buffer_file_name)-2],".s"))
                 strcat(param->buffer_file_name,".s");
 
-            /* On essaye d'ouvrir le File avec son nom */
+            /* We try to open the File with his name */
             sprintf(file_path,"%s%s",macro_folder_path,param->buffer_file_name);
             macro_file = LoadOneSourceFile(file_path,param->buffer_file_name,0);
         }
     }
 
-    /* On a pas réussi à ouvrir le File, on le déclare comme un File Macro et on laisse le code suivant le déclarer non disponble */
+    /* We have failed to open the File, we declare it as a File Macro and we leave the following code to declare it not available. */
     if(macro_file == NULL)
         return(1);
 
-    /** On va analyser les lignes afin de trouver du MAC >>> **/
-    /* File vide ? */
+    /** We will analyze the Lines in order to find MAC >>> **/
+    /* File Empty ? */
     if(macro_file->first_line == NULL)
     {
         mem_free_sourcefile(macro_file,1);
@@ -815,7 +815,7 @@ int IsMacroFile(char *file_name, char *source_folder_path, char *macro_folder_pa
         if(current_line->type == LINE_COMMENT || current_line->type == LINE_EMPTY)
             continue;
 
-        /* Reconnait les Opcode des Macro */
+        /* Recognize Macro Opcode */
         if(!my_stricmp(current_line->opcode_txt,"MAC"))
         {
             found = 1;
@@ -826,19 +826,19 @@ int IsMacroFile(char *file_name, char *source_folder_path, char *macro_folder_pa
     /* Memory release */
     mem_free_sourcefile(macro_file,1);
 
-    /* Indique si on a found des Macro */
+    /* Indicates if we found Macro */
     return(found);
 }
 
 
 /*******************************************************************/
-/*  mem_alloc_macro() :  Memory allowance de la structure macro. */
+/*  mem_alloc_macro() :  Allocate memory of the macro structure.   */
 /*******************************************************************/
 struct macro *mem_alloc_macro(char *file_name, char *name, int line_number)
 {
     struct macro *current_macro;
 
-    /* Memory allowance */
+    /* Allocate memory */
     current_macro = (struct macro *) calloc(1,sizeof(struct macro));
     if(current_macro == NULL)
         return(NULL);
@@ -853,19 +853,19 @@ struct macro *mem_alloc_macro(char *file_name, char *name, int line_number)
         return(NULL);
     }
 
-    /* Retourne la structure */
+    /* Return the structure */
     return(current_macro);
 }
 
 
 /****************************************************************************/
-/*  mem_alloc_macroline() :  Memory allowance de la structure macro_line. */
+/*  mem_alloc_macroline() :  Allocate memory of the macro_line structure.   */
 /****************************************************************************/
 struct macro_line *mem_alloc_macroline(char *label, char *opcode, char *operand, char *comment)
 {
     struct macro_line *current_line;
 
-    /* Memory allowance */
+    /* Allocate memory */
     current_line = (struct macro_line *) calloc(1,sizeof(struct macro_line));
     if(current_line == NULL)
         return(NULL);
@@ -881,14 +881,14 @@ struct macro_line *mem_alloc_macroline(char *label, char *opcode, char *operand,
         return(NULL);
     }
 
-    /* Retourne la structure */
+    /* Return the structure */
     return(current_line);
 }
 
 
-/***************************************************************************/
-/*  mem_free_macroline() :  Memory release de la structure macro_line. */
-/***************************************************************************/
+/************************************************************************/
+/*  mem_free_macroline() :  Memory release of the macro_line structure. */
+/************************************************************************/
 void mem_free_macroline(struct macro_line *current_line)
 {
     if(current_line)
@@ -910,9 +910,9 @@ void mem_free_macroline(struct macro_line *current_line)
 }
 
 
-/******************************************************************/
-/*  mem_free_macro() :  Memory release de la structure macro. */
-/******************************************************************/
+/****************************************************************/
+/*  mem_free_macro() :  Memory release of the marcro structure. */
+/****************************************************************/
 void mem_free_macro(struct macro *current_macro)
 {
     struct macro_line *current_line;
@@ -938,9 +938,9 @@ void mem_free_macro(struct macro *current_macro)
 }
 
 
-/**********************************************************************/
-/*  mem_free_macro_list() :  Memory release des structures macro. */
-/**********************************************************************/
+/*****************************************************************/
+/*  mem_free_macro_list() :  Memory release of macro structures. */
+/*****************************************************************/
 void mem_free_macro_list(struct macro *all_macro)
 {
     struct macro *current_macro;

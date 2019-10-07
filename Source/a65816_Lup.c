@@ -512,7 +512,7 @@ static struct source_line *BuildSourceLupLine(struct source_line *current_source
     }
     new_operand_txt[l] = '\0';
 
-    /* Memory allowance */
+    /* Allocate memory */
     new_source_line->operand_txt = strdup(new_operand_txt);
     if(new_source_line->operand_txt == NULL)
     {

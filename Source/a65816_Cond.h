@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Cond.h : Header pour la gestion des Conditional.            */
+/*  a65816_Cond.h : Header for Conditional Management.                 */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */

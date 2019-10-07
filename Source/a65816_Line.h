@@ -1,26 +1,26 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Line.h : Header pour la gestion des lignes.                 */
+/*  a65816_Line.h : Header for line management.                        */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#define LINE_UNKNOWN     0       /* Ligne dont on ne connait pas encore le type / qu'on a rrive pas à décoder */
-#define LINE_COMMENT     1       /* Ligne ne contenant qu'un commentaire */
-#define LINE_DIRECTIVE   2       /* Directive d'assemblage (PUT, USE, IF, XC...) */
-#define LINE_EQUIVALENCE 3       /* Ligne définissant une constante (EQU, =) */
-#define LINE_VARIABLE    4       /* Ligne définissant une variable (pour les boucles...) */
-#define LINE_CODE        5       /* Ligne de code avec au moins un Opcode */
-#define LINE_DATA        6       /* Ligne stockant des variables (HEX, DA, ASC, STR...)*/
-#define LINE_MACRO       7       /* Ligne appelant une macro */
-#define LINE_EMPTY       8       /* Ligne avec seulement un Label */
-#define LINE_GLOBAL      9       /* Label Global définissant un point d'entrée pour les InterSeg */
-#define LINE_EXTERNAL   10       /* Label Externe définissant une adresse d'un autre segment */
+#define LINE_UNKNOWN     0       /* Line of which we do not yet know the type / that we have not managed to decode */
+#define LINE_COMMENT     1       /* Line containing only a comment */
+#define LINE_DIRECTIVE   2       /* Assembly directive (PUT, USE, IF, XC...) */
+#define LINE_EQUIVALENCE 3       /* Line defining a constant (EQU, =) */
+#define LINE_VARIABLE    4       /* Line defining a variable (for loops...) */
+#define LINE_CODE        5       /* Line with at least one Opcode */
+#define LINE_DATA        6       /* Line storing variables (HEX, DA, ASC, STR...)*/
+#define LINE_MACRO       7       /* Line calling a macro */
+#define LINE_EMPTY       8       /* Line with only a Label */
+#define LINE_GLOBAL      9       /* Global Label Defining an Entry Point for the InterSeg */
+#define LINE_EXTERNAL   10       /* External label defining an address of another segment */
 
 #define LINE_MACRO_DEF   1
 
-#define AM_UNKOWN                                0  /* Not recognize */
+#define AM_UNKOWN                                0  /* Not recognized */
 #define AM_IMPLICIT                              1  /* A          Implicit                             */
 #define AM_ABSOLUTE                              2  /* addr2      Absolute                             */
 #define AM_ABSOLUTE_INDEXED_X_INDIRECT           3  /* (addr2,X)  Absolute Indexed,X Indirect          */
@@ -41,7 +41,7 @@
 #define AM_IMMEDIATE_8                          18  /* #const 8   Immediate 8 bit                      */
 #define AM_IMMEDIATE_16                         19  /* #const 16  Immediate 16 bit                      */
 #define AM_PC_RELATIVE                          20  /* relative1  Program Counter Relative 8 bit (BRA, BEQ, BPL...) */
-#define AM_PC_RELATIVE_LONG                     21  /* relative2  Program Counter Relative Long (BRL et PER)  */
+#define AM_PC_RELATIVE_LONG                     21  /* relative2  Program Counter Relative Long (BRL and PER)  */
 #define AM_STACK_RELATIVE_INDIRECT_INDEXED_Y    22  /* (sr,S),Y   Stack Relative Indirect Indexed,Y    */
 #define AM_STACK_PC_RELATIVE_LONG               23  /* label      Stack PC Relative Long               */
 #define AM_STACK_RELATIVE                       24  /* sr,S       Stack Relative                       */
@@ -53,63 +53,63 @@
 #define FORMAT_ASCII      4
 #define FORMAT_LABEL      5
 #define FORMAT_VARIABLE   6
-#define FORMAT_EXTERNAL   7      /* Label Externe au module = Adresse Longue */
+#define FORMAT_EXTERNAL   7      /* External Label to Module = Long Address */
 
 struct source_line
 {
-  char *line_data;               /* Ligne telle qu'elle était dans le Source file */
-  int line_number;               /* Numéro de la ligne global */
+  char *line_data;               /* Line as it was in the Source file */
+  int line_number;               /* Number of the global line */
 
-  int file_line_number;          /* Numéro de la ligne dans le File */
+  int file_line_number;          /* Number of the line in the File */
   struct source_file *file;
 
-  int type;                      /* Type de ligne : LINE_COMMENT, LINE_DIRECTIVE, LINE_CODE, LINE_MACRO */
-  int type_aux;                  /* Type Auxiliaire : LINE_MACRO_DEF */
-  int is_in_source;              /* Cette ligne est dans le code source d'origine (et non pas dans une Macro qui a été développée) */
-  int is_valid;                  /* Cette ligne sera conservé dans le code final */
-  int no_direct_page;            /* On ne doit pas générer de code Page Direct : LDA\ $0000 */
-  int use_direct_page;           /* On doit générer de code Page Direct : LDA $00 */
+  int type;                      /* Type of line : LINE_COMMENT, LINE_DIRECTIVE, LINE_CODE, LINE_MACRO */
+  int type_aux;                  /* Auxiliary Type : LINE_MACRO_DEF */
+  int is_in_source;              /* This line is in the original source code (and not in a Macro that has been developed) */
+  int is_valid;                  /* This line will be kept in the final code */
+  int no_direct_page;            /* You do not have to generate any DP code : LDA\ $0000 */
+  int use_direct_page;           /* We must generate the code for DP : LDA $00 */
 
-  int was_local_label;           /* Ce label :local a été remplacé par un nom unique */
+  int was_local_label;           /* This label: local has been replaced by a unique name */
 
-  int is_inside_macro;           /* Cette ligne de code fait partie d'une déclaration d'une Macro présente dans le Source file */
+  int is_inside_macro;           /* This Code Line is part of a declaration of a Macro present in the Source file */
 
-  int is_dum;                    /* Cette ligne est stockée entre 2 DUM - DEND */
-  struct source_line *dum_line;  /* Ligne déclarant le DUM */
+  int is_dum;                    /* This line is stored between 2 DUM - DEND */
+  struct source_line *dum_line;  /* Line declaring the DUM */
 
-  char *label_txt;               /* Découpage de la ligne en 4 parties : Label  Opcode Operand   ; Comment */
+  char *label_txt;               /* line cut into 4 parts : Label  Opcode Operand   ; Comment */
   char *opcode_txt;
   char *operand_txt;
   char *comment_txt;
 
-  int cond_level;                /* Niveau de la conditiion 0->N IF [ELSE] FIN | DO [ELSE] FIN */
-  int do_level;                  /* Niveau de la condition IF ELSE FIN pour l'évaluation préliminaire */
+  int cond_level;                /* Condition level 0->N IF [ELSE] FIN | DO [ELSE] FIN */
+  int do_level;                  /* Level of IF ELSE FIN condition for Preliminary Assessment */
 
   char m[2];                     /* M : 0/1/? = Acc size (0=16bit, 1=8bit) */
   char x[2];                     /* X : 0/1/? = X,Y size (0=16bit, 1=8bit) */
 
-  struct variable *variable;     /* Si cette ligne est une variable, on pointe sur sa valeur */
+  struct variable *variable;     /* If this line is a variable, we point to its value */
 
-  struct macro *macro;           /* Si cette ligne est un appel à une Macro, on pointe vers elle */
+  struct macro *macro;           /* If this line is a call to a Macro, point to it */
 
-  int bank;                      /* Bank mémoire de la ligne */
+  int bank;                      /* Bank memory of the line */
   int address;                   /* Address of the line */
-  int is_fix_address;            /* Cette ligne a une adresse fixe (cas des lignes situées dans [ORG $Addr ORG] pour un OMF ou un Single Binary */
+  int is_fix_address;            /* This line has a fixed address (case of Lines located in [ORG $ Addr ORG] for an OMF or a Single Binary */
   int global_bank;
-  int global_address;            /* Address of the line si le ORG $Addr n'était pas là (utile pour reloger les adresses situées entre un [ORG $Addr ORG] */
+  int global_address;            /* Address of the line if the ORG $ Addr was not useful (to relocate addresses between a [ORG $ Addr ORG] */
 
-  int nb_byte;                   /* Taille de la ligne : 1 + Operand Size */
+  int nb_byte;                   /* Size of the line: 1 + Operand Size */
   unsigned char opcode_byte;     /* Opcode */
-  int address_mode;              /* Mode d'addressage AM_ */
-  int address_is_rel;            /* L'adresse pointée par l'opcode est une adresse d'une zone relative : si < 0x100, cela ne la fera pas basculer dans du Page Direct */
-  unsigned char operand_byte[4]; /* Operande */
+  int address_mode;              /* Addressing mode AM_ */
+  int address_is_rel;            /* The address pointed by the opcode is an address of a relative zone: if <0x100, it will not make it switch to DP */
+  unsigned char operand_byte[4]; /* Operand */
   unsigned char *data;           /* Data */
 
-  DWORD operand_value;           /* Résultat de l'évaluation de l'Opérande, avant la troncature due au nb de byte de l'operande */
-  DWORD operand_address_long;    /* Si l'opérande pointe vers une adresse, on garde ici la version longue de l'adresse : Bank/HighLow */
-  struct relocate_address *external_address;  /* En cas d'utilisation d'une adresse Externe, on conserve un pointeur */
+  DWORD operand_value;           /* Results of the evaluation of the operand, before the truncation due to the number of byte of the operand */
+  DWORD operand_address_long;    /* If the address points to an address, here is the long version of the address: Bank / HighLow */
+  struct relocate_address *external_address;  /* When using an External address, we keep a pointer */
 
-  char reloc[16];                /* Information de Relocate : Nb Byte >> Bit Shift */
+  char reloc[16];                /* Relocate Information : Nb Byte >> Bit Shift */
 
   struct source_line *next;
 };
@@ -117,20 +117,20 @@ struct source_line
 struct label
 {
   char *name;
-  struct source_line *line;      /* Le is_dum de la ligne permet de savoir si ce label provient d'une section DUM (= Adresse Fixe = Non relogeable) */
+  struct source_line *line;      /* The is_dum of the line allows to know if this label comes from a section DUM (= Fixed address = no relogeable) */
 
-  int is_global;                 /* Ce label est un point d'entrée dans le Segment */                 
+  int is_global;                 /* This label is an entry point into the Segment */
 
   struct label *next;
 };
 
 struct external
 {
-  /* Référence interne */
+  /* Internal Reference */
   char *name;
   struct source_line *source_line;
 
-  /* Référence externe */
+  /* External reference */
   struct omf_segment *external_segment;
   struct label *external_label;
 
@@ -140,7 +140,7 @@ struct external
 struct global
 {
   char *name;
-  struct source_line *source_line;    /* Ligne source contenant le ENT Label1,Label2... */
+  struct source_line *source_line;    /* Source line containing ENT Label1, Label2... */
 
   struct global *next;
 };
@@ -150,7 +150,7 @@ struct equivalence
   char *name;
   char *value;
 
-  struct source_line *source_line;    /* Si l'équivalence provient du source, on pointe la ligne (elle peut aussi venir des Files Macro) */
+  struct source_line *source_line;    /* If the equivalence comes from source, we point the line (it can also come from the Macro Files) */
 
   struct equivalence *next;
 };
@@ -170,15 +170,15 @@ struct variable
 
 struct relocate_address
 {
-  BYTE ByteCnt;               /* Number of Bytes to be relocated (1,2,3 ou 4) */
-  BYTE BitShiftCnt;           /* Opérations >> ou << */
+  BYTE ByteCnt;               /* Number of Bytes to be relocated (1,2,3 or 4) */
+  BYTE BitShiftCnt;           /* Operations >> or << */
   WORD OffsetPatch;           /* Offset of the first Byte to be Patched */
-  WORD OffsetReference;       /* Adresse */ 
+  WORD OffsetReference;       /* Address */
 
-  struct external *external;  /* On fait appel à un Label Externe (NULL si interne) */
-  unsigned char *object_line; /* Adresse de la zone à patcher dans la line (pour les label external) */
+  struct external *external;  /* External Label is used (NULL if internal) */
+  unsigned char *object_line; /* Address of the area to be patched in the line (for external labels) */
 
-  int processed;              /* Déjà traité */
+  int processed;              /* Already processed */
 
   struct relocate_address *next;
 };

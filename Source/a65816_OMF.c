@@ -43,7 +43,7 @@ int BuildOMFFile(char *output_folder_path, struct omf_project *current_omfprojec
     for(current_omfsegment=current_omfproject->first_segment; current_omfsegment; current_omfsegment=current_omfsegment->next)
         current_omfproject->project_buffer_length += (current_omfsegment->header_length + current_omfsegment->body_length);
 
-    /** Memory allowance Project (wider) **/
+    /** Allocate memory Project (wider) **/
     current_omfproject->project_buffer_file = (unsigned char *) calloc(current_omfproject->project_buffer_length,sizeof(unsigned char));
     if(current_omfproject->project_buffer_file == NULL)
     {
@@ -786,7 +786,7 @@ DWORD BuildOMFBody(struct omf_segment *current_omfsegment)
                                         offset += sizeof(BYTE);
                                         length += sizeof(BYTE);
 
-                                        /** Modifie les Data au niveau de l'offset en y plaçant les 2 octets bas de l'adresse (on ajoute le delta apporté par l'opération sur le label) **/
+                                        /** Modifie les Data au niveau of l'offset en y plaçant les 2 octets bas of l'adresse (on ajoute le delta apporté par l'opération sur le label) **/
                                         address_patch = next_address->external->external_label->line->address + next_address->OffsetReference;
                                         bo_memcpy(&address_path_byte[0],&address_patch,sizeof(DWORD));
                                         /* Copie à 3 endroits */
@@ -926,8 +926,8 @@ void RelocateExternalFixedAddress(struct omf_segment *current_omfsegment)
         offset_file = current_address->OffsetPatch - (0x0000FFFF & org_address);
 
         /* Copy 2 places */
-        memcpy(&current_omfsegment->object_code[offset_file],&address_path_byte[0],current_address->ByteCnt);          /* Dans le Code Objet du Segment */
-        memcpy(current_address->object_line,&address_path_byte[0],current_address->ByteCnt);                           /* Dans la line (operand_byte ou data) */
+        memcpy(&current_omfsegment->object_code[offset_file],&address_path_byte[0],current_address->ByteCnt);          /* Dans le Code Objet of Segment */
+        memcpy(current_address->object_line,&address_path_byte[0],current_address->ByteCnt);                           /* Dans la line (operand_byte or data) */
 
         /* Information */
         //printf("     => Relocate Address at %04X : %06X (Offset File is %04X).\n",current_address->OffsetPatch,address_patch,offset_file);
@@ -1082,7 +1082,7 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
     struct omf_segment *xpress_omfsegment;
     struct omf_segment *current_omfsegment;
 
-    /** Memory allowance **/
+    /** Allocate memory **/
     xpress_omfsegment = mem_alloc_omfsegment();
     if(xpress_omfsegment == NULL)
         return(1);
@@ -1111,7 +1111,7 @@ int BuildExpressLoadSegment(struct omf_project *current_omfproject)
         body_lconst_length += (4*sizeof(DWORD) + current_omfsegment->header_xpress_length);    /* Segment Header Table */
     }
 
-    /* Memory allowance for Body */
+    /* Allocate memory for Body */
     xpress_omfsegment->segment_body_length = 1024 + body_lconst_length;         /* We take wide because we also store the code of LCONST and the END */
     xpress_omfsegment->segment_body_file = (unsigned char *) calloc(1,xpress_omfsegment->segment_body_length);
     if(xpress_omfsegment->segment_body_file == NULL)
@@ -1425,13 +1425,13 @@ void mem_free_omfproject(struct omf_project *current_omfproject)
 
 
 /*****************************************************************************/
-/*  mem_alloc_omfsegment() :  Memory allowance of the omf_segment structure. */
+/*  mem_alloc_omfsegment() :  Allocate memory of the omf_segment structure. */
 /*****************************************************************************/
 struct omf_segment *mem_alloc_omfsegment(void)
 {
     struct omf_segment *current_omfsegment;
 
-    /* Memory allowance */
+    /* Allocate memory */
     current_omfsegment = (struct omf_segment *) calloc(1,sizeof(struct omf_segment));
     if(current_omfsegment == NULL)
         return(NULL);
