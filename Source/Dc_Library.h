@@ -204,6 +204,7 @@ struct omf_project;
 struct omf_segment;
 struct source_line;
 struct external;
+struct label;
 
 void my_RaiseError(int,void *);
 void my_Memory(int,void *,void *,struct omf_segment *);

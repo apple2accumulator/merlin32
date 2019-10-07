@@ -68,6 +68,9 @@ install: $(TARGET)
 installer: $(TARGET)
 	../Scripts/make-installer
 
+test: $(TARGET)
+	$(MERLIN_BIN)/$(TARGET) ../Test/linkscript.s
+
 clean:
 	$(RM) $(OBJECTS) $(TARGET) $(BIN_CONFIG)
 	rm -rf ../Installer

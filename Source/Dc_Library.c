@@ -5422,21 +5422,20 @@ void mem_free_table(int nb_item, char **table)
 /************************************************************************/
 char *CopyString(char *target, char *source, size_t target_size)
 {
-  char *s;
-  char *t;
-  size_t count = 0;
-
-  s = source;
-  t = target;
-  while (*s != '\0' && count < target_size)
+    size_t count = 0;
+    
+    char *s = source;
+    char *t = target;
+    
+    while (*s != '\0' && count < target_size)
     {
-      *t = *s;
-      s++;
-      t++;
-      count++;
+        *t = *s;
+        s++;
+        t++;
+        count++;
     }
-  *t = '\0';
-  return target;
+    *t = '\0';
+    return target;
 }
 
 
@@ -5445,7 +5444,7 @@ char *CopyString(char *target, char *source, size_t target_size)
 /************************************************************************/
 int IsEmpty(char *s)
 {
-  return s == NULL || s[0] == '\0';
+    return s == NULL || s[0] == '\0';
 }
 
 
@@ -5454,8 +5453,8 @@ int IsEmpty(char *s)
 /************************************************************************/
 char *ClearString(char *s)
 {
-  s[0] = '\0';
-  return s;
+    s[0] = '\0';
+    return s;
 }
 
 
@@ -5465,10 +5464,17 @@ char *ClearString(char *s)
 /************************************************************************/
 int IsDirectory(char *name)
 {
-  int is_directory = 0;
->>>>>>> Script to make installer
-
-    free(table);
+    int is_directory = 0;
+    
+#if defined(WIN32) || defined(WIN64)
+    if (GetFileAttributes(name) & FILE_ATTRIBUTE_DIRECTORY)
+    is_directory = 1;
+#else
+    struct stat file_info;
+    if (stat(name, &file_info) == 0)
+    is_directory = S_ISDIR(file_info.st_mode);
+#endif
+    return is_directory;
 }
 
 /***********************************************************************/
