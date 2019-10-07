@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:merlin32.xcodeproj">
+      location = "self:/Users/lroathe/Work/Open Source/merlin32/Merlin32.xcodeproj">
    </FileRef>
 </Workspace>

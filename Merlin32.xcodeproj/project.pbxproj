@@ -33,7 +33,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2FEB51362345442300FF8878 /* merlin32 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = merlin32; sourceTree = BUILT_PRODUCTS_DIR; };
+		2FEB51362345442300FF8878 /* Merlin32 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Merlin32; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FEB5142234544AA00FF8878 /* a65816_Cond.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Cond.c; sourceTree = "<group>"; };
 		2FEB5143234544AA00FF8878 /* a65816_Line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Line.c; sourceTree = "<group>"; };
 		2FEB5144234544AA00FF8878 /* a65816_File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_File.h; sourceTree = "<group>"; };
@@ -81,7 +81,7 @@
 		2FEB51372345442300FF8878 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2FEB51362345442300FF8878 /* merlin32 */,
+				2FEB51362345442300FF8878 /* Merlin32 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -119,9 +119,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2FEB51352345442300FF8878 /* merlin32 */ = {
+		2FEB51352345442300FF8878 /* Merlin32 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2FEB513D2345442300FF8878 /* Build configuration list for PBXNativeTarget "merlin32" */;
+			buildConfigurationList = 2FEB513D2345442300FF8878 /* Build configuration list for PBXNativeTarget "Merlin32" */;
 			buildPhases = (
 				2FEB51322345442300FF8878 /* Sources */,
 				2FEB51332345442300FF8878 /* Frameworks */,
@@ -131,9 +131,9 @@
 			);
 			dependencies = (
 			);
-			name = merlin32;
+			name = Merlin32;
 			productName = merlin32;
-			productReference = 2FEB51362345442300FF8878 /* merlin32 */;
+			productReference = 2FEB51362345442300FF8878 /* Merlin32 */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -150,7 +150,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2FEB51312345442300FF8878 /* Build configuration list for PBXProject "merlin32" */;
+			buildConfigurationList = 2FEB51312345442300FF8878 /* Build configuration list for PBXProject "Merlin32" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -162,7 +162,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2FEB51352345442300FF8878 /* merlin32 */,
+				2FEB51352345442300FF8878 /* Merlin32 */,
 			);
 		};
 /* End PBXProject section */
@@ -218,6 +218,7 @@
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -237,8 +238,13 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -284,6 +290,7 @@
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -297,8 +304,13 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -333,7 +345,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2FEB51312345442300FF8878 /* Build configuration list for PBXProject "merlin32" */ = {
+		2FEB51312345442300FF8878 /* Build configuration list for PBXProject "Merlin32" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2FEB513B2345442300FF8878 /* Debug */,
@@ -342,7 +354,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2FEB513D2345442300FF8878 /* Build configuration list for PBXNativeTarget "merlin32" */ = {
+		2FEB513D2345442300FF8878 /* Build configuration list for PBXNativeTarget "Merlin32" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2FEB513E2345442300FF8878 /* Debug */,

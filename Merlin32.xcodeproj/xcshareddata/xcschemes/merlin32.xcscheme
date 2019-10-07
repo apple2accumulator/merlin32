@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2FEB51352345442300FF8878"
-               BuildableName = "merlin32"
-               BlueprintName = "merlin32"
-               ReferencedContainer = "container:merlin32.xcodeproj">
+               BuildableName = "Merlin32"
+               BlueprintName = "Merlin32"
+               ReferencedContainer = "container:Merlin32.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2FEB51352345442300FF8878"
-            BuildableName = "merlin32"
-            BlueprintName = "merlin32"
-            ReferencedContainer = "container:merlin32.xcodeproj">
+            BuildableName = "Merlin32"
+            BlueprintName = "Merlin32"
+            ReferencedContainer = "container:Merlin32.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2FEB51352345442300FF8878"
-            BuildableName = "merlin32"
-            BlueprintName = "merlin32"
-            ReferencedContainer = "container:merlin32.xcodeproj">
+            BuildableName = "Merlin32"
+            BlueprintName = "Merlin32"
+            ReferencedContainer = "container:Merlin32.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -85,9 +85,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2FEB51352345442300FF8878"
-            BuildableName = "merlin32"
-            BlueprintName = "merlin32"
-            ReferencedContainer = "container:merlin32.xcodeproj">
+            BuildableName = "Merlin32"
+            BlueprintName = "Merlin32"
+            ReferencedContainer = "container:Merlin32.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
