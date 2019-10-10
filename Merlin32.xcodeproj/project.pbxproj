@@ -33,6 +33,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2F154C40234FCA5200FA6368 /* error_output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = error_output.txt; sourceTree = "<group>"; };
+		2F154C41234FCA5200FA6368 /* main.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = main.s; sourceTree = "<group>"; };
+		2F154C44234FCA5200FA6368 /* linkscript.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = linkscript.s; sourceTree = "<group>"; };
+		2F154C45234FCA5200FA6368 /* _Output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = _Output.txt; sourceTree = "<group>"; };
 		2FEB51362345442300FF8878 /* Merlin32 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Merlin32; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FEB5142234544AA00FF8878 /* a65816_Cond.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Cond.c; sourceTree = "<group>"; };
 		2FEB5143234544AA00FF8878 /* a65816_Line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Line.c; sourceTree = "<group>"; };
@@ -69,10 +73,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2F154C3F234FCA5200FA6368 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				2F154C40234FCA5200FA6368 /* error_output.txt */,
+				2F154C41234FCA5200FA6368 /* main.s */,
+				2F154C44234FCA5200FA6368 /* linkscript.s */,
+				2F154C45234FCA5200FA6368 /* _Output.txt */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
 		2FEB512D2345442300FF8878 = {
 			isa = PBXGroup;
 			children = (
 				2FEB5141234544AA00FF8878 /* Source */,
+				2F154C3F234FCA5200FA6368 /* Test */,
 				2FEB51372345442300FF8878 /* Products */,
 			);
 			sourceTree = "<group>";
