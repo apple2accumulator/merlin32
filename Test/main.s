@@ -44,6 +44,8 @@ DOSWARM	=	$3D0		;exit to DOS prompt
 RSTVEC	=	$3F2		;reset vector
 DRVTRK	=	$478		;slot location, RWFTS
 
+TSTADDR	=	$1000		;absolute address for testing
+
 *==========================================================
 * QDecimal is a 32bit format:
 *
@@ -106,7 +108,25 @@ START
 
         lda _num1+qdFrac
         adc _num2+qdFrac
-        sta _rslt+qdFrac    ;Merlin32 bug (FIXED): can't use sta _rslt+qdFrac
+        sbc _num2+qdFrac
+        bit _num2+qdFrac
+        sta _rslt+qdFrac    ;(FIXED): can't use sta _rslt+qdFrac
+		stz _rslt+qdFrac
+
+		lda _rslt+qdFrac,x
+		adc _rslt+qdFrac,x
+		sbc _rslt+qdFrac,x
+		bit _rslt+qdFrac,x
+		sta _rslt+qdFrac,x
+		stz _rslt+qdFrac,x
+
+		lda _rslt+qdFrac,y
+		adc _rslt+qdFrac,y
+		sbc _rslt+qdFrac,y
+		sta _rslt+qdFrac,y
+
+		sta TSTADDR+_rslt+qdFrac
+		sta TSTADDR+_rslt+qdFrac,x
 
 		jmp DOSWARM
 
