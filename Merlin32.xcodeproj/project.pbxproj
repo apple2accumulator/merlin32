@@ -38,12 +38,10 @@
 		2FEB5143234544AA00FF8878 /* a65816_Line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Line.c; sourceTree = "<group>"; };
 		2FEB5144234544AA00FF8878 /* a65816_File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_File.h; sourceTree = "<group>"; };
 		2FEB5145234544AA00FF8878 /* a65816_Lup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Lup.c; sourceTree = "<group>"; };
-		2FEB5146234544AA00FF8878 /* linux_makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = linux_makefile; sourceTree = "<group>"; };
 		2FEB5147234544AA00FF8878 /* a65816_Code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_Code.h; sourceTree = "<group>"; };
 		2FEB5148234544AA00FF8878 /* a65816_Link.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Link.c; sourceTree = "<group>"; };
 		2FEB5149234544AA00FF8878 /* a65816_Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_Data.h; sourceTree = "<group>"; };
 		2FEB514A234544AA00FF8878 /* a65816_OMF.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_OMF.c; sourceTree = "<group>"; };
-		2FEB514B234544AA00FF8878 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		2FEB514C234544AA00FF8878 /* a65816_Macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_Macro.h; sourceTree = "<group>"; };
 		2FEB514D234544AA00FF8878 /* Dc_Library.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Dc_Library.c; sourceTree = "<group>"; };
 		2FEB514E234544AA00FF8878 /* a65816_Code.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Code.c; sourceTree = "<group>"; };
@@ -57,6 +55,7 @@
 		2FEB5156234544AA00FF8878 /* a65816_OMF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_OMF.h; sourceTree = "<group>"; };
 		2FEB5157234544AA00FF8878 /* a65816_Macro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Macro.c; sourceTree = "<group>"; };
 		2FEB5158234544AA00FF8878 /* Dc_Library.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dc_Library.h; sourceTree = "<group>"; };
+		2FEDEE9E234BE81C00CCD534 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,9 +108,8 @@
 				2FEB5156234544AA00FF8878 /* a65816_OMF.h */,
 				2FEB514D234544AA00FF8878 /* Dc_Library.c */,
 				2FEB5158234544AA00FF8878 /* Dc_Library.h */,
-				2FEB5146234544AA00FF8878 /* linux_makefile */,
 				2FEB5153234544AA00FF8878 /* Main.c */,
-				2FEB514B234544AA00FF8878 /* Makefile */,
+				2FEDEE9E234BE81C00CCD534 /* GNUmakefile */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -238,6 +236,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "MACRO_DIR=\\\"/usr/local/share/merlin32/asminc\\\"";
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -304,6 +303,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "MACRO_DIR=\\\"/usr/local/share/merlin32/asminc\\\"";
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

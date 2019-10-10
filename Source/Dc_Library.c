@@ -15,7 +15,8 @@
 #include <time.h>
 
 /** Platform dependent code **/
-#if defined(WIN32) || defined(WIN64)
+/* MSVC only defines _WIN32 */
+#if defined(_WIN32) || defined(WIN32) || defined(WIN64)
 /* Windows */
 #include <io.h>
 #include <windows.h>                    /* GetFileAttributes() SetFileAttributes() FILE_ATTRIBUTE_HIDDEN */
@@ -5401,16 +5402,78 @@ void mem_free_param(struct parameter *param)
 /**************************************************/
 void mem_free_table(int nb_item, char **table)
 {
-    int i;
-
     if(table == NULL)
         return;
 
-    for(i=0; i<nb_item; i++)
+    for(int i = 0; i < nb_item; i++)
+    {
         if(table[i] != NULL)
             free(table[i]);
+    }
+}
 
-    free(table);
+
+/************************************************************/
+/*  CopyString() :  Copy a string of characters             */
+/*  1. Do not overwrite the target buffer                   */
+/*  2. Guarantees zero termination of the target            */
+/*  3. Do not waste processor cycles filling in the rest    */
+/*     of the target with '\0' characters, as does strncpy. */
+/************************************************************/
+char *CopyString(char *target, char *source, size_t target_size)
+{
+    size_t count = 0;
+    
+    char *s = source;
+    char *t = target;
+    
+    while (*s != '\0' && count < target_size)
+    {
+        *t = *s;
+        s++;
+        t++;
+        count++;
+    }
+    *t = '\0';
+    return target;
+}
+
+
+/************************************************************************/
+/*  IsEmpty() :  Determines whether a character string is empty         */
+/************************************************************************/
+int IsEmpty(char *s)
+{
+    return s == NULL || s[0] == '\0';
+}
+
+
+/************************************************************************/
+/*  IsEmpty() :  Makes an empty character string                        */
+/************************************************************************/
+char *ClearString(char *s)
+{
+    s[0] = '\0';
+    return s;
+}
+
+
+/************************************************************************/
+/*  IsEmpty() :  Determine if the filename is for a directory           */
+/************************************************************************/
+int IsDirectory(char *name)
+{
+    int is_directory = 0;
+    
+#if defined(WIN32) || defined(WIN64)
+    if (GetFileAttributes(name) & FILE_ATTRIBUTE_DIRECTORY)
+    is_directory = 1;
+#else
+    struct stat file_info;
+    if (stat(name, &file_info) == 0)
+    is_directory = S_ISDIR(file_info.st_mode);
+#endif
+    return is_directory;
 }
 
 /***********************************************************************/

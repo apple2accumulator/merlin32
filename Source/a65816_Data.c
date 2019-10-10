@@ -1,6 +1,6 @@
 /***********************************************************************/
 /*                                                                     */
-/*  a65816_Code.c : Module for object code generation.                 */
+/*  a65816_Code.c : Module for generation of Data.                     */
 /*                                                                     */
 /***********************************************************************/
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
