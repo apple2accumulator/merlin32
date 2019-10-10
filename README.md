@@ -115,3 +115,8 @@ the original release.
 <code>$ merlin32 ~/git/merlin32/Library skynet.s</code><br>
 <code>$ merlin32 skynet.s</code>  (Will automatically use PREFIX/share/merlin32/asminc)
 
+Merlin32 Setup for Visual Studio:
+https://marketplace.visualstudio.com/items?itemName=OlivierGuinartMSFT.Merlin32LanguageService
+
+Merlin32 (and cc65) Setup for Xcode
+https://github.com/jeremysrand/Apple2BuildPipeline
