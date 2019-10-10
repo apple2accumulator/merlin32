@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "&quot;${PROJECT_DIR}/Test/linkscript.s&quot;"
+            argument = "-v &quot;${PROJECT_DIR}/Test/linkscript.s&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
