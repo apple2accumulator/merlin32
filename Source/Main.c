@@ -181,13 +181,13 @@ void ParseArguments(
             else
             	FailWithUsage(argv[i],"Too many source files");
         }
-
-        if(IsEmpty(macro_dir))
-        	CopyString(macro_dir,MACRO_DIR,STR_SIZE);
-
-        if(IsEmpty(source_file))
-        	FailWithUsage(NULL,"Missing source file parameter");
     }
+
+    if(IsEmpty(macro_dir))
+        CopyString(macro_dir,MACRO_DIR,STR_SIZE);
+
+    if(IsEmpty(source_file))
+        FailWithUsage(NULL,"Missing source file parameter");
 }
 
 
