@@ -4615,36 +4615,40 @@ int IsPageDirectAddressMode(int address_mode)
 }
 
 
-/*********************************************************/
-/*  IsDirectPageLabel() :  returns 1 if label is for DP. */
-/*********************************************************/
+/************************************************************/
+/*  isLabelForDirectPage() :  returns 1 if label is for DP. */
+/************************************************************/
 int isLabelForDirectPage(struct label *current_label, struct omf_segment *current_omfsegment)
 {
-    int64_t dum_address = 0;
-    int is_reloc = 0;
-    BYTE byte_count = 0, bit_shift = 0;
-    WORD offset_reference = 0;
-    DWORD address_long = 0;
-    struct external *current_external = NULL;
-    char buffer_error[1024] = "";
-
     if(current_label == NULL)
         return(0);
 
     /* Is this a label located in a DUM */
     if(current_label->line->is_dum == 1)
     {
+        int64_t dum_address = 0;
+        int is_reloc = 0;
+        BYTE byte_count = 0, bit_shift = 0;
+        WORD offset_reference = 0;
+        DWORD address_long = 0;
+        struct external *current_external = NULL;
+        char buffer_error[1024] = "";
+
         /* We try to evaluate the address of the DUM */
-        dum_address = EvalExpressionAsInteger(current_label->line->dum_line->operand_txt,&buffer_error[0],current_label->line->dum_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+        dum_address = EvalExpressionAsInteger(current_label->line->dum_line->operand_txt, &buffer_error[0], current_label->line->dum_line, 2, &is_reloc, &byte_count, &bit_shift, &offset_reference, &address_long, &current_external, current_omfsegment);
         if(strlen(buffer_error) == 0 && dum_address < 0x100)
             return(1);     /* can be */
         else
             return(0);     /* no */
     }
-    else if(current_omfsegment->is_relative == 1)
+    /* Not a DP label if we are in a relative segment or it's a label definition (based on DUM check above running first) */
+    else if(current_omfsegment->is_relative == 1 || current_label->line->label_txt[0])
         return(0);
 
-    /* Is the nearest ORG < 0x100 */
+    /* @TODO: Is the nearest ORG < 0x100 */
+
+    /* Need to check the value of the label, but that happens later */
+    /* Instead, we should add a var to the lind (and label?) struct that tracks the last ORG value we saw */
 
     /* can be */
     return(1);
@@ -4656,10 +4660,6 @@ int isLabelForDirectPage(struct label *current_label, struct omf_segment *curren
 int IsDirectPageLabel(char *label_name, struct omf_segment *current_omfsegment)
 {
     struct label *current_label;
-    struct source_file *first_file;
-
-    /* Source file */
-    my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
     /* Search for the Label */
     my_Memory(MEMORY_SEARCH_LABEL,label_name,&current_label,current_omfsegment);
