@@ -2636,9 +2636,9 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
 /***************************************************************************************************************/
 static int GetOperandNbByte(char *operand, struct source_line *current_line, int *is_address_rtn, char *buffer_error_rtn, struct omf_segment *current_omfsegment)
 {
-    int nb_address = 0, is_address = 1;
     int nb_element = 0, nb_max_byte = 0, nb_byte = 0, bit_mode = 0, value_format = 0, has_extra_hash = 0;
     int has_hash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_long_addr = 0, is_block_copy = 0;
+    int is_address = 1;
     char **tab_element = NULL;
     strcpy(buffer_error_rtn,"");
     
@@ -2730,13 +2730,11 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
             else if(IsLabel(&tab_element[i][has_extra_hash],&nb_byte,current_omfsegment))
             {
                 value_format = FORMAT_LABEL;
-                nb_address++;
             }
             /** External **/
             else if(IsExternal(&tab_element[i][has_extra_hash],&nb_byte,current_omfsegment))
             {
                 value_format = FORMAT_EXTERNAL;
-                nb_address++;
             }
             else
             {
@@ -2767,10 +2765,7 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
     mem_free_table(nb_element,tab_element);
     
     /* Is the Operand an address? (Labl1 + 1 is an address, (Label1-Label2) is a value, #toto is a value) */
-    if(nb_address > 0)
-        if(nb_address % 2 == 0)
-            is_address = 0;
-    if(has_dash == 1)
+    if(has_hash == 1)
         is_address = 0;
     
     /** 0 byte => Error **/
