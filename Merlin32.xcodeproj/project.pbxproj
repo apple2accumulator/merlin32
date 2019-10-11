@@ -37,6 +37,13 @@
 		2F154C41234FCA5200FA6368 /* main.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = main.s; sourceTree = "<group>"; };
 		2F154C44234FCA5200FA6368 /* linkscript.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = linkscript.s; sourceTree = "<group>"; };
 		2F154C45234FCA5200FA6368 /* _Output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = _Output.txt; sourceTree = "<group>"; };
+		2F154C472350012C00FA6368 /* addtopath.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = addtopath.bat; sourceTree = "<group>"; };
+		2F154C482350012C00FA6368 /* install */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
+		2F154C492350012C00FA6368 /* uninstall.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = uninstall.bat; sourceTree = "<group>"; };
+		2F154C4A2350012C00FA6368 /* install.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = install.bat; sourceTree = "<group>"; };
+		2F154C4B2350012C00FA6368 /* make-installer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "make-installer.js"; sourceTree = "<group>"; };
+		2F154C4C2350012C00FA6368 /* make-installer */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "make-installer"; sourceTree = "<group>"; };
+		2F154C4D2350012C00FA6368 /* config.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = config.sh; sourceTree = "<group>"; };
 		2FEB51362345442300FF8878 /* Merlin32 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Merlin32; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FEB5142234544AA00FF8878 /* a65816_Cond.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Cond.c; sourceTree = "<group>"; };
 		2FEB5143234544AA00FF8878 /* a65816_Line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Line.c; sourceTree = "<group>"; };
@@ -84,10 +91,25 @@
 			path = Test;
 			sourceTree = "<group>";
 		};
+		2F154C462350012C00FA6368 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				2F154C472350012C00FA6368 /* addtopath.bat */,
+				2F154C482350012C00FA6368 /* install */,
+				2F154C492350012C00FA6368 /* uninstall.bat */,
+				2F154C4A2350012C00FA6368 /* install.bat */,
+				2F154C4B2350012C00FA6368 /* make-installer.js */,
+				2F154C4C2350012C00FA6368 /* make-installer */,
+				2F154C4D2350012C00FA6368 /* config.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
 		2FEB512D2345442300FF8878 = {
 			isa = PBXGroup;
 			children = (
 				2FEB5141234544AA00FF8878 /* Source */,
+				2F154C462350012C00FA6368 /* Scripts */,
 				2F154C3F234FCA5200FA6368 /* Test */,
 				2FEB51372345442300FF8878 /* Products */,
 			);
