@@ -101,10 +101,9 @@ _CSW	ds  2
 		org $800
 
 START
-		jsr	HOME
-
-        jsr CROUT
-		jsr CROUT
+        sta TSTADDR+qdFrac
+        sta TSTADDR+_rslt+qdFrac
+        sta TSTADDR+_rslt+qdFrac,x
 
         lda _num1+qdFrac
         adc _num2+qdFrac
@@ -120,13 +119,10 @@ START
 		sta _rslt+qdFrac,x
 		stz _rslt+qdFrac,x
 
-		lda _rslt+qdFrac,y
+        lda _rslt+qdFrac,y	;these assemble to abs accesses: lda $00C0,y
 		adc _rslt+qdFrac,y
 		sbc _rslt+qdFrac,y
 		sta _rslt+qdFrac,y
-
-		sta TSTADDR+_rslt+qdFrac
-		sta TSTADDR+_rslt+qdFrac,x
 
 		jmp DOSWARM
 
