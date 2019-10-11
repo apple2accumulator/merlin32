@@ -239,14 +239,14 @@ struct source_file *LoadOneSourceFile(char *file_path, char *file_name, int file
             my_RaiseError(ERROR_RAISE,param->buffer_error);
         }
 
-        /* Si on tomber sur un END, on s'arrête là */
+        /* If we come across an END, stop */
         if(!my_stricmp(current_line->opcode_txt,"END"))
         {
             current_file->nb_line = i+1;
             break;
         }
 
-        /* On va repérer les Lines utilisant déjà un label ozunid_ */
+        /* We'll find the Lines already using an ozunid_ label */
         if(!my_strnicmp(current_line->label_txt,"ozunid_",strlen("ozunid_")))
             ProcessOZUNIDLine(current_line->label_txt);
 
