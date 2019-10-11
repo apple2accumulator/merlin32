@@ -145,6 +145,29 @@ START
 		sbc _rslt+qdFrac,y
 		sta _rslt+qdFrac,y
 
+; Label & branching tests
+GetKey	ldx  $C000
+		bpl  GetKey
+
+]loop
+        dex
+        bne ]loop
+
+		tya
+        and #1
+        beq :err
+
+        tya
+        and #1
+        bne	:good
+:err
+        lda #0
+:good
+		bne myQuit
+		nop
+        hex 2C		;bit
+        lda #1
+myQuit
 		jmp DOSWARM
 
 ]XCODEEND       ; Keep this at the end and put your code above this
