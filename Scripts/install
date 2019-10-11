@@ -18,10 +18,12 @@ fi
 
 TOP_SOURCE_DIST_DIR=`dirname "$BIN_DIR"`
 
-install -d "$INSTALL_BIN"
 echo Installing merlin32 to $INSTALL_BIN
+install -d "$INSTALL_BIN"
 install "$TOP_SOURCE_DIST_DIR"/Source/merlin32 "$INSTALL_BIN"
-install -d "$MACRO_INSTALL_DIR"
+ln -s "$INSTALL_BIN"/merlin32 "$INSTALL_BIN"/Merlin32
 echo Installing library files to $MACRO_INSTALL_DIR
+install -d "$MACRO_INSTALL_DIR"
 install "$TOP_SOURCE_DIST_DIR"/Library/* "$MACRO_INSTALL_DIR"
-
+rm -f "$INSTALL_BIN"/../lib/Merlin
+ln -s "$MACRO_INSTALL_DIR" "$INSTALL_BIN"/../lib/Merlin
