@@ -3347,7 +3347,7 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
 {
     int is_algebric = 0, first_value_is_negative = 0, nb_element = 0, is_error = 0, nb_open = 0, has_priority = 0, is_operator = 0, nb_item = 0;
     int64_t value = 0, value_expression = 0, value_variable = 0, value_binary = 0, value_decimal = 0, value_hexa = 0, value_ascii = 0, value_address = 0;
-    int j = 0, has_dash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_extra_dash = 0;
+    int j = 0, has_hash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_extra_hash = 0;
     char operator_c = 0;
     char *new_value_txt = NULL;
     char **tab_element = NULL;
@@ -3371,14 +3371,14 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
     /* Init */
 
     /** We will treat the # <> ^ | from the very beginning **/
-    has_dash = (cond_line->operand_txt[0] == '#') ? 1 : 0;
-    has_less = (cond_line->operand_txt[has_dash] == '<') ? 1 : 0;
-    has_more = (cond_line->operand_txt[has_dash] == '>') ? 1 : 0;
-    has_exp = (cond_line->operand_txt[has_dash] == '^') ? 1 : 0;
-    has_pipe = (cond_line->operand_txt[has_dash] == '|' || cond_line->operand_txt[has_dash] == '!') ? 1 : 0;
+    has_hash = (cond_line->operand_txt[0] == '#') ? 1 : 0;
+    has_less = (cond_line->operand_txt[has_hash] == '<') ? 1 : 0;
+    has_more = (cond_line->operand_txt[has_hash] == '>') ? 1 : 0;
+    has_exp = (cond_line->operand_txt[has_hash] == '^') ? 1 : 0;
+    has_pipe = (cond_line->operand_txt[has_hash] == '|' || cond_line->operand_txt[has_hash] == '!') ? 1 : 0;
 
     /** If there is no operator (<=> # + - / * &. ^), Delete the {} **/
-    for(int i=(has_dash+has_less+has_more+has_exp+has_pipe); i<(int)strlen(cond_line->operand_txt); i++)
+    for(int i=(has_hash+has_less+has_more+has_exp+has_pipe); i<(int)strlen(cond_line->operand_txt); i++)
     {
         if(cond_line->operand_txt[i] == '=' || /* cond_line->operand_txt[i] == '<' || cond_line->operand_txt[i] == '>' || cond_line->operand_txt[i] == '#' ||    A REFAIRE */
            cond_line->operand_txt[i] == '+' || cond_line->operand_txt[i] == '-' || cond_line->operand_txt[i] == '/' || cond_line->operand_txt[i] == '*' ||
@@ -3401,14 +3401,14 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
         strcpy(expression,cond_line->operand_txt);
 
     /** We will treat the # <> ^ | **/
-    has_dash = (expression[0] == '#') ? 1 : 0;
-    has_less = (expression[has_dash] == '<') ? 1 : 0;
-    has_more = (expression[has_dash] == '>') ? 1 : 0;
-    has_exp = (expression[has_dash] == '^') ? 1 : 0;
-    has_pipe = (expression[has_dash] == '|' || expression[has_dash] == '!') ? 1 : 0;
+    has_hash = (expression[0] == '#') ? 1 : 0;
+    has_less = (expression[has_hash] == '<') ? 1 : 0;
+    has_more = (expression[has_hash] == '>') ? 1 : 0;
+    has_exp = (expression[has_hash] == '^') ? 1 : 0;
+    has_pipe = (expression[has_hash] == '|' || expression[has_hash] == '!') ? 1 : 0;
 
     /** Cut the string of characters into several elements (skips the #> <^ | from the beginning) **/
-    tab_element = DecodeOperandeAsElementTable(&expression[has_dash+has_less+has_more+has_exp+has_pipe],&nb_element,SEPARATOR_EVALUATE_EXPRESSION,cond_line);
+    tab_element = DecodeOperandeAsElementTable(&expression[has_hash+has_less+has_more+has_exp+has_pipe],&nb_element,SEPARATOR_EVALUATE_EXPRESSION,cond_line);
     if(tab_element == NULL)
     {
         sprintf(buffer_error,"Impossible to decode Operand '%s' as element table",expression);
@@ -3430,15 +3430,15 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
         if(!(strlen(tab_element[i]) == 1 && IsSeparator(tab_element[i][0],SEPARATOR_EVALUATE_EXPRESSION)))     /* The * = current address is going to be considered as a separator */
         {
             /* If one or more # are at the beginning of the value, it is removed */
-            has_extra_dash = 0;
-            while(tab_element[i][has_extra_dash] == '#')
-                has_extra_dash++;
+            has_extra_hash = 0;
+            while(tab_element[i][has_extra_hash] == '#')
+                has_extra_hash++;
 
             /*** Evaluate each value ***/
-            if(tab_element[i][has_extra_dash] == '\'' || tab_element[i][has_extra_dash] == '"')
+            if(tab_element[i][has_extra_hash] == '\'' || tab_element[i][has_extra_hash] == '"')
             {
                 /** We will replace the "Ascii" ("A" or "AA") **/
-                value_ascii = GetAsciiValue(&tab_element[i][has_extra_dash]);
+                value_ascii = GetAsciiValue(&tab_element[i][has_extra_hash]);
                 if(value_ascii == -1)
                 {
                     sprintf(buffer_error,"'%s' can't be translated as an ascii expression",tab_element[i]);
@@ -3458,10 +3458,10 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
                 free(tab_element[i]);
                 tab_element[i] = new_value_txt;
             }
-            else if(tab_element[i][has_extra_dash] == '%')
+            else if(tab_element[i][has_extra_hash] == '%')
             {
                 /** We will replace the % Binary **/
-                value_binary = GetBinaryValue(&tab_element[i][1+has_extra_dash]);
+                value_binary = GetBinaryValue(&tab_element[i][1+has_extra_hash]);
                 if(value_binary == -1)
                 {
                     sprintf(buffer_error,"'%s' can't be translated as a binary expression",tab_element[i]);
@@ -3481,10 +3481,10 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
                 free(tab_element[i]);
                 tab_element[i] = new_value_txt;
             }
-            else if(tab_element[i][has_extra_dash] == '$')
+            else if(tab_element[i][has_extra_hash] == '$')
             {
                 /** We will replace the $ Hex **/
-                value_hexa = GetHexaValue(&tab_element[i][1+has_extra_dash]);
+                value_hexa = GetHexaValue(&tab_element[i][1+has_extra_hash]);
                 if(value_hexa == -1)
                 {
                     sprintf(buffer_error,"'%s' can't be translated as a hexadecimal expression",tab_element[i]);
@@ -3530,7 +3530,7 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
             else
             {
                 /** We think to detect a Label or an EQU **/
-                value_address = GetQuickValue(&tab_element[i][has_extra_dash],cond_line,&is_error,current_omfsegment);
+                value_address = GetQuickValue(&tab_element[i][has_extra_hash],cond_line,&is_error,current_omfsegment);
                 if(is_error == 0)
                 {
                     /* We can replace the expression */
@@ -3548,7 +3548,7 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
                 else
                 {
                     /** We could be a numerical constant **/
-                    value_decimal = GetDecimalValue(&tab_element[i][has_extra_dash],&is_error);
+                    value_decimal = GetDecimalValue(&tab_element[i][has_extra_hash],&is_error);
                     if(is_error == 0)
                     {
                         /* We can replace the expression */
@@ -3877,8 +3877,8 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     int has_priority = 0, nb_open = 0, is_algebric = 0;
     int64_t value = 0, value_expression = 0, value_variable = 0, value_binary = 0, value_decimal = 0, value_hexa = 0, value_ascii = 0, value_address = 0;
     char *new_value_txt = NULL;
-    int nb_element = 0, is_operator = 0, first_value_is_negative = 0, nb_address = 0, has_extra_dash = 0, nb_item = 0, is_pea_opcode = 0, is_mvn_opcode = 0, is_error = 0, is_dum_label = 0, is_fix_label = 0;
-    int has_dash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0;
+    int nb_element = 0, is_operator = 0, first_value_is_negative = 0, nb_address = 0, has_extra_hash = 0, nb_item = 0, is_pea_opcode = 0, is_mvn_opcode = 0, is_error = 0, is_dum_label = 0, is_fix_label = 0;
+    int has_hash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0;
     char expression[1024];
     struct external *current_external = NULL;
     struct external *has_external = NULL;
@@ -3894,14 +3894,14 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     is_mvn_opcode = (!my_stricmp(current_line->opcode_txt,"MVN") || !my_stricmp(current_line->opcode_txt,"MVP"));
 
     /** We will treat the # <> ^ | from the very beginning **/
-    has_dash = (expression_param[0] == '#') ? 1 : 0;
-    has_less = (expression_param[has_dash] == '<') ? 1 : 0;
-    has_more = (expression_param[has_dash] == '>') ? 1 : 0;
-    has_exp = (expression_param[has_dash] == '^') ? 1 : 0;
-    has_pipe = (expression_param[has_dash] == '|' || expression_param[has_dash] == '!') ? 1 : 0;
+    has_hash = (expression_param[0] == '#') ? 1 : 0;
+    has_less = (expression_param[has_hash] == '<') ? 1 : 0;
+    has_more = (expression_param[has_hash] == '>') ? 1 : 0;
+    has_exp = (expression_param[has_hash] == '^') ? 1 : 0;
+    has_pipe = (expression_param[has_hash] == '|' || expression_param[has_hash] == '!') ? 1 : 0;
 
     /** If there is no operator (<=> # + - / * &. ^), Delete the {} **/
-    for(int i=(has_dash+has_less+has_more+has_exp+has_pipe); i<(int)strlen(expression_param); i++)
+    for(int i=(has_hash+has_less+has_more+has_exp+has_pipe); i<(int)strlen(expression_param); i++)
         if(expression_param[i] == '=' || /* expression_param[i] == '<' || expression_param[i] == '>' || expression_param[i] == '#' ||    A REFAIRE */
            expression_param[i] == '+' || expression_param[i] == '-' || expression_param[i] == '/' || expression_param[i] == '*' ||
            expression_param[i] == '.' || expression_param[i] == '&' || expression_param[i] == '^')
@@ -3921,14 +3921,14 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
         strcpy(expression,expression_param);
 
     /** Process the # <> ^ | **/
-    has_dash = (expression[0] == '#') ? 1 : 0;
-    has_less = (expression[has_dash] == '<') ? 1 : 0;
-    has_more = (expression[has_dash] == '>') ? 1 : 0;
-    has_exp = (expression[has_dash] == '^') ? 1 : 0;
-    has_pipe = (expression[has_dash] == '|' || expression[has_dash] == '!') ? 1 : 0;
+    has_hash = (expression[0] == '#') ? 1 : 0;
+    has_less = (expression[has_hash] == '<') ? 1 : 0;
+    has_more = (expression[has_hash] == '>') ? 1 : 0;
+    has_exp = (expression[has_hash] == '^') ? 1 : 0;
+    has_pipe = (expression[has_hash] == '|' || expression[has_hash] == '!') ? 1 : 0;
 
     /** Cut the string of characters into several elements (skips the #> <^ | from the beginning) **/
-    tab_element = DecodeOperandeAsElementTable(&expression[has_dash+has_less+has_more+has_exp+has_pipe],&nb_element,SEPARATOR_EVALUATE_EXPRESSION,current_line);
+    tab_element = DecodeOperandeAsElementTable(&expression[has_hash+has_less+has_more+has_exp+has_pipe],&nb_element,SEPARATOR_EVALUATE_EXPRESSION,current_line);
     if(tab_element == NULL)
     {
         sprintf(buffer_error_rtn,"Impossible to decode Operand '%s' as element table",expression);
@@ -4003,15 +4003,15 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
         if(!(strlen(tab_element[i]) == 1 && IsSeparator(tab_element[i][0],SEPARATOR_EVALUATE_EXPRESSION)))     /* The * = current address is going to be considered as a separator */
         {
             /* If one or more # are at the beginning of the value, it is removed */
-            has_extra_dash = 0;
-            while(tab_element[i][has_extra_dash] == '#')
-                has_extra_dash++;
+            has_extra_hash = 0;
+            while(tab_element[i][has_extra_hash] == '#')
+                has_extra_hash++;
 
             /*** Evaluate each value ***/
-            if(tab_element[i][has_extra_dash] == '\'' || tab_element[i][has_extra_dash] == '"')
+            if(tab_element[i][has_extra_hash] == '\'' || tab_element[i][has_extra_hash] == '"')
             {
                 /** We will replace the "Ascii" ("A" or "AA") **/
-                value_ascii = GetAsciiValue(&tab_element[i][has_extra_dash]);
+                value_ascii = GetAsciiValue(&tab_element[i][has_extra_hash]);
                 if(value_ascii == -1)
                 {
                     sprintf(buffer_error_rtn,"'%s' can't be translated as an ascii expression",tab_element[i]);
@@ -4030,10 +4030,10 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                 free(tab_element[i]);
                 tab_element[i] = new_value_txt;
             }
-            else if(tab_element[i][has_extra_dash] == '%')
+            else if(tab_element[i][has_extra_hash] == '%')
             {
                 /** We will replace the % Binary **/
-                value_binary = GetBinaryValue(&tab_element[i][1+has_extra_dash]);
+                value_binary = GetBinaryValue(&tab_element[i][1+has_extra_hash]);
                 if(value_binary == -1)
                 {
                     sprintf(buffer_error_rtn,"'%s' can't be translated as a binary expression",tab_element[i]);
@@ -4052,10 +4052,10 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                 free(tab_element[i]);
                 tab_element[i] = new_value_txt;
             }
-            else if(tab_element[i][has_extra_dash] == '$')
+            else if(tab_element[i][has_extra_hash] == '$')
             {
                 /** We will replace the $ Hex **/
-                value_hexa = GetHexaValue(&tab_element[i][1+has_extra_dash]);
+                value_hexa = GetHexaValue(&tab_element[i][1+has_extra_hash]);
                 if(value_hexa == -1)
                 {
                     sprintf(buffer_error_rtn,"'%s' can't be translated as a hexadecimal expression",tab_element[i]);
@@ -4077,11 +4077,11 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
             else
             {
                 /** Do we detect a Label (External or Internal to the Segment) **/
-                value_address = GetAddressValue(&tab_element[i][has_extra_dash],current_line->address,&has_external,&is_dum_label,&is_fix_label,current_omfsegment);
+                value_address = GetAddressValue(&tab_element[i][has_extra_hash],current_line->address,&has_external,&is_dum_label,&is_fix_label,current_omfsegment);
                 if(value_address == -2)
                 {
                     /* The address is not ready */
-                    sprintf(buffer_error_rtn,"Address of label '%s' is unknown at this time",&tab_element[i][has_extra_dash]);
+                    sprintf(buffer_error_rtn,"Address of label '%s' is unknown at this time",&tab_element[i][has_extra_hash]);
                     mem_free_table(nb_element,tab_element);
                     return(0xFFFF);
                 }
@@ -4119,7 +4119,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                         if(nb_address > 1)
                         {
                             /* Error: Using External Label imposes some constraints in the expressions */
-                            sprintf(buffer_error_rtn,"You can't mix an External label (%s) with an Internal label (%s) the same expression",has_external->name,&tab_element[i][has_extra_dash]);
+                            sprintf(buffer_error_rtn,"You can't mix an External label (%s) with an Internal label (%s) the same expression",has_external->name,&tab_element[i][has_extra_hash]);
                             mem_free_table(nb_element,tab_element);
                             return(0);
                         }
@@ -4130,7 +4130,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                         if(current_external != NULL)
                         {
                             /* Error: Using External Label imposes some constraints in the expressions */
-                            sprintf(buffer_error_rtn,"You can't mix an Internal label (%s) with an External label (%s) the same expression",&tab_element[i][has_extra_dash],current_external->name);
+                            sprintf(buffer_error_rtn,"You can't mix an Internal label (%s) with an External label (%s) the same expression",&tab_element[i][has_extra_hash],current_external->name);
                             mem_free_table(nb_element,tab_element);
                             return(0);
                         }
@@ -4139,7 +4139,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                 else
                 {
                     /** We could be a numerical constant **/
-                    value_decimal = GetDecimalValue(&tab_element[i][has_extra_dash],&is_error);
+                    value_decimal = GetDecimalValue(&tab_element[i][has_extra_hash],&is_error);
                     if(is_error == 0)
                     {
                         /* We can replace the expression */
@@ -4311,7 +4311,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
         if(current_line->type == LINE_CODE)
         {
             /* Number of Bytes to Relocate */
-            if((has_dash == 1 || is_pea_opcode == 1) && has_exp == 1)          /* # ^ = 1 or 2 Byte relocate */
+            if((has_hash == 1 || is_pea_opcode == 1) && has_exp == 1)          /* # ^ = 1 or 2 Byte relocate */
             {
                 /* For an External Label, relocate 2 bytes */
                 if(*external_rtn != NULL)
@@ -4328,9 +4328,9 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                 *byte_count_rtn = (BYTE)operand_size;
 
             /* Bit Shift Count */
-            if((has_dash == 1 || is_pea_opcode == 1) && has_more == 1)
+            if((has_hash == 1 || is_pea_opcode == 1) && has_more == 1)
                 *bit_shift_rtn = 0xF8;                   /* >> 8 */
-            else if(((has_dash == 1 || is_pea_opcode == 1) && has_exp == 1) || is_mvn_opcode == 1)
+            else if(((has_hash == 1 || is_pea_opcode == 1) && has_exp == 1) || is_mvn_opcode == 1)
                 *bit_shift_rtn = 0xF0;                   /* >> 16 */
             else
                 *bit_shift_rtn = 0x00;
@@ -4369,9 +4369,9 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
         *expression_address_rtn = (0x00FFFFFF & value_expression);   /* Adresse Longue 24 bit : Bank/HighLow */
     
     /** We modify the value returned according to the Prefix #><^| **/
-    if((has_dash == 1 || is_pea_opcode == 1 || current_line->type == LINE_DATA) && has_more == 1)
+    if((has_hash == 1 || is_pea_opcode == 1 || current_line->type == LINE_DATA) && has_more == 1)
         value_expression = value_expression >> 8;
-    else if((has_dash == 1 || is_pea_opcode == 1 || current_line->type == LINE_DATA) && has_exp == 1)
+    else if((has_hash == 1 || is_pea_opcode == 1 || current_line->type == LINE_DATA) && has_exp == 1)
         value_expression = value_expression >> 16;
 
     /* Returns the expression */
