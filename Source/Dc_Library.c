@@ -2472,7 +2472,10 @@ int IsLabel(char *name, int *nb_byte_rtn, struct omf_segment *current_omfsegment
     my_Memory(MEMORY_SEARCH_LABEL,name,&current_label,current_omfsegment);
     if(current_label != NULL)
     {
-        *nb_byte_rtn = 2;
+        if( isLabelForDirectPage(current_label, current_omfsegment) )
+        	*nb_byte_rtn = 1;
+        else
+        	*nb_byte_rtn = 2;
         return(1);
     }
 
@@ -3794,7 +3797,7 @@ int64_t GetQuickValue(char *name, struct source_line *cond_line, int *is_error_r
     /* Memory release */
     free(tab_line);
 
-    /* On a Not found */
+    /* Named element not found */
     *is_error_rtn = 1;
     return(-1);
 }

@@ -103,16 +103,16 @@ _CSW	ds  2
 START
 ; PUT current issue here, so it's the first thing assembled. The rest below are unit tests to make sure future changes don't break existing code!
 
-		adc    (_tmp,x)
-
 ;adc (ZP,x)
 		adc (0,x)
         adc ($80,x)
         adc	(_tmp,x)
         adc	(_tmp+0,x)
         adc	(_tmp+$10,x)
+        adc	($10+_tmp,x)
         adc	(_tmp+qdFrac,x)
         adc	(_tmp+qdIntL,x)
+        adc	(_tmp+qdIntL+1,x)
         adc	(_tmp+qdFrac+qdIntL,x)
 
         adc 0
