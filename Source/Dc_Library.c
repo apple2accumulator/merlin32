@@ -2620,7 +2620,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
     int nb_element = 1;
     char **tab_element = NULL;
 
-    /** Determine the number of items (expects wide) **/
+    /** Determine the number of items (calcs max possible) **/
     for(int i = 0; i < opLen; i++)
     {
         if(string[i] == '\'' || string[i] == '"' || string[i] == '[' || string[i] == ']' ||
@@ -2780,7 +2780,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                     continue;
                 }
 
-                /* Case 2: <and> have a # just before (#> LABEL or # <LABEL) */
+                /* Case 2: < and > have a # just before (#>LABEL or #<LABEL) */
                 if((string[i] == '<' || string[i] == '>') && bufIdx == 1 && buffer[0] == '#')
                 {
                     /* We include the <> as the 2nd letter of the current value */
@@ -3350,7 +3350,7 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
 {
     int is_algebric = 0, first_value_is_negative = 0, nb_element = 0, is_error = 0, nb_open = 0, has_priority = 0, is_operator = 0, nb_item = 0;
     int64_t value = 0, value_expression = 0, value_variable = 0, value_binary = 0, value_decimal = 0, value_hexa = 0, value_ascii = 0, value_address = 0;
-    int j = 0, has_hash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_extra_hash = 0;
+    int has_extra_hash = 0;
     char operator_c = 0;
     char *new_value_txt = NULL;
     char **tab_element = NULL;
@@ -3373,12 +3373,12 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
 
     /* Init */
 
-    /** We will treat the # <> ^ | from the very beginning **/
-    has_hash = (cond_line->operand_txt[0] == '#') ? 1 : 0;
-    has_less = (cond_line->operand_txt[has_hash] == '<') ? 1 : 0;
-    has_more = (cond_line->operand_txt[has_hash] == '>') ? 1 : 0;
-    has_exp = (cond_line->operand_txt[has_hash] == '^') ? 1 : 0;
-    has_pipe = (cond_line->operand_txt[has_hash] == '|' || cond_line->operand_txt[has_hash] == '!') ? 1 : 0;
+    /** We will treat the # < > ^ | from the very beginning **/
+    int has_hash = (cond_line->operand_txt[0] == '#') ? 1 : 0;
+    int has_less = (cond_line->operand_txt[has_hash] == '<') ? 1 : 0;
+    int has_more = (cond_line->operand_txt[has_hash] == '>') ? 1 : 0;
+    int has_exp = (cond_line->operand_txt[has_hash] == '^') ? 1 : 0;
+    int has_pipe = (cond_line->operand_txt[has_hash] == '|' || cond_line->operand_txt[has_hash] == '!') ? 1 : 0;
 
     /** If there is no operator (<=> # + - / * &. ^), Delete the {} **/
     for(int i=(has_hash+has_less+has_more+has_exp+has_pipe); i<(int)strlen(cond_line->operand_txt); i++)
@@ -3393,17 +3393,18 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
     }
     if(is_algebric == 0)
     {
-        for(int i=0; i<(int)strlen(cond_line->operand_txt); i++)
+        int expIdx = 0;
+        for(int i = 0; i < (int)strlen(cond_line->operand_txt); i++)
         {
             if(cond_line->operand_txt[i] != '{' && cond_line->operand_txt[i] != '}')
-                expression[j++] = cond_line->operand_txt[i];
+                expression[expIdx++] = cond_line->operand_txt[i];
         }
-        expression[j] = '\0';
+        expression[expIdx] = '\0';
     }
     else
         strcpy(expression,cond_line->operand_txt);
 
-    /** We will treat the # <> ^ | **/
+    /** We will treat the # < > ^ | **/
     has_hash = (expression[0] == '#') ? 1 : 0;
     has_less = (expression[has_hash] == '<') ? 1 : 0;
     has_more = (expression[has_hash] == '>') ? 1 : 0;
@@ -3586,8 +3587,8 @@ int QuickConditionEvaluate(struct source_line *cond_line, int64_t *value_express
 
         /* We can remove the - */
         free(tab_element[0]);
-        for(j=1; j<nb_element; j++)
-            tab_element[j-1] = tab_element[j];
+        for(int i = 1; i < nb_element; i++)
+            tab_element[i-1] = tab_element[i];
         nb_element--;
     }
 
@@ -3881,7 +3882,6 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     int64_t value = 0, value_expression = 0, value_variable = 0, value_binary = 0, value_decimal = 0, value_hexa = 0, value_ascii = 0, value_address = 0;
     char *new_value_txt = NULL;
     int nb_element = 0, is_operator = 0, first_value_is_negative = 0, nb_address = 0, has_extra_hash = 0, nb_item = 0, is_pea_opcode = 0, is_mvn_opcode = 0, is_error = 0, is_dum_label = 0, is_fix_label = 0;
-    int has_hash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0;
     char expression[1024];
     struct external *current_external = NULL;
     struct external *has_external = NULL;
@@ -3896,12 +3896,12 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     is_pea_opcode = !my_stricmp(current_line->opcode_txt,"PEA");
     is_mvn_opcode = (!my_stricmp(current_line->opcode_txt,"MVN") || !my_stricmp(current_line->opcode_txt,"MVP"));
 
-    /** We will treat the # <> ^ | from the very beginning **/
-    has_hash = (expression_param[0] == '#') ? 1 : 0;
-    has_less = (expression_param[has_hash] == '<') ? 1 : 0;
-    has_more = (expression_param[has_hash] == '>') ? 1 : 0;
-    has_exp = (expression_param[has_hash] == '^') ? 1 : 0;
-    has_pipe = (expression_param[has_hash] == '|' || expression_param[has_hash] == '!') ? 1 : 0;
+    /** We will treat the # < > ^ | from the very beginning **/
+    int has_hash = (expression_param[0] == '#') ? 1 : 0;
+    int has_less = (expression_param[has_hash] == '<') ? 1 : 0;
+    int has_more = (expression_param[has_hash] == '>') ? 1 : 0;
+    int has_exp = (expression_param[has_hash] == '^') ? 1 : 0;
+    int has_pipe = (expression_param[has_hash] == '|' || expression_param[has_hash] == '!') ? 1 : 0;
 
     /** If there is no operator (<=> # + - / * &. ^), Delete the {} **/
     for(int i=(has_hash+has_less+has_more+has_exp+has_pipe); i<(int)strlen(expression_param); i++)
@@ -3923,7 +3923,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     else
         strcpy(expression,expression_param);
 
-    /** Process the # <> ^ | **/
+    /** Process the # < > ^ | **/
     has_hash = (expression[0] == '#') ? 1 : 0;
     has_less = (expression[has_hash] == '<') ? 1 : 0;
     has_more = (expression[has_hash] == '>') ? 1 : 0;
@@ -4328,8 +4328,10 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                     *byte_count_rtn = 1;      /* For an internal label, relocate 1 byte */
             }
             else
+            {
                 *byte_count_rtn = (BYTE)operand_size;
-
+            }
+            
             /* Bit Shift Count */
             if((has_hash == 1 || is_pea_opcode == 1) && has_more == 1)
                 *bit_shift_rtn = 0xF8;                   /* >> 8 */
