@@ -165,8 +165,8 @@ struct parameter
 #define MIN(a,b)  ((a)>(b) ? (b) : (a))
 
 #define IS_DOLLAR      1    /* $ */
-#define IS_DASH        2    /* # */
-#define IS_POURCENT    3    /* % */
+#define IS_HASH        2    /* # */
+#define IS_PERCENT     3    /* % */
 
 #define IS_VALUE       1
 #define IS_CONSTANT    2    /* ( ) [ ] $ # % ,X ,Y ,S + - */
@@ -204,6 +204,7 @@ struct omf_project;
 struct omf_segment;
 struct source_line;
 struct external;
+struct label;
 
 void my_RaiseError(int,void *);
 void my_Memory(int,void *,void *,struct omf_segment *);
@@ -272,5 +273,10 @@ void mem_free_param(struct parameter *);
 void mem_free_item(struct item *);
 void mem_free_item_list(struct item *);
 void mem_free_table(int, char**);
+
+extern char *CopyString(char *target,char *source,size_t target_size);
+extern int IsEmpty(char *s);
+extern char *ClearString(char *s);
+extern int IsDirectory(char *name);
 
 /***********************************************************************/

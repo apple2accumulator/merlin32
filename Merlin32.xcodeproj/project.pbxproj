@@ -33,17 +33,27 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2F154C40234FCA5200FA6368 /* error_output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = error_output.txt; sourceTree = "<group>"; };
+		2F154C41234FCA5200FA6368 /* main.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = main.s; sourceTree = "<group>"; };
+		2F154C44234FCA5200FA6368 /* linkscript.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = linkscript.s; sourceTree = "<group>"; };
+		2F154C45234FCA5200FA6368 /* _Output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = _Output.txt; sourceTree = "<group>"; };
+		2F154C472350012C00FA6368 /* addtopath.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = addtopath.bat; sourceTree = "<group>"; };
+		2F154C482350012C00FA6368 /* install */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
+		2F154C492350012C00FA6368 /* uninstall.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = uninstall.bat; sourceTree = "<group>"; };
+		2F154C4A2350012C00FA6368 /* install.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = install.bat; sourceTree = "<group>"; };
+		2F154C4B2350012C00FA6368 /* make-installer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "make-installer.js"; sourceTree = "<group>"; };
+		2F154C4C2350012C00FA6368 /* make-installer */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "make-installer"; sourceTree = "<group>"; };
+		2F154C4D2350012C00FA6368 /* config.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = config.sh; sourceTree = "<group>"; };
+		2F154C4E2350FD2600FA6368 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		2FEB51362345442300FF8878 /* Merlin32 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Merlin32; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FEB5142234544AA00FF8878 /* a65816_Cond.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Cond.c; sourceTree = "<group>"; };
 		2FEB5143234544AA00FF8878 /* a65816_Line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Line.c; sourceTree = "<group>"; };
 		2FEB5144234544AA00FF8878 /* a65816_File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_File.h; sourceTree = "<group>"; };
 		2FEB5145234544AA00FF8878 /* a65816_Lup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Lup.c; sourceTree = "<group>"; };
-		2FEB5146234544AA00FF8878 /* linux_makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = linux_makefile; sourceTree = "<group>"; };
 		2FEB5147234544AA00FF8878 /* a65816_Code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_Code.h; sourceTree = "<group>"; };
 		2FEB5148234544AA00FF8878 /* a65816_Link.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Link.c; sourceTree = "<group>"; };
 		2FEB5149234544AA00FF8878 /* a65816_Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_Data.h; sourceTree = "<group>"; };
 		2FEB514A234544AA00FF8878 /* a65816_OMF.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_OMF.c; sourceTree = "<group>"; };
-		2FEB514B234544AA00FF8878 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		2FEB514C234544AA00FF8878 /* a65816_Macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_Macro.h; sourceTree = "<group>"; };
 		2FEB514D234544AA00FF8878 /* Dc_Library.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Dc_Library.c; sourceTree = "<group>"; };
 		2FEB514E234544AA00FF8878 /* a65816_Code.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Code.c; sourceTree = "<group>"; };
@@ -57,6 +67,7 @@
 		2FEB5156234544AA00FF8878 /* a65816_OMF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a65816_OMF.h; sourceTree = "<group>"; };
 		2FEB5157234544AA00FF8878 /* a65816_Macro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Macro.c; sourceTree = "<group>"; };
 		2FEB5158234544AA00FF8878 /* Dc_Library.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dc_Library.h; sourceTree = "<group>"; };
+		2FEDEE9E234BE81C00CCD534 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,10 +81,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2F154C3F234FCA5200FA6368 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				2F154C40234FCA5200FA6368 /* error_output.txt */,
+				2F154C41234FCA5200FA6368 /* main.s */,
+				2F154C44234FCA5200FA6368 /* linkscript.s */,
+				2F154C45234FCA5200FA6368 /* _Output.txt */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
+		2F154C462350012C00FA6368 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				2F154C472350012C00FA6368 /* addtopath.bat */,
+				2F154C482350012C00FA6368 /* install */,
+				2F154C492350012C00FA6368 /* uninstall.bat */,
+				2F154C4A2350012C00FA6368 /* install.bat */,
+				2F154C4B2350012C00FA6368 /* make-installer.js */,
+				2F154C4C2350012C00FA6368 /* make-installer */,
+				2F154C4D2350012C00FA6368 /* config.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
 		2FEB512D2345442300FF8878 = {
 			isa = PBXGroup;
 			children = (
 				2FEB5141234544AA00FF8878 /* Source */,
+				2F154C462350012C00FA6368 /* Scripts */,
+				2F154C3F234FCA5200FA6368 /* Test */,
 				2FEB51372345442300FF8878 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,9 +147,9 @@
 				2FEB5156234544AA00FF8878 /* a65816_OMF.h */,
 				2FEB514D234544AA00FF8878 /* Dc_Library.c */,
 				2FEB5158234544AA00FF8878 /* Dc_Library.h */,
-				2FEB5146234544AA00FF8878 /* linux_makefile */,
 				2FEB5153234544AA00FF8878 /* Main.c */,
-				2FEB514B234544AA00FF8878 /* Makefile */,
+				2FEDEE9E234BE81C00CCD534 /* GNUmakefile */,
+				2F154C4E2350FD2600FA6368 /* version.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -238,6 +276,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "MACRO_DIR=\\\"/usr/local/share/merlin32/asminc\\\"";
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -304,6 +343,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "MACRO_DIR=\\\"/usr/local/share/merlin32/asminc\\\"";
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

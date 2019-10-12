@@ -63,11 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-V /Users/lroathe/Work/Open\ Source/merline32/Library"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/lroathe/Work/Projects/A2Quicken/a2QknNumTest/Quicken/LinkScript.s"
+            argument = "-v &quot;${PROJECT_DIR}/Test/linkscript.s&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
