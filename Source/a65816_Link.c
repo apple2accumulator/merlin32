@@ -45,7 +45,7 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
 {
     int error = 0, is_link_file = 0, org_offset = 0;
     char file_name[1024] = "";
-    char file_error_path[1024];
+    char file_error_path[1024+16];
     struct source_file *master_file = NULL;
     struct omf_project *current_omfproject = NULL;
     struct omf_segment *current_omfsegment = NULL;
@@ -63,7 +63,7 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
         }
 
     /* File Error_Output.txt */
-    sprintf(file_error_path,"%serror_output.txt",param->current_folder_path);
+    snprintf(file_error_path, 1024+16,"%serror_output.txt",param->current_folder_path);
     unlink(file_error_path);
 
     /* Allocation of an OMF Temporary Segment */
