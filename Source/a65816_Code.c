@@ -2636,9 +2636,9 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
 /***************************************************************************************************************/
 static int GetOperandNbByte(char *operand, struct source_line *current_line, int *is_address_rtn, char *buffer_error_rtn, struct omf_segment *current_omfsegment)
 {
-    int nb_element = 0, nb_max_byte = 0, nb_byte = 0, bit_mode = 0, value_format = 0, has_extra_dash = 0;
-    int has_dash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_long_addr = 0, is_block_copy = 0;
-    int nb_address = 0, is_address = 1;
+    int nb_element = 0, nb_max_byte = 0, nb_byte = 0, bit_mode = 0, value_format = 0, has_extra_hash = 0;
+    int has_hash = 0, has_less = 0, has_more = 0, has_exp = 0, has_pipe = 0, has_long_addr = 0, is_block_copy = 0;
+    int is_address = 1;
     char **tab_element = NULL;
     strcpy(buffer_error_rtn,"");
     
@@ -2658,14 +2658,14 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
         is_block_copy = 1;
     
     /** Process the # <> ^ | **/
-    has_dash = (operand[0] == '#') ? 1 : 0;
-    has_less = (operand[has_dash] == '<') ? 1 : 0;
-    has_more = (operand[has_dash] == '>') ? 1 : 0;
-    has_exp = (operand[has_dash] == '^') ? 1 : 0;
-    has_pipe = (operand[has_dash] == '|' || operand[has_dash] == '!') ? 1 : 0;
+    has_hash = (operand[0] == '#') ? 1 : 0;
+    has_less = (operand[has_hash] == '<') ? 1 : 0;
+    has_more = (operand[has_hash] == '>') ? 1 : 0;
+    has_exp = (operand[has_hash] == '^') ? 1 : 0;
+    has_pipe = (operand[has_hash] == '|' || operand[has_hash] == '!') ? 1 : 0;
     
     /** Cut the string of characters into several elements (skips the #> <^ | from the beginning) **/
-    tab_element = DecodeOperandeAsElementTable(&operand[has_dash+has_less+has_more+has_exp+has_pipe],&nb_element,SEPARATOR_EVALUATE_EXPRESSION,current_line);
+    tab_element = DecodeOperandeAsElementTable(&operand[has_hash+has_less+has_more+has_exp+has_pipe],&nb_element,SEPARATOR_EVALUATE_EXPRESSION,current_line);
     if(tab_element == NULL)
     {
         sprintf(buffer_error_rtn,"Impossible to decode Operand '%s' as element table",operand);
@@ -2696,38 +2696,46 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
         /** Value **/
         if(i%2 == 0)
         {
-            /* On Delete # who can be present at the beginning */
-            has_extra_dash = 0;
-            while(tab_element[i][has_extra_dash] == '#')
-                has_extra_dash++;
+            /* On Delete # which can be present at the beginning of the line */
+            has_extra_hash = 0;
+            while(tab_element[i][has_extra_hash] == '#')
+                has_extra_hash++;
             
             /** Decimal **/
-            if(IsDecimal(&tab_element[i][has_extra_dash],&nb_byte))
+            if(IsDecimal(&tab_element[i][has_extra_hash],&nb_byte))
+            {
                 value_format = FORMAT_DECIMAL;
+            }
             /** $HEX **/
-            else if(IsHexaDecimal(&tab_element[i][has_extra_dash],&nb_byte))
+            else if(IsHexaDecimal(&tab_element[i][has_extra_hash],&nb_byte))
+            {
                 value_format = FORMAT_HEXA;
+            }
             /** %Binary **/
-            else if(IsBinary(&tab_element[i][has_extra_dash],&nb_byte))
+            else if(IsBinary(&tab_element[i][has_extra_hash],&nb_byte))
+            {
                 value_format = FORMAT_BINARY;
+            }
             /** "Ascii **/
-            else if(IsAscii(&tab_element[i][has_extra_dash],&nb_byte))
+            else if(IsAscii(&tab_element[i][has_extra_hash],&nb_byte))
+            {
                 value_format = FORMAT_ASCII;
+            }
             /**]Variable **/
-            else if(IsVariable(&tab_element[i][has_extra_dash],&nb_byte,current_omfsegment))
+            else if(IsVariable(&tab_element[i][has_extra_hash],&nb_byte,current_omfsegment))
+            {
                 value_format = FORMAT_VARIABLE;
+            }
             /** * or Label **/
-            else if(IsLabel(&tab_element[i][has_extra_dash],&nb_byte,current_omfsegment))
+            else if(IsLabel(&tab_element[i][has_extra_hash],&nb_byte,current_omfsegment))
             {
                 value_format = FORMAT_LABEL;
-                nb_address++;
             }
             /** External **/
-            else if(IsExternal(&tab_element[i][has_extra_dash],&nb_byte,current_omfsegment))
+            else if(IsExternal(&tab_element[i][has_extra_hash],&nb_byte,current_omfsegment))
             {
                 value_format = FORMAT_EXTERNAL;
-                nb_address++;
-            }          
+            }
             else
             {
                 /* Error : Impossible to determine the format */
@@ -2757,10 +2765,7 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
     mem_free_table(nb_element,tab_element);
     
     /* Is the Operand an address? (Labl1 + 1 is an address, (Label1-Label2) is a value, #toto is a value) */
-    if(nb_address > 0)
-        if(nb_address % 2 == 0)
-            is_address = 0;
-    if(has_dash == 1)
+    if(has_hash == 1)
         is_address = 0;
     
     /** 0 byte => Error **/

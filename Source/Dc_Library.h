@@ -165,8 +165,8 @@ struct parameter
 #define MIN(a,b)  ((a)>(b) ? (b) : (a))
 
 #define IS_DOLLAR      1    /* $ */
-#define IS_DASH        2    /* # */
-#define IS_POURCENT    3    /* % */
+#define IS_HASH        2    /* # */
+#define IS_PERCENT     3    /* % */
 
 #define IS_VALUE       1
 #define IS_CONSTANT    2    /* ( ) [ ] $ # % ,X ,Y ,S + - */
