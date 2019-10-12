@@ -81,6 +81,7 @@ START
 
 ; PUT current issue here, so it's the first thing assembled. The rest below are unit tests to make sure future changes don't break existing code!
 
+
 ;make sure zp values after ORG have right values
         lda _LFT
         ldx #_LFT
@@ -130,6 +131,30 @@ START
 		sbc _num1+dum0,y
 		sta _num1+dum0,y
 
+; Label & branching tests
+GetKey	ldx  $C000
+		bpl  GetKey
+]loop
+        dex
+        bne ]loop
+
+		tya
+        and #1
+        beq :err
+
+        tya
+        and #1
+        bne	:good
+:err
+        lda #0
+:good
+		bne myQuit
+		nop
+        hex 2C		;bit
+        lda #1
+myQuit
+		jmp DOSWARM
+
 ;Issue #16 (fadden)
         lda	<$fff0			;zp
         lda	>$fff0			;ABS (lo word)
@@ -158,29 +183,17 @@ START
         lda	$ffff-$fff7     ;ZP
         lda	$fff0+24        ;ABS (long in 65816 mode)
 
-; Label & branching tests
-GetKey	ldx  $C000
-		bpl  GetKey
+;Issue #8 fadden)
+        org	$00bc
 
-]loop
-        dex
-        bne ]loop
+L00BC   bit	L00BC
 
-		tya
-        and #1
-        beq :err
 
-        tya
-        and #1
-        bne	:good
-:err
-        lda #0
-:good
-		bne myQuit
-		nop
-        hex 2C		;bit
-        lda #1
-myQuit
-		jmp DOSWARM
+        org	$1000
+
+        stx	$bc,y
+
+        ldx	L00BC,y
+        stx	L00BC,y
 
 ]XCODEEND       ; Keep this at the end and put your code above this

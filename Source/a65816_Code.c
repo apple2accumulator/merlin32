@@ -1824,7 +1824,7 @@ static void BuildOneCodeLineOpcode(struct source_line *current_line, struct omf_
             current_line->opcode_byte = 0x86;
             current_line->address_mode = AM_DIRECT_PAGE;
         }
-        else if(address_mode == AM_DIRECT_PAGE_INDEXED_Y)
+        else if(address_mode == AM_DIRECT_PAGE_INDEXED_Y || address_mode == AM_ABSOLUTE_INDEXED_Y)
         {
             current_line->nb_byte = 2;
             current_line->opcode_byte = 0x96;
