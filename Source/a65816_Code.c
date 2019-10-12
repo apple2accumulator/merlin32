@@ -2193,10 +2193,22 @@ static void BuildOneCodeLineOperand(struct source_line *current_line, int *has_e
                     param->buffer_operand,current_line->opcode_txt,current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
             my_RaiseError(ERROR_RAISE,param->buffer_error);      
         }
-        
-        /* No direct page addressing if you have a Bank != 0 */
-        if((operand_value_64 & 0xFF0000) != 0 && current_line->no_direct_page == 0)
+
+        /* Want the high word of the value? */
+        if( current_line->operand_txt[0] == '^' )
+        {
+            operand_value_64 = (operand_value_64 >> 4);	/* move down so bank and page are all that we have left */
+        }
+        else if( current_line->operand_txt[0] == '<' )
+        {
+            /* force just low byte */
+            operand_value_64 = operand_value_64 & 0x0000FF;
+        }
+        else if( (operand_value_64 & 0xFF0000) != 0 )
+        {
+            /* no direct page addressing! */
             current_line->no_direct_page = 1;
+        }
     }
     
     /** We will modify the value according to the addressing mode **/
