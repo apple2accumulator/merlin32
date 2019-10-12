@@ -2581,7 +2581,7 @@ static int DecodeAddressMode(struct source_line *current_line, char *error_buffe
     next_char = strchr(operand,',');
     if(next_char != NULL)
     {
-        /* On supprime la , */
+        /* Remove the comma */
         *next_char = '\0';
         
         /* Check what is on each side of the , */
