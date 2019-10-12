@@ -101,6 +101,27 @@ _CSW	ds  2
 		org $800
 
 START
+; PUT current issue here, so it's the first thing assembled. The rest below are unit tests to make sure future changes don't break existing code!
+
+;adc (ZP,x)
+		adc (0,x)
+        adc ($80,x)
+        adc	(_tmp,x)
+        adc	(_tmp+0,x)
+        adc	(_tmp+$10,x)
+        adc	($10+_tmp,x)
+        adc	(_tmp+qdFrac,x)
+        adc	(_tmp+qdIntL,x)
+        adc	(_tmp+qdIntL+1,x)
+        adc	(_tmp+qdFrac+qdIntL,x)
+
+        adc 0
+        adc $80
+		adc _tmp
+        adc #0
+        adc #$1111
+        adc $1111
+
         sta TSTADDR+qdFrac
         sta TSTADDR+_rslt+qdFrac
         sta TSTADDR+_rslt+qdFrac,x
@@ -124,6 +145,29 @@ START
 		sbc _rslt+qdFrac,y
 		sta _rslt+qdFrac,y
 
+; Label & branching tests
+GetKey	ldx  $C000
+		bpl  GetKey
+
+]loop
+        dex
+        bne ]loop
+
+		tya
+        and #1
+        beq :err
+
+        tya
+        and #1
+        bne	:good
+:err
+        lda #0
+:good
+		bne myQuit
+		nop
+        hex 2C		;bit
+        lda #1
+myQuit
 		jmp DOSWARM
 
 ]XCODEEND       ; Keep this at the end and put your code above this
