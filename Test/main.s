@@ -85,9 +85,12 @@ START
 ;make sure zp values after ORG have right values
         lda _LFT
         ldx #_LFT
+        cpx #$20
 
 
 ; START OF TESTS KNOWN TO HAVE PASSED IN PREVIOUS BUILDS
+
+; --- Test all instructions in all their modes, with as many variants as possible ---
 
 ;adc (ZP,x)
 		adc (0,x)
@@ -108,6 +111,9 @@ START
         adc #$1111
         adc $1111
 
+; --- Other tests that have proven helpful ---
+
+; Tests regarding issues with math and zp,x
         sta TSTADDR+dum0
         sta TSTADDR+_num1+dum0
         sta TSTADDR+_num1+dum0,x
@@ -154,6 +160,8 @@ GetKey	ldx  $C000
         lda #1
 myQuit
 		jmp DOSWARM
+
+; --- Tests used when addressing issues opened against Merlin32 ---
 
 ;Issue #16 (fadden)
         lda	<$fff0			;zp
