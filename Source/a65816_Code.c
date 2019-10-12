@@ -2786,25 +2786,36 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
     }
     else
     {
-        /* We adjust the address according to> and | */
+        /* We adjust the address according to address expression modifiers */
         if(has_more == 1)
         {
-            current_line->no_direct_page = 1;
-            nb_max_byte = 3;
-        }
-        if(has_pipe == 1)
-        {
+            /* > */
             current_line->no_direct_page = 1;
             nb_max_byte = 2;
         }
-        
+        else if(has_pipe == 1)	/*@TODO: this may be a bug as it allows !, which should be "NOT" and not LONG...?) */
+        {
+            /* | or ! */
+            current_line->no_direct_page = 1;
+            nb_max_byte = 3;
+        }
+        else if(has_less == 1)
+        {
+            /* < */
+            if( has_hash == 0 )
+	            current_line->use_direct_page = 1;		/* Use ZP if not a value */
+            else
+                nb_max_byte = 1;
+        }
+
         /* Long Addressing (LDAL, STAL...) */
-        if(has_long_addr == 1)
+        else if(has_long_addr == 1)
         {
             current_line->no_direct_page = 1;
             nb_max_byte = 3;
         }
-        if(is_block_copy == 0 && has_long_addr == 0 && has_more == 0 && nb_max_byte == 3)  /* Long Addressing is valid only if you have set Gold (or for MVP / MVN) */
+
+        if(nb_max_byte == 3 && is_block_copy == 0 && has_long_addr == 0 && has_more == 0)  /* Long Addressing is valid only if you have set Gold (or for MVP / MVN) */
             nb_max_byte = 2;                                 
         
         /* We asked for a compaction => We will put Direct Page instead of Absolute */
