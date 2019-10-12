@@ -450,38 +450,36 @@ static int Assemble65c816Segment(struct omf_project *current_omfproject, struct 
         return(1);
 
     /**** The automatic detection of the Direct Page forces us to iterate several times ****/
-    int first_time = 1;
+    printf("    + Building Code Lines:\n");
     int modified = 1;
     int has_error = 0;
+    int pass = 0;
     while(modified == 1 || has_error == 1)
     {
+        printf("      Pass %i...\n", ++pass);
+
         /* Error while generating the code */
         strcpy(param->buffer_latest_error,"");
         has_error = 0;
 
         /*** Generation of the Opcode + Size Calculation code for each line of Code ***/
-        if(first_time)
-            printf("    o Compute Operand Code size...\n");
+        printf("      o Compute Operand Code size...\n");
         BuildAllCodeLineSize(current_omfsegment);
 
         /*** Calculation of the size for each line of Data ***/
-        if(first_time)
-            printf("    o Compute Operand Data size...\n");
+        printf("      o Compute Operand Data size...\n");
         BuildAllDataLineSize(current_omfsegment);
 
         /*** Calculate the addresses of each line + Analyzes the ORG / OBJ / REL / DUM ***/
-        if(first_time)
-            printf("    o Compute Line address...\n");
+        printf("      o Compute Line address...\n");
         ComputeLineAddress(current_omfsegment,current_omfproject);
 
         /*** Generate Binary for Code Lines (LINE_CODE) ***/
-        if(first_time)
-            printf("    o Build Code Line...\n");
+        printf("      o Build Code Line...\n");
         BuildAllCodeLine(&has_error,current_omfsegment,current_omfproject);
 
         /** Compact Code for Direct Page (unless the address is relocatable OMF) **/
-        if(first_time)
-            printf("    o Compact Code for Direct Page Lines...\n");
+        printf("      o Compact Code for Direct Page Lines...\n");
         modified = CompactDirectPageCode(current_omfsegment);
 
         /* Compact code gives nothing, raise an error condition */
@@ -501,10 +499,8 @@ static int Assemble65c816Segment(struct omf_project *current_omfproject, struct 
             current_omfsegment->last_address = NULL;
             current_omfsegment->nb_address = 0;
         }
-
-        /* it's no longer the first time */
-        first_time = 0;
     }
+    printf("      Done\n");
 
     /** We will evaluate the ERR lines **/
     printf("    o Check for Err lines...\n");
