@@ -2168,7 +2168,6 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
     BYTE byte_count = 0, bit_shift = 0;
     WORD offset_reference = 0;
     DWORD address_long = 0;
-    int64_t new_address_64 = 0, dum_address_64 = 0;
     int line_number = 0, current_address = 0, global_address = 0, new_address = 0, dum_address = 0, nb_byte = 0, has_previous_label = 0, is_reloc = 0, is_first_org = 0, is_fix_address = 0;
     int current_bank = 0, global_bank = 0, new_bank = 0, dum_bank = 0;
     struct source_file *first_file = NULL;
@@ -2292,7 +2291,7 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
             if(strlen(current_line->operand_txt) > 0)
             {
                 /* Retrieve the new address */
-                new_address_64 = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+                int64_t new_address_64 = EvalExpressionAsInteger(current_line->operand_txt, &buffer_error[0], current_line, 2, &is_reloc, &byte_count, &bit_shift, &offset_reference, &address_long, &current_external, current_omfsegment);
                 if(strlen(buffer_error) > 0)
                 {
                     sprintf(param->buffer_error,"Error : Impossible to evaluate ORG Address : '%s' (line %d, file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
@@ -2313,6 +2312,11 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
                 current_line->global_address = global_address;
                 current_bank = new_bank;
                 current_address = new_address;
+                if( current_line->is_dum )
+                {
+                    dum_bank = new_bank;
+                    dum_address = new_address;
+                }
 
                 /* The first ORG is used to define the global address (for fixed address binaries) */
                 if(is_first_org == 1 && current_omfproject->is_omf == 0 && current_omfproject->is_single_binary == 0)
@@ -2340,7 +2344,7 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
         else if(current_line->type == LINE_DIRECTIVE && !my_stricmp(current_line->opcode_txt,"DUM"))
         {
             /* Retrieve the new address */
-            dum_address_64 = EvalExpressionAsInteger(current_line->operand_txt,&buffer_error[0],current_line,2,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+            int64_t dum_address_64 = EvalExpressionAsInteger(current_line->operand_txt, &buffer_error[0], current_line, 2, &is_reloc, &byte_count, &bit_shift, &offset_reference, &address_long, &current_external, current_omfsegment);
             if(strlen(buffer_error) > 0)
             {
                 sprintf(param->buffer_error,"Error : Impossible to evaluate DUM Address : '%s' (line %d, file '%s') : %s",current_line->operand_txt,current_line->file_line_number,current_line->file->file_name,buffer_error);
