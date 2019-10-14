@@ -62,8 +62,7 @@ _LFT	ds	1			;Window edge   0..39
 *==========================================================
 * Program Entry
 
-		org $800
-
+;Issue #26 - This should start at the ORG in the linkscript, not at the last ORG in the DUM sections.
 START
 
 ; PUT current issue here, so it's the first thing assembled. The rest below are unit tests to make sure future changes don't break existing code!
@@ -144,11 +143,16 @@ myQuit
 
 ; --- Tests used when addressing issues opened against Merlin32 ---
 
-;Issue #26 (lroathe) - ORG in DUM section is ignored
+;Issue #26 (lroathe) - ORG in DUM section is ignored, but can't mess up code ORG
+
+		org $2000
+
         lda _LFT
         ldx #_LFT
         cpx #$20
 
+        org	;return to ongoing address
+        
 
 ;Issue #16 (fadden) - Byte reference modifiers are ignored (no way to force DP)
         lda	<$fff0			;zp
@@ -180,7 +184,6 @@ myQuit
 
 L00BC   bit	L00BC
 
-;This will reset the ORG to where the current byte count is (so addr. before above ORG plus 2 bytes for bit instruction)
         org
 
         stx	$bc,y
