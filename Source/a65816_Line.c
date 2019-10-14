@@ -2305,17 +2305,22 @@ int ComputeLineAddress(struct omf_segment *current_omfsegment, struct omf_projec
                 new_address = new_address & 0xFFFF;
 
                 /* new addresse */
-                current_line->bank = current_bank;
-                current_line->address = current_address;
-                current_line->is_fix_address = is_fix_address;
-                current_line->global_bank = global_bank;          /* Address without consideration of [ORG $ Addr ORG] */
-                current_line->global_address = global_address;
-                current_bank = new_bank;
-                current_address = new_address;
                 if( current_line->is_dum )
                 {
+                    /* in DUM section */
                     dum_bank = new_bank;
                     dum_address = new_address;
+                }
+                else
+                {
+                    /* in Code section */
+                    current_line->bank = current_bank;
+                    current_line->address = current_address;
+                    current_line->is_fix_address = is_fix_address;
+                    current_line->global_bank = global_bank;          /* Address without consideration of [ORG $ Addr ORG] */
+                    current_line->global_address = global_address;
+                    current_bank = new_bank;
+                    current_address = new_address;
                 }
 
                 /* The first ORG is used to define the global address (for fixed address binaries) */
