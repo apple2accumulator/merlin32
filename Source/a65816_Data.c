@@ -6,17 +6,13 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdint.h>
-
 #include "Dc_Library.h"
+
+#include "a65816_Data.h"
+
+#include "a65816_Macro.h"
 #include "a65816_Line.h"
 #include "a65816_File.h"
-#include "a65816_Macro.h"
-#include "a65816_Data.h"
 
 
 static void BuildOneDataLineSize(struct source_line *,char *,struct omf_segment *);

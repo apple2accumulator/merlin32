@@ -6,18 +6,12 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdint.h>
-
 #include "Dc_Library.h"
-#include "a65816_Macro.h"
+
+#include "a65816_OMF.h"		/* includes our header */
+
 #include "a65816_File.h"
 #include "a65816_Code.h"
-#include "a65816_Line.h"
-#include "a65816_OMF.h"
 
 
 char *opcode_list[] = 

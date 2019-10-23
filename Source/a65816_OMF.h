@@ -6,6 +6,9 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
+#include "a65816_Macro.h"		// our data struct includes several of the structs defined in these includes
+#include "a65816_Line.h"
+
 #define CRECORD_SIZE                7       /* Size of a CRecord */
 #define END_SIZE                    1       /* Size of an END */
 

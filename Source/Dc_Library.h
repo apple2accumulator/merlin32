@@ -6,6 +6,13 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <ctype.h>
+
+
 #if defined(WIN32)
 typedef unsigned long       DWORD;    /* Unsigned 32 bit */
 #else
