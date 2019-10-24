@@ -1,5 +1,7 @@
 # Merlin32
-The Merlin 32 assembler for the Apple II from Brutal Deluxe Software
+The Merlin 32 assembler for the Apple II from Brutal Deluxe Software. More information, documentation, etc available at:
+
+	http://www.brutaldeluxe.fr/products/crossdevtools/merlin/
 
 ## Install from binary release zip file
 
