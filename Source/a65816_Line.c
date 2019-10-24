@@ -949,8 +949,8 @@ int BuildEquivalenceTable(struct omf_segment *current_omfsegment)
         if(current_equivalence == NULL)
             my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure equivalence");
         current_equivalence->name = strdup(current_line->label_txt);
-        current_equivalence->value = strdup(current_line->operand_txt);
-        if(current_equivalence->name == NULL || current_equivalence->value == NULL)
+        current_equivalence->valueStr = strdup(current_line->operand_txt);
+        if(current_equivalence->name == NULL || current_equivalence->valueStr == NULL)
         {
             mem_free_equivalence(current_equivalence);
             my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure equivalence");
@@ -977,7 +977,7 @@ int BuildEquivalenceTable(struct omf_segment *current_omfsegment)
             my_Memory(MEMORY_GET_EQUIVALENCE,&i,&current_equivalence,current_omfsegment);
 
             /** Cut out the expression **/
-            tab_element = DecodeOperandeAsElementTable(current_equivalence->value,&nb_element,SEPARATOR_REPLACE_LABEL,current_equivalence->source_line);
+            tab_element = DecodeOperandeAsElementTable(current_equivalence->valueStr,&nb_element,SEPARATOR_REPLACE_LABEL,current_equivalence->source_line);
             if(tab_element == NULL)
                 my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'tab_element' table");
 
@@ -990,7 +990,7 @@ int BuildEquivalenceTable(struct omf_segment *current_omfsegment)
                 {
                     /* Adding {} certifies the order of evaluation */
                     strcat(param->buffer_operand,"{");
-                    strcat(param->buffer_operand,replace_equivalence->value);   /* Equivalence */
+                    strcat(param->buffer_operand,replace_equivalence->valueStr);   /* Equivalence */
                     strcat(param->buffer_operand,"}");
 
                     /* The value has been changed */
@@ -1011,10 +1011,10 @@ int BuildEquivalenceTable(struct omf_segment *current_omfsegment)
                     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory to replace an Equivalence");
 
                 /* Free the old */
-                free(current_equivalence->value);
+                free(current_equivalence->valueStr);
 
                 /* Position the new */
-                current_equivalence->value = new_value;
+                current_equivalence->valueStr = new_value;
             }
         }
 
@@ -1835,7 +1835,7 @@ int ProcessLineEquivalence(struct source_line *current_line, struct omf_segment 
             else
             {
                 strcat(param->buffer_operand,"{");
-                strcat(param->buffer_operand,current_equivalence->value);   /* Equivalence */
+                strcat(param->buffer_operand,current_equivalence->valueStr);   /* Equivalence */
                 strcat(param->buffer_operand,"}");
             }
         }
@@ -3265,8 +3265,8 @@ void mem_free_equivalence(struct equivalence *current_equivalence)
         if(current_equivalence->name)
             free(current_equivalence->name);
 
-        if(current_equivalence->value)
-            free(current_equivalence->value);
+        if(current_equivalence->valueStr)
+            free(current_equivalence->valueStr);
 
         free(current_equivalence);
     }

@@ -27,7 +27,7 @@ int LoadAllSourceFile(char *,char *,struct omf_segment *);
 struct source_file *LoadOneSourceFile(char *,char *,int);
 struct source_file *LoadOneBinaryFile(char *,char *,int);
 int BuildObjectCode(struct omf_segment *);
-int CreateOutputFile(char *,struct omf_segment *,struct omf_project *);
+int CreateOutputFile(char *,int verbose_mode, int symbol_mode, struct omf_segment *,struct omf_project *);
 int BuildObjectFile(char *,struct omf_segment *,struct omf_project *);
 int BuildSingleObjectFile(char *,int,struct omf_project *);
 void mem_free_sourcefile(struct source_file *,int);

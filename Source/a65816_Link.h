@@ -6,6 +6,6 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-int AssembleLink65c816(char *,char *,int);
+int AssembleLink65c816(char *,char *,int,int);
 
 /***********************************************************************/

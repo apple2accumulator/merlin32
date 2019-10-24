@@ -32,7 +32,9 @@
 int compare_item(const void *,const void *);
 int compare_macro(const void *,const void *);
 int compare_label(const void *,const void *);
+int compare_label_v(const void *data_1, const void *data_2);
 int compare_equivalence(const void *,const void *);
+int compare_equivalence_v(const void *data_1, const void *data_2);
 int compare_variable(const void *,const void *);
 int compare_external(const void *,const void *);
 
@@ -878,6 +880,22 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             current_omfsegment->last_label = current_omfsegment->tab_label[current_omfsegment->nb_label-1];
             break;
 
+        case MEMORY_SORT_LABEL_V:
+            /* Sort items */
+            qsort(current_omfsegment->tab_label, current_omfsegment->nb_label, sizeof(struct label *), compare_label_v);
+
+            /* Replace the links */
+            for(int i=0; i<current_omfsegment->nb_label; i++)
+            {
+                if(i == current_omfsegment->nb_label-1)
+                current_omfsegment->tab_label[i]->next = NULL;
+                else
+                current_omfsegment->tab_label[i]->next = current_omfsegment->tab_label[i+1];
+            }
+            current_omfsegment->first_label = current_omfsegment->tab_label[0];
+            current_omfsegment->last_label = current_omfsegment->tab_label[current_omfsegment->nb_label-1];
+            break;
+
         case MEMORY_SEARCH_LABEL :
             /* Init */
             *((struct label **)value) = NULL;
@@ -985,6 +1003,22 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                     current_omfsegment->tab_equivalence[i]->next = NULL;
                 else
                     current_omfsegment->tab_equivalence[i]->next = current_omfsegment->tab_equivalence[i+1];
+            }
+            current_omfsegment->first_equivalence = current_omfsegment->tab_equivalence[0];
+            current_omfsegment->last_equivalence = current_omfsegment->tab_equivalence[current_omfsegment->nb_equivalence-1];
+            break;
+
+        case MEMORY_SORT_EQUIVALENCE_V :
+            /* Sort items */
+            qsort(current_omfsegment->tab_equivalence, current_omfsegment->nb_equivalence, sizeof(struct equivalence *), compare_equivalence_v);
+
+            /* Replace the links */
+            for(int i=0; i<current_omfsegment->nb_equivalence; i++)
+            {
+                if(i == current_omfsegment->nb_equivalence-1)
+                current_omfsegment->tab_equivalence[i]->next = NULL;
+                else
+                current_omfsegment->tab_equivalence[i]->next = current_omfsegment->tab_equivalence[i+1];
             }
             current_omfsegment->first_equivalence = current_omfsegment->tab_equivalence[0];
             current_omfsegment->last_equivalence = current_omfsegment->tab_equivalence[current_omfsegment->nb_equivalence-1];
@@ -1314,6 +1348,32 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
     }
 }
 
+
+/****************************************************/
+/*  my_stricmp() : Case insensitive string compare. */
+/****************************************************/
+int my_intcmp(int int1, int int2)
+{
+    if( int1 == int2 )
+    	return 0;
+	else if( int1 < int2 )
+        return -1;
+    else
+        return 1;
+}
+
+/******************************************************/
+/*  my_stri64cmp() : Case insensitive string compare. */
+/******************************************************/
+int my_int64cmp(int64_t int1, int64_t int2)
+{
+    if( int1 == int2 )
+    	return 0;
+	else if( int1 < int2 )
+        return -1;
+    else
+        return 1;
+}
 
 /****************************************************/
 /*  my_stricmp() : Case insensitive string compare. */
@@ -3195,7 +3255,7 @@ int64_t GetHexaValue(char *expression)
     int is_negative = 0;
     int64_t value = 0;
 
-    /* Signe au début, attention in $ -3, 3 is in decimal! */
+    /* is this negative? Attention, in $ -3, 3 is in decimal! */
     if(expression[0] == '-')
         is_negative = 1;
 
@@ -5182,8 +5242,22 @@ int compare_label(const void *data_1, const void *data_2)
     struct label *label_1 = *((struct label **) data_1);
     struct label *label_2 = *((struct label **) data_2);
 
-    /* Comparison of the keys: The labels are case-sensitive */
+    /* Compare the keys: The labels are case-sensitive */
     return(strcmp(label_1->name,label_2->name));
+}
+
+
+/************************************************************/
+/*  compare_label_V() : Comparison function for Quick Sort. */
+/************************************************************/
+int compare_label_v(const void *data_1, const void *data_2)
+{
+    /* Parameter retrieval */
+    struct label *label_1 = *((struct label **) data_1);
+    struct label *label_2 = *((struct label **) data_2);
+
+    /* Compare the addresses */
+    return(my_intcmp(label_1->line->address, label_2->line->address));
 }
 
 
@@ -5201,6 +5275,23 @@ int compare_equivalence(const void *data_1, const void *data_2)
 
     /* Key comparison */
     return(strcmp(equivalence_1->name,equivalence_2->name));
+}
+
+
+/******************************************************************/
+/*  compare_equivalence_v() : Comparison function for Quick Sort. */
+/******************************************************************/
+int compare_equivalence_v(const void *data_1, const void *data_2)
+{
+    struct equivalence *equivalence_1;
+    struct equivalence *equivalence_2;
+
+    /* Parameter retrieval (case sensitive) */
+    equivalence_1 = *((struct equivalence **) data_1);
+    equivalence_2 = *((struct equivalence **) data_2);
+
+    /* Compare the values */
+    return(my_int64cmp(equivalence_1->value, equivalence_2->value));
 }
 
 

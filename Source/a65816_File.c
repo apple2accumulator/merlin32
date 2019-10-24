@@ -628,11 +628,74 @@ int BuildSingleObjectFile(char *output_folder_path, int file_number, struct omf_
     return(0);
 }
 
+/**********************************************/
+/*  print_symbols() :  print the symbol data. */
+/**********************************************/
+void print_symbols(FILE *fd, int columns, struct omf_segment *current_omfsegment)
+{
+    fprintf(fd, "  Equates:\n");
+    int column = columns;
+    for(struct equivalence *current = current_omfsegment->first_equivalence; current; current= current->next )
+    {
+        
+        char *value = current->valueStr;
+
+        fprintf(fd, "%16s = %7s", current->name, value);
+        if( !--column )
+        {
+            fprintf(fd, "\n");
+            column = columns;
+        }
+    }
+
+	if( column != columns )
+	    fprintf(fd, "\n");
+    fprintf(fd, "\n");
+
+    fprintf(fd, "  Labels:\n");
+    column = columns;
+    for(struct label *current = current_omfsegment->first_label; current; current= current->next )
+    {
+        char addr[16];
+        int address = current->line->address;
+
+        snprintf(addr, 16, "$%X", address);
+        fprintf(fd, "%16s = %7s", current->name, addr);
+        if( !--column )
+        {
+            fprintf(fd, "\n");
+            column = columns;
+        }
+    }
+
+    if( column != columns )
+	    fprintf(fd, "\n");
+    fprintf(fd, "\n");
+}
+
+/*********************************************/
+/*  dump_symbols() :  dump the symbol table. */
+/*********************************************/
+void dump_symbols(FILE *fd, int columns, struct omf_segment *current_omfsegment)
+{
+    my_Memory(MEMORY_SORT_LABEL_V, NULL, NULL, current_omfsegment);
+    my_Memory(MEMORY_SORT_EQUIVALENCE_V, NULL, NULL, current_omfsegment);
+
+    fprintf(fd, "\nSymbol Table - Numerical Order\n\n");
+    print_symbols(fd, columns, current_omfsegment);
+
+    my_Memory(MEMORY_SORT_LABEL, NULL, NULL, current_omfsegment);
+    my_Memory(MEMORY_SORT_EQUIVALENCE, NULL, NULL, current_omfsegment);
+
+    fprintf(fd, "\nSymbol Table - Alphabetical Order\n\n");
+    print_symbols(fd, columns, current_omfsegment);
+}
+
 
 /**********************************************************/
 /*  CreateOutputFile() :  Create the File of Text Output. */
 /**********************************************************/
-int CreateOutputFile(char *file_path, struct omf_segment *current_omfsegment, struct omf_project *current_omfproject)
+int CreateOutputFile(char *file_path, int verbose_mode, int symbol_mode, struct omf_segment *current_omfsegment, struct omf_project *current_omfproject)
 {
     FILE *fd;
     int i, j, nb_byte_left, is_multi_fixed, nb_byte;
@@ -713,19 +776,19 @@ int CreateOutputFile(char *file_path, struct omf_segment *current_omfsegment, st
     strcpy(param->buffer_line,"------+----");
     for(i=0; i<file_length+2; i++)
         strcat(param->buffer_line,"-");
-    strcat(param->buffer_line,"------+-------------+----+---------+------+-----------------------+-------------------------------------------------------------------\n");
+    strcat(param->buffer_line,"------+-------------+----+---------+------+-----------------------+----------------------------------------------------------------------\n");
     fwrite(param->buffer_line,1,strlen(param->buffer_line),fd);
     /* WORDING */
     strcpy(param->buffer_line," Line | # File");
     for(i=0; i<file_length-2; i++)
         strcat(param->buffer_line," ");
-    strcat(param->buffer_line,"  Line | Line Type   | MX |  Reloc  | Size | Address   Object Code |  Source Code                                                      \n");
+    strcat(param->buffer_line,"  Line | Line Type   | MX |  Reloc  | Size | Address   Object Code |  Source Code\n");
     fwrite(param->buffer_line,1,strlen(param->buffer_line),fd);
     /* Feature */
     strcpy(param->buffer_line,"------+----");
     for(i=0; i<file_length+2; i++)
         strcat(param->buffer_line,"-");
-    strcat(param->buffer_line,"------+-------------+----+---------+------+-----------------------+-------------------------------------------------------------------\n");
+    strcat(param->buffer_line,"------+-------------+----+---------+------+-----------------------+----------------------------------------------------------------------\n");
     fwrite(param->buffer_line,1,strlen(param->buffer_line),fd);
 
     /*** Lines treatment ***/
@@ -843,8 +906,27 @@ int CreateOutputFile(char *file_path, struct omf_segment *current_omfsegment, st
     strcpy(param->buffer_line,"------+----");
     for(i=0; i<file_length+2; i++)
         strcat(param->buffer_line,"-");
-    strcat(param->buffer_line,"------+-------------+----+---------+------+-----------------------+-------------------------------------------------------------------\n");
+    strcat(param->buffer_line,"------+-------------+----+---------+------+-----------------------+----------------------------------------------------------------------\n");
     fwrite(param->buffer_line,1,strlen(param->buffer_line),fd);
+
+	if( verbose_mode > 0 || symbol_mode > 0 )
+    {
+        for(struct equivalence *current = current_omfsegment->first_equivalence; current; current= current->next )
+        {
+            int64_t value;
+
+            if( STATUS_UNKNWON != QuickConditionEvaluate(current->source_line, &value, current_omfsegment) )
+            {
+                current->value = value;
+            }
+        }
+    }
+
+    if( verbose_mode > 0 )
+	    dump_symbols(fd, verbose_mode, current_omfsegment);
+
+    if( symbol_mode > 0 )
+	    dump_symbols(stdout, symbol_mode, current_omfsegment);
 
     /* Close the File */
     fclose(fd);
@@ -852,7 +934,6 @@ int CreateOutputFile(char *file_path, struct omf_segment *current_omfsegment, st
     /* OK */
     return(0);
 }
-
 
 /**************************************************************************/
 /*  mem_free_sourcefile() :  Memory release of the source_file structure. */

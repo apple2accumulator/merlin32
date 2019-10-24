@@ -259,8 +259,8 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
                 if(current_equivalence == NULL)
                     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure equivalence");
                 current_equivalence->name = strdup(param->buffer_label);
-                current_equivalence->value = strdup(param->buffer_operand);
-                if(current_equivalence->name == NULL || current_equivalence->value == NULL)
+                current_equivalence->valueStr = strdup(param->buffer_operand);
+                if(current_equivalence->name == NULL || current_equivalence->valueStr == NULL)
                 {
                     mem_free_equivalence(current_equivalence);
                     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure equivalence");

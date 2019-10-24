@@ -68,43 +68,44 @@ typedef unsigned char       BYTE;     /* Unsigned 8 bit */
 #define MEMORY_GET_OPCODE_NB       21
 #define MEMORY_GET_OPCODE          22
 #define MEMORY_SORT_OPCODE         23
-#define MEMORY_SEARCH_OPCODE       24
-#define MEMORY_FREE_OPCODE         25
+#define MEMORY_SEARCH_OPCODE       28
+#define MEMORY_FREE_OPCODE         29
 
 #define MEMORY_ADD_DATA            30
 #define MEMORY_GET_DATA_NB         31
 #define MEMORY_GET_DATA            32
 #define MEMORY_SORT_DATA           33
-#define MEMORY_SEARCH_DATA         34
-#define MEMORY_FREE_DATA           35
+#define MEMORY_SEARCH_DATA         38
+#define MEMORY_FREE_DATA           39
 
 #define MEMORY_ADD_DIRECTIVE       40
 #define MEMORY_GET_DIRECTIVE_NB    41
 #define MEMORY_GET_DIRECTIVE       42
 #define MEMORY_SORT_DIRECTIVE      43
-#define MEMORY_SEARCH_DIRECTIVE    44
-#define MEMORY_FREE_DIRECTIVE      45
+#define MEMORY_SEARCH_DIRECTIVE    48
+#define MEMORY_FREE_DIRECTIVE      49
 
 #define MEMORY_ADD_DIREQU          50
 #define MEMORY_GET_DIREQU_NB       51
 #define MEMORY_GET_DIREQU          52
 #define MEMORY_SORT_DIREQU         53
-#define MEMORY_SEARCH_DIREQU       54
-#define MEMORY_FREE_DIREQU         55
+#define MEMORY_SEARCH_DIREQU       58
+#define MEMORY_FREE_DIREQU         59
 
 #define MEMORY_ADD_MACRO           60
 #define MEMORY_GET_MACRO_NB        61
 #define MEMORY_GET_MACRO           62
 #define MEMORY_SORT_MACRO          63
-#define MEMORY_SEARCH_MACRO        64
-#define MEMORY_FREE_MACRO          65
+#define MEMORY_SEARCH_MACRO        68
+#define MEMORY_FREE_MACRO          69
 
 #define MEMORY_ADD_LABEL           70
 #define MEMORY_GET_LABEL_NB        71
 #define MEMORY_GET_LABEL           72
 #define MEMORY_SORT_LABEL          73
-#define MEMORY_SEARCH_LABEL        74
-#define MEMORY_FREE_LABEL          75
+#define MEMORY_SORT_LABEL_V        74
+#define MEMORY_SEARCH_LABEL        78
+#define MEMORY_FREE_LABEL          79
 
 #define MEMORY_ADD_VARIABLE        80
 #define MEMORY_GET_VARIABLE_NB     81
@@ -117,20 +118,21 @@ typedef unsigned char       BYTE;     /* Unsigned 8 bit */
 #define MEMORY_GET_EQUIVALENCE_NB  91
 #define MEMORY_GET_EQUIVALENCE     92
 #define MEMORY_SORT_EQUIVALENCE    93
-#define MEMORY_SEARCH_EQUIVALENCE  94
-#define MEMORY_FREE_EQUIVALENCE    95
+#define MEMORY_SORT_EQUIVALENCE_V  94
+#define MEMORY_SEARCH_EQUIVALENCE  98
+#define MEMORY_FREE_EQUIVALENCE    99
 
 #define MEMORY_ADD_EXTERNAL       100
 #define MEMORY_GET_EXTERNAL_NB    101
 #define MEMORY_GET_EXTERNAL       102
 #define MEMORY_SORT_EXTERNAL      103
-#define MEMORY_SEARCH_EXTERNAL    104
-#define MEMORY_FREE_EXTERNAL      105
+#define MEMORY_SEARCH_EXTERNAL    108
+#define MEMORY_FREE_EXTERNAL      109
 
 #define MEMORY_ADD_GLOBAL         110
 #define MEMORY_GET_GLOBAL_NB      111
 #define MEMORY_GET_GLOBAL         112
-#define MEMORY_FREE_GLOBAL        115
+#define MEMORY_FREE_GLOBAL        119
 
 struct parameter
 {
@@ -216,6 +218,8 @@ struct label;
 void my_RaiseError(int,void *);
 void my_Memory(int,void *,void *,struct omf_segment *);
 void my_File(int,void *);
+int my_intcmp(int int1, int int2);
+int my_int64cmp(int64_t int1, int64_t int2);
 int my_stricmp(char *,char *);
 int my_strnicmp(char *,char *,size_t);
 void my_printf64(int64_t,char *);

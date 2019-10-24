@@ -150,7 +150,8 @@ struct global
 struct equivalence
 {
     char *name;
-    char *value;
+    char *valueStr;
+    int64_t value;
 
     struct source_line *source_line;    /* If the equivalence comes from source, we point the line (it can also come from the Macro Files) */
 
