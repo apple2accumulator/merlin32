@@ -644,7 +644,7 @@ static int IsLinkFile(struct source_file *master_file)
 {
     int found = 0;
     struct source_line *current_line = NULL;
-    char *opcode_link[] = {"DSK","TYP","AUX","XPL","ASM","DS","KND","ALI","LNA","SNA","BSZ",NULL};      /* Opcodes exclusive to a File Link */
+    char *opcode_link[] = {"DSK","TYP","AUX","XPL","ASM","KND","ALI","LNA","SNA","BSZ",NULL};      /* Opcodes exclusive to a File Link */
 
     /* Valid File? */
     if(master_file->first_line == NULL)
