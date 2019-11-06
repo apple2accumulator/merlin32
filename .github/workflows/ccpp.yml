@@ -35,5 +35,36 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
         asset_path: ./merlin32.zip
-        asset_name: format('merlin32-{}-{}.zip', 'ubuntu', github.ref)
+        asset_name: ${{ format('merlin32-{}-{}.zip', 'ubuntu', github.ref) }}
+        asset_content_type: application/zip
+  build-osx:
+    name: Build OSX
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Make
+      working-directory: ./Source
+      run: make
+    - name: Build project 
+      run: |
+        zip --junk-paths merlin32.zip Source/merlin32 README.md
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./merlin32.zip
+        asset_name: ${{ format('merlin32-{}-{}.zip', 'osx', github.ref) }}
         asset_content_type: application/zip
