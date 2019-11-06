@@ -3,13 +3,17 @@ name: C/C++ CI
 on: release
 
 jobs:
-  build-ubuntu:
+  build-and-upload:
     name: Build 
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
     steps:
+    - name: Get Tag Name
+      id: get_tag
+      run: |
+        echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - uses: actions/checkout@v1
     - name: Make
       working-directory: ./Source
@@ -23,7 +27,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ format('https://github.com/digarok/merlin32/releases/tag/{0}', github.ref) }}
+        upload_url: ${{ format('https://github.com/digarok/merlin32/releases/tag/{0}', steps.get_tag.outputs.SOURCE_TAG) }}
         asset_path: ./merlin32.zip
-        asset_name: ${{ format('merlin32-{0}-{1}.zip', matrix.os, github.ref) }}
+        asset_name: ${{ format('merlin32-{0}-{1}.zip', matrix.os, steps.get_tag.outputs.SOURCE_TAG ) }}
         asset_content_type: application/zip
