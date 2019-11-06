@@ -6,14 +6,14 @@ on:
       - 'v*'
 
 jobs:
-  build:
-    name: Test Builds
-    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+  build-ubuntu:
+    name: Build Ubuntu
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
     - name: Make
-      run: make
+      uses: actions/checkout@v1
       working-directory: ./Source
+      run: make
     - name: Build project 
       run: |
         zip --junk-paths merlin32.zip Source/merlin32 README.md
@@ -34,9 +34,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
-        # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, 
-        # which include a `upload_url`. 
-        # See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: ./merlin32.zip
-        asset_name: merlin32-ubuntu-${{ github.ref }}.zip
+        asset_name: format('merlin32-{}-{}.zip', 'ubuntu', github.ref)
         asset_content_type: application/zip
