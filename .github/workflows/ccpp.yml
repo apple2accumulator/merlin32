@@ -9,7 +9,7 @@ jobs:
   build-ubuntu:
     name: Build Ubuntu
     runs-on: ${{ matrix.os }}
-    stategy:
+    strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
     steps:
