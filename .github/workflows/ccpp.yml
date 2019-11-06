@@ -35,7 +35,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
         asset_path: ./merlin32.zip
-        asset_name: ${{ format('merlin32-{}-{}.zip', 'ubuntu', github.ref) }}
+        asset_name: ${{ format('{merlin32-{0}-{1}.zip}', 'ubuntu', github.ref) }}
         asset_content_type: application/zip
   build-osx:
     name: Build OSX
@@ -66,5 +66,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
         asset_path: ./merlin32.zip
-        asset_name: ${{ format('merlin32-{}-{}.zip', 'osx', github.ref) }}
+        asset_name: ${{ format('{merlin32-{0}-{1}.zip}', 'ubuntu', github.ref) }}
         asset_content_type: application/zip
