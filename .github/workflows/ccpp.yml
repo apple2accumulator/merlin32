@@ -10,8 +10,8 @@ jobs:
     name: Build Ubuntu
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v1
     - name: Make
-      uses: actions/checkout@v1
       working-directory: ./Source
       run: make
     - name: Build project 
