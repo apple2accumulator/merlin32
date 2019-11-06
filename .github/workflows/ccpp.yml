@@ -1,7 +1,6 @@
 name: C/C++ CI
 
-on: 
-  release:
+on: release
 
 jobs:
   build-ubuntu:
