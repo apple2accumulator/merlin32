@@ -23,5 +23,5 @@ jobs:
         prerelease: false
     - name: Debug dump
       env:
-        OUTPUTS: ${{ toJson( steps.create_release.outputs ) }}
+        OUTPUTS: ${{ toJson( steps.create_release.outputs )}}
       run: echo "OUTPUTS= $OUTPUTS"
