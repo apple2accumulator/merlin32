@@ -21,3 +21,7 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
+    - name: Debug dump
+      env:
+        OUTPUTS: ${{ toJson( steps.create_release.outputs ) }}
+      run: echo "OUTPUTS= $OUTPUTS"

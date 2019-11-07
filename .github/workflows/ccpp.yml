@@ -21,6 +21,10 @@ jobs:
     - name: Build project 
       run: |
         zip --junk-paths merlin32.zip Source/merlin32 README.md
+    - name: Debug dump
+      env:
+        OUTPUTS: ${{ toJson( format('merlin32-{0}-{1}.zip', matrix.os, steps.get_tag.outputs.SOURCE_TAG ) }}
+      run: echo "OUTPUTS= $OUTPUTS"
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1.0.1
