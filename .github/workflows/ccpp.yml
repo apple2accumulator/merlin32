@@ -23,7 +23,7 @@ jobs:
         zip --junk-paths merlin32.zip Source/merlin32 README.md
     - name: Debug dump
       env:
-        OUTPUTS: ${{ toJson( format('merlin32-{0}-{1}.zip', matrix.os, steps.get_tag.outputs.SOURCE_TAG ) }}
+        OUTPUTS: ${{  format('merlin32-{0}-{1}.zip', matrix.os, steps.get_tag.outputs.SOURCE_TAG ) }}
       run: echo "OUTPUTS= $OUTPUTS"
     - name: Upload Release Asset
       id: upload-release-asset 
