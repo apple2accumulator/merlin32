@@ -30,7 +30,7 @@ jobs:
     - name: Upload URL for later use
       uses: actions/upload-artifact@v1
       with:
-        name: release_url
+        name: data
         path: release_url.txt
   build-and-upload:
     name: Build 
@@ -43,13 +43,13 @@ jobs:
     - name: Download Release Data
       uses: actions/download-artifact@v1
       with:
-        name: release_url
+        name: data
     - name: Get Tag Name
       id: get_data
       run: |
         echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
-        echo ::set-output name=RELEASE_URL::`cat release_url.txt`
-        echo name=RELEASE_URL::`cat release_url.txt`
+        echo ::set-output name=RELEASE_URL::`cat data/release_url.txt`
+        echo name=RELEASE_URL::`cat data/release_url.txt`
         echo name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - uses: actions/checkout@v1
     - name: Make
