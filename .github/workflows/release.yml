@@ -40,9 +40,9 @@ jobs:
         os: [ ubuntu-latest, macos-latest ]
     steps:
     - name: Download Release Data
-        uses: actions/download-artifact@v1
-        with:
-          name: release_url
+      uses: actions/download-artifact@v1
+      with:
+        name: release_url
     - name: Get Tag Name
       id: get_data
       run: |
