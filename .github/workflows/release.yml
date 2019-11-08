@@ -27,6 +27,11 @@ jobs:
       run: |
         echo "$UPLOAD_URL" > release_url.txt
         echo "UPLOAD_URL= $UPLOAD_URL"
+    - name: Upload URL for later use
+      uses: actions/upload-artifact@v1
+      with:
+        name: release_url
+        path: release_url.txt
   build-and-upload:
     name: Build 
     runs-on: ${{ matrix.os }}
@@ -34,6 +39,10 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
     steps:
+    - name: Download Release Data
+        uses: actions/download-artifact@v1
+        with:
+          name: release_url
     - name: Get Tag Name
       id: get_data
       run: |
