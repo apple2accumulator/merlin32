@@ -26,7 +26,7 @@ jobs:
         OUTPUTS: ${{ toJson( steps.create_release.outputs )}}
       run: |
         echo "$OUTPUTS" > release_url.txt
-        run: echo "OUTPUTS= $OUTPUTS"
+        echo "OUTPUTS= $OUTPUTS"
   build-and-upload:
     name: Build 
     runs-on: ${{ matrix.os }}
