@@ -57,6 +57,7 @@ jobs:
     - name: Make
       working-directory: ./Source
       run: make
+      shell: bash
     - name: Build project 
       run: |
         zip --junk-paths merlin32.zip Source/merlin32 README.md
