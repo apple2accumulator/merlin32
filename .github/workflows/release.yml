@@ -54,10 +54,15 @@ jobs:
         echo "URL = $URL"
         echo name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - uses: actions/checkout@v1
-    - name: Make
-      #working-directory: ./Source
-      run: pwd ; ls ; cd Source ; pwd ; ls ;  make
+    - name: Make Nix
+      if: matrix.os != windows-latest
+      working-directory: ./Source
+      run: echo "NIX BUILD" ; make
       shell: bash
+    - name: Make WIN
+      if: matrix.os == windows-latest
+      working-directory: ./Source
+      run: echo "WIN BUILD" ; nmake
     - name: Build project 
       run: |
         zip --junk-paths merlin32.zip Source/merlin32 README.md
