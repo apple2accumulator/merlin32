@@ -65,6 +65,7 @@ jobs:
       working-directory: ./Source
       run: echo "WIN BUILD" ; nmake
     - name: Build project 
+      shell: bash
       run: |
         zip --junk-paths merlin32.zip Source/merlin32 README.md
     - name: Upload Release Asset
