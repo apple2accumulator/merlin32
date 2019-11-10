@@ -62,7 +62,7 @@ jobs:
     - name: Make WIN
       if: matrix.os == 'windows-latest'
       working-directory: ./Source
-      run: echo "WIN BUILD" ; nmake
+      run: echo "WIN BUILD" ; make
     - name: Build project 
       run: |
         zip --junk-paths merlin32.zip Source/merlin32 README.md
