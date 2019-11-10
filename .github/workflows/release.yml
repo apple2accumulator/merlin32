@@ -55,8 +55,8 @@ jobs:
         echo name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     - uses: actions/checkout@v1
     - name: Make
-      working-directory: ./Source
-      run: make
+      #working-directory: ./Source
+      run: cd Source ; make
       shell: bash
     - name: Build project 
       run: |
