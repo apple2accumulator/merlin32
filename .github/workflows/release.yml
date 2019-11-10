@@ -60,7 +60,7 @@ jobs:
       run: echo "NIX BUILD" ; make
       shell: bash
     - name: Make WIN
-      if: matrix.os == windows-latest
+      if: matrix.os == 'windows-latest'
       working-directory: ./Source
       run: echo "WIN BUILD" ; nmake
     - name: Build project 
