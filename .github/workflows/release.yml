@@ -71,7 +71,7 @@ jobs:
     - name: Package WIN
       if: matrix.os == 'windows-latest'
       run: |
-        7z.exe a merlin32.zip Source/merlin32 README.md
+        7z.exe a merlin32.zip Source/merlin32.exe README.md
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1.0.1
