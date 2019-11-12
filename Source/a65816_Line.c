@@ -616,17 +616,12 @@ int ProcessAllAsteriskLine(struct omf_segment *current_omfsegment)
 {
     int i, error, nb_macro;
     struct source_file *first_file;
-    struct source_line *current_line;
-    struct source_line *last_line = NULL;
     struct macro *current_macro;
 
     /* Recover the Source file */
     my_Memory(MEMORY_GET_FILE,&first_file,NULL,current_omfsegment);
 
     /** Process the lines in the Source file **/
-    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
-        if(current_line->next == NULL)
-            last_line = current_line;
     error = ProcessSourceAsteriskLine(first_file->first_line,first_file);
     if(error)
         return(1);
@@ -1540,17 +1535,12 @@ int ProcessAllVariableLabel(struct omf_segment *current_omfsegment)
 {
     int error = 0, nb_macro = 0;
     struct source_file *first_file = NULL;
-    struct source_line *current_line = NULL;
-    struct source_line *last_line = NULL;
     struct macro *current_macro = NULL;
 
     /* Recover the Source file */
     my_Memory(MEMORY_GET_FILE, &first_file, NULL, current_omfsegment);
 
     /** Process the lines in the Source file **/
-    for(current_line=first_file->first_line; current_line; current_line=current_line->next)
-        if(current_line->next == NULL)
-            last_line = current_line;
     error = ProcessSourceLineVariableLabel(first_file->first_line);
 
     /** Process the Macros **/
@@ -1925,7 +1915,7 @@ int BuildVariableTable(struct omf_segment *current_omfsegment)
         if(current_line->type == LINE_DIRECTIVE && current_line->type_aux == LINE_MACRO_DEF)
             continue;
 
-        /* We only take Lines avec label */
+        /* We only take Lines with a label */
         if(strlen(current_line->label_txt) == 0)
             continue;
 
