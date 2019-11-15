@@ -371,9 +371,12 @@ static int Assemble65c816Segment(struct omf_project *current_omfproject, struct 
     if(error)
         return(1);
 
-    /** Replaces labels :local / ]variable by unid_ in Code and Macros **/
-    printf("    o Process local/variable Labels...\n");
+    /** Replaces labels :local by unid_ in Code and Macros **/
+    printf("    o Process local Labels...\n");
     ProcessAllLocalLabel(current_omfsegment);
+
+    /** Replaces labels ]variable by unid_ in Code and Macros **/
+    printf("    o Process variable Labels...\n");
     ProcessAllVariableLabel(current_omfsegment);
 
     /** Replace * with Labels in Code and Macros **/
