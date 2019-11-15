@@ -2579,9 +2579,11 @@ void ProcessOZUNIDLine(char *label)
 
     /* Make sure the label is a value past the ozunid_ prefix */
     for(i=(int)strlen("ozunid_"); i<(int)strlen(label); i++)
+    {
         if(label[i] < '0' || label[i] > '9')
             return;
-
+    }
+    
     /* We have a number, so we go to the next */
     index = atoi(label) + 1;
 
@@ -3348,7 +3350,7 @@ int64_t GetAddressValue(char *expression, int current_address, struct external *
         return(current_address);
 
     /* Is it an External Label */
-    my_Memory(MEMORY_SEARCH_EXTERNAL,expression,&current_external,current_omfsegment);
+    my_Memory(MEMORY_SEARCH_EXTERNAL, expression, &current_external, current_omfsegment);
     if(current_external != NULL)
     {
         *current_external_rtn = current_external;
@@ -3357,7 +3359,7 @@ int64_t GetAddressValue(char *expression, int current_address, struct external *
     }
 
     /* We are looking for a Label */
-    my_Memory(MEMORY_SEARCH_LABEL,expression,&current_label,current_omfsegment);
+    my_Memory(MEMORY_SEARCH_LABEL, expression, &current_label, current_omfsegment);
     if(current_label == NULL)
         return(-1);
 
@@ -4231,6 +4233,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     has_priority = 0;
     nb_open = 0;
     for(int i=0; i<nb_element; i++)
+    {
         if(!strcmp(tab_element[i],"{"))
         {
             nb_open++;
@@ -4247,6 +4250,8 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                 return(0);
             }
         }
+    }
+    
     if(nb_open != 0)
     {
         /* Error */

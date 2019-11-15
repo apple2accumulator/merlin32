@@ -32,9 +32,6 @@ int ReplaceLupWithCode(struct omf_segment *current_omfsegment)
     struct source_line *end_line = NULL;
     struct source_line *first_lup_line = NULL;
     struct source_line *last_lup_line = NULL;
-    struct variable *current_variable = NULL;
-    struct external *current_external = NULL;
-    char buffer_error[1024];
     struct parameter *param;
     my_Memory(MEMORY_GET_PARAM, &param, NULL, NULL);
 
@@ -50,24 +47,27 @@ int ReplaceLupWithCode(struct omf_segment *current_omfsegment)
         if(begin_line->is_valid == 0)
             continue;
 
-        /** We will have to manage the variables outside of Wolf to calculate their value **/
+        /** We will have to manage the variables outside of loop to calculate their value **/
         if(begin_line->type == LINE_VARIABLE)
         {
+            struct variable *current_variable = NULL;
+            struct external *current_external = NULL;
+            char buffer_error[1024];
             /* Retrieve the variable */
             my_Memory(MEMORY_SEARCH_VARIABLE,begin_line->label_txt,&current_variable,current_omfsegment);
             if(current_variable == NULL)
             {
                 /* Error : We start a news while the previous one is not finished */
-                sprintf(param->buffer_error,"Impossible to locate Variable '%s' (line %d from file '%s')",begin_line->label_txt,begin_line->file_line_number,begin_line->file->file_name);
+                sprintf(param->buffer_error,"Impossible to locate Variable '%s' (line %d from file '%s')", begin_line->label_txt, begin_line->file_line_number, begin_line->file->file_name);
                 my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
 
             /* Calculate its new value */
-            value = EvalExpressionAsInteger(begin_line->operand_txt,buffer_error,begin_line,begin_line->nb_byte-1,&is_reloc,&byte_count,&bit_shift,&offset_reference,&address_long,&current_external,current_omfsegment);
+            value = EvalExpressionAsInteger(begin_line->operand_txt, buffer_error, begin_line, begin_line->nb_byte-1, &is_reloc, &byte_count, &bit_shift, &offset_reference, &address_long, &current_external, current_omfsegment);
             if(strlen(buffer_error) > 0)
             {
                 /* Error : We start a news while the previous one is not finished */
-                sprintf(param->buffer_error,"Impossible to evaluate Variable '%s' value '%s' (line %d from file '%s')",begin_line->label_txt,begin_line->operand_txt,begin_line->file_line_number,begin_line->file->file_name);
+                sprintf(param->buffer_error,"Impossible to evaluate Variable '%s' value '%s' (line %d from file '%s')", begin_line->label_txt, begin_line->operand_txt, begin_line->file_line_number, begin_line->file->file_name);
                 my_RaiseError(ERROR_RAISE,param->buffer_error);
             }
 
