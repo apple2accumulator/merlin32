@@ -2191,7 +2191,7 @@ static void BuildOneCodeLineOperand(struct source_line *current_line, int *has_e
         /* Want the high word of the value? */
         if( current_line->operand_txt[0] == '^' )
         {
-            operand_value_64 = (operand_value_64 >> 4);	/* move down so bank and page are all that we have left */
+            operand_value_64 = (operand_value_64 >> 16);	/* move down so bank and page are all that we have left */
         }
         else if( current_line->operand_txt[0] == '<' )
         {
