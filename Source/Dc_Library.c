@@ -1959,7 +1959,7 @@ int GetLabelFromLine(char *data, int offset, char *value_rtn)
     strcpy(value_rtn,"");
 
     /* Do we have something? */
-    if(data[offset] == ' ' || data[offset] == '\n')
+    if(data[offset] == ' ' || data[offset] == 0x0A || data[offset] == 0x0D)
     {
         /* Empty, so we'll look for the next character */
         for(length=0; length<(int)strlen(data); length++)
@@ -2017,7 +2017,7 @@ void CleanBuffer(char *buffer)
     int length = (int)strlen(buffer);
     for(int i = length-1; i >= 0; i--)
     {
-        if(buffer[i] == '\0' || buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
+        if(buffer[i] == '\0' || buffer[i] == ' ' || buffer[i] == 0x0A  || buffer[i] == 0x0D || buffer[i] == '\t')
             buffer[i] = '\0';
         else
             break;
@@ -2028,7 +2028,7 @@ void CleanBuffer(char *buffer)
     int j = 0;
     for(int i = 0; i < length; i++)
     {
-        if(buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
+        if(buffer[i] == ' ' || buffer[i] == 0x0A  || buffer[i] == 0x0D || buffer[i] == '\t')
             j++;
         else
             break;
@@ -2670,7 +2670,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
            string[i] == '(' || string[i] == ')' || string[i] == '.' || string[i] == '^' ||
            string[i] == '<' || string[i] == '>' || string[i] == '\\' || string[i] == '!' ||
            string[i] == '|' || string[i] == '@' || string[i] == '{' || string[i] == '}' ||
-           string[i] == '=' || string[i] == '\t' || string[i] == '\n')
+           string[i] == '=' || string[i] == '\t' || string[i] == 0x0A || string[i] == 0x0D)
             nb_element += 2;
     }
     
@@ -2758,7 +2758,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
             }
 
             /** Simple Case 2: Unambiguous Operators or Seperators (* may be the current address, but we will isolate as we would an operator) **/
-            if(string[i] == '+' || string[i] == '*' || string[i] == '/' || string[i] == '&' || string[i] == '.' || string[i] == '!' || string[i] == '{' || string[i] == '}' || string[i] == ' ' || string[i] == '\t' || string[i] == '\n')
+            if(string[i] == '+' || string[i] == '*' || string[i] == '/' || string[i] == '&' || string[i] == '.' || string[i] == '!' || string[i] == '{' || string[i] == '}' || string[i] == ' ' || string[i] == '\t' || string[i] == 0x0A || string[i] == 0x0D)
             {
                 /* Finish the previous one */
                 buffer[bufIdx] = '\0';
@@ -2778,7 +2778,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                 }
 
                 /* Stores the separator alone (unless it is a neutral separator: space, \ t, \ n) */
-                if(string[i] != ' ' && string[i] != '\n' && string[i] != '\t')
+                if(string[i] != ' ' && string[i] != 0x0A && string[i] != 0x0D && string[i] != '\t')
                 {
                     /* Adds the element */
                     buffer[0] = string[i];
@@ -2859,7 +2859,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
             }
 
             /* Stores the separator alone (unless it is a neutral separator: space, \ t, \ n) */
-            if(string[i] != ' ' && string[i] != '\n' && string[i] != '\t')
+            if(string[i] != ' ' && string[i] != 0x0A && string[i] != 0x0D && string[i] != '\t')
             {
                 /* Adds the element */
                 buffer[0] = string[i];
@@ -2892,7 +2892,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                 }
 
                 /* Stores the separator alone (unless it is a neutral separator: space, \ t, \ n) */
-                if(string[i] != ' ' && string[i] != '\n' && string[i] != '\t')
+                if(string[i] != ' ' && string[i] != 0x0A && string[i] != 0x0D && string[i] != '\t')
                 {
                     buffer[0] = string[i];
                     buffer[1] = '\0';
@@ -2966,7 +2966,7 @@ int IsSeparator(char c, int separator_mode)
         if(c == '<' || c == '=' || c == '>' || c == '#' ||              /* < egal > different */
            c == '+' || c == '-' || c == '*' || c == '/' ||              /* + - * / */
            c == '&' || c == '.' || c == '!' ||                          /* AND / OR / EXCLUSIVE */
-           c == '{' || c == '}' || c == ' ' || c == '\t' || c == '\n')  /* Operators / Separators Priority */
+           c == '{' || c == '}' || c == ' ' || c == '\t' || c == 0x0A || c == 0x0D)  /* Operators / Separators Priority */
             return(1);
     }
     /** The data are separated by, **/
@@ -4908,11 +4908,7 @@ int CreateBinaryFile(char *file_path, unsigned char *data, int length)
     my_DeleteFile(file_path);
 
     /* Create the File */
-#if defined(WIN32) || defined(WIN64)    
     fd = fopen(file_path,"wb");
-#else
-    fd = fopen(file_path,"w");
-#endif
     if(fd == NULL)
         return(1);
 
@@ -4983,8 +4979,12 @@ char **BuildUniqueListFromFile(char *file_path, int *nb_value)
         line_length = (int) strlen(buffer_line);
         if(line_length < 2)              /* Empty line */
             continue;
-        if(buffer_line[line_length-1] == '\n')
+        if(buffer_line[line_length-1] == 0x0A)
+        {
+            if( line_length > 2 && buffer_line[line_length-2] == 0x0D )
+                --line_length;
             buffer_line[line_length-1] = '\0';  /* make the final \n into EOL (zero) */
+        }
 
         /** Stores the value **/
         for(i=0,found=0; i<nb_line; i++)

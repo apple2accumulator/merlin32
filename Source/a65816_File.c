@@ -188,23 +188,10 @@ struct source_file *LoadOneSourceFile(char *file_path, char *file_name, int file
     current_file->file_number = file_number;
 
     /* Count the number of rows */
-    int wasCR = 0;
     for(int i = 0; i < (int)file_size; i++)
     {
-        if(current_file->data[i] == '\r')
-        {
-            wasCR = 1;
+        if(current_file->data[i] == 0x0A)
             nb_line++;
-        }
-        else
-        {
-            if( current_file->data[i] == '\n' )
-            {
-                if( ! wasCR )
-                    ++nb_line;
-            }
-            wasCR = 0;
-        }
     }
 
     /* Allocate memory for table of ligne */
@@ -226,11 +213,11 @@ struct source_file *LoadOneSourceFile(char *file_path, char *file_name, int file
         current_file->tab_line[line] = begin_line;
 
         /* End of line */
-        end_line = strchr(begin_line,'\n');
+        end_line = strchr(begin_line,0x0A);
         if(end_line != NULL)
         {
             begin_line = end_line+1;
-            if( *(end_line-1) == '\r' )
+            if( *(end_line-1) == 0x0D )
                 --end_line;
             *end_line = '\0';
         }
@@ -371,7 +358,7 @@ struct source_file *LoadOneBinaryFile(char *file_path, char *file_name, int file
     nb_line = 1;
     for(int i = 0; i < (int)file_size; i++)
     {
-        if(current_file->data[i] == '\n')
+        if(current_file->data[i] == 0X0A)
             nb_line++;
     }
 
@@ -394,12 +381,18 @@ struct source_file *LoadOneBinaryFile(char *file_path, char *file_name, int file
         current_file->tab_line[line] = begin_line;
 
         /* End of line */
-        end_line = strchr(begin_line,'\n');
+        end_line = strchr(begin_line, 0x0A);
         if(end_line != NULL)
+        {
+            begin_line = end_line+1;
+            if( *(end_line-1) == 0x0D )
+                --end_line;
             *end_line = '\0';
-
-        /* Next line */
-        begin_line = (end_line == NULL) ? NULL : end_line+1;
+        }
+        else
+        {
+            begin_line = NULL;
+        }
     }
     current_file->nb_line = line;
 
@@ -561,11 +554,7 @@ int BuildObjectFile(char *output_folder_path, struct omf_segment *current_omfseg
     printf("     => Creating Object file '%s'\n",file_path);
 
     /* Create the File */
-#if defined(WIN32) || defined(WIN64)  
     fd = fopen(file_path,"wb+");
-#else
-    fd = fopen(file_path,"w+");
-#endif
     if(fd == NULL)
     {
         printf("    Error : Can't create Object file '%s'.\n",file_path);
@@ -611,18 +600,14 @@ int BuildSingleObjectFile(char *output_folder_path, int file_number, struct omf_
     printf("     => Creating Object file '%s'\n",file_path);
 
     /* Create the File */
-#if defined(WIN32) || defined(WIN64) 
     fd = fopen(file_path,"wb+");
-#else
-    fd = fopen(file_path,"w+");
-#endif
     if(fd == NULL)
     {
         printf("    Error : Can't create Object file '%s'.\n",file_path);
         return(1);
     }
 
-    /** Writing the bodys in the movie one behind the other **/
+    /** Writing the data in the segments one behind the other **/
     for(current_omfsegment=current_omfproject->first_segment; current_omfsegment; current_omfsegment=current_omfsegment->next)
     {
         /* 1 Segment (only if it belongs to the File) */
@@ -755,7 +740,7 @@ int CreateOutputFile(char *file_path, int verbose_mode, int symbol_mode, struct 
     printf("     => Creating Output file '%s'\n",file_path);
 
     /* Create the output file */
-    fd = fopen(file_path,"w+");
+    fd = fopen(file_path,"wb+");
     if(fd == NULL)
         return(1);
 

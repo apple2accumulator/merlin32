@@ -69,6 +69,13 @@ START
 ; PUT current issue here, so it's the first thing assembled.
 ; The rest below are unit tests to make sure future changes don't break existing code!
 
+        ;CR/LF test (requires reformatting this file)
+		hex	0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a
+
+        asl
+		asl
+		asl
+		asl
 
 ; START OF TESTS KNOWN TO HAVE PASSED IN PREVIOUS BUILDS
 
@@ -192,12 +199,6 @@ L00BC   bit	L00BC
 
         ldx	L00BC,y
         stx	L00BC,y
-
-
-        asl					;CR/LF test (requires reformatting this file)
-		asl
-		asl
-		asl
 
 ; JBrooks
 *

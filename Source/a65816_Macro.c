@@ -156,10 +156,18 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
     while(begin_line)
     {
         /* End of the line */
-        end_line = strchr(begin_line,'\n');
-        if(end_line)
+        end_line = strchr(begin_line, 0x0A);
+        if(end_line != NULL)
+        {
+            next_line = end_line+1;
+            if( *(end_line-1) == 0x0D )
+                --end_line;
             *end_line = '\0';
-        next_line = (end_line == NULL) ? NULL : end_line + 1;
+        }
+        else
+        {
+            next_line = NULL;
+        }
 
         /* Empty line */
         if(strlen(begin_line) == 0 || begin_line[0] == ';' || begin_line[0] == '*')
