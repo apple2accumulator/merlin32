@@ -194,6 +194,11 @@ L00BC   bit	L00BC
         stx	L00BC,y
 
 
+        asl					;CR/LF test (requires reformatting this file)
+		asl
+		asl
+		asl
+
 ; JBrooks
 *
 *
