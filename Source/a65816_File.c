@@ -188,10 +188,23 @@ struct source_file *LoadOneSourceFile(char *file_path, char *file_name, int file
     current_file->file_number = file_number;
 
     /* Count the number of rows */
+    int wasCR = 0;
     for(int i = 0; i < (int)file_size; i++)
     {
-        if(current_file->data[i] == '\n')
+        if(current_file->data[i] == '\r')
+        {
+            wasCR = 1;
             nb_line++;
+        }
+        else
+        {
+            if( current_file->data[i] == '\n' )
+            {
+                if( ! wasCR )
+                    ++nb_line;
+            }
+            wasCR = 0;
+        }
     }
 
     /* Allocate memory for table of ligne */
@@ -215,10 +228,16 @@ struct source_file *LoadOneSourceFile(char *file_path, char *file_name, int file
         /* End of line */
         end_line = strchr(begin_line,'\n');
         if(end_line != NULL)
+        {
+            begin_line = end_line+1;
+            if( *(end_line-1) == '\r' )
+                --end_line;
             *end_line = '\0';
-
-        /* Next line */
-        begin_line = (end_line == NULL) ? NULL : end_line+1;
+        }
+        else
+        {
+            begin_line = NULL;
+        }
     }
     current_file->nb_line = line;
 

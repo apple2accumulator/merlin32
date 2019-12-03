@@ -33,10 +33,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2F154C40234FCA5200FA6368 /* error_output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = error_output.txt; sourceTree = "<group>"; };
 		2F154C41234FCA5200FA6368 /* main.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = main.s; sourceTree = "<group>"; };
 		2F154C44234FCA5200FA6368 /* linkscript.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = linkscript.s; sourceTree = "<group>"; };
-		2F154C45234FCA5200FA6368 /* _Output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = _Output.txt; sourceTree = "<group>"; };
 		2F154C472350012C00FA6368 /* addtopath.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = addtopath.bat; sourceTree = "<group>"; };
 		2F154C482350012C00FA6368 /* install */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = install; sourceTree = "<group>"; };
 		2F154C492350012C00FA6368 /* uninstall.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = uninstall.bat; sourceTree = "<group>"; };
@@ -69,6 +67,8 @@
 		2FEB5157234544AA00FF8878 /* a65816_Macro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Macro.c; sourceTree = "<group>"; };
 		2FEB5158234544AA00FF8878 /* Dc_Library.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dc_Library.h; sourceTree = "<group>"; };
 		2FEDEE9E234BE81C00CCD534 /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
+		2FEFFEA22395F528009EE112 /* error_output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = error_output.txt; sourceTree = "<group>"; };
+		2FEFFEA62395F5D1009EE112 /* _Output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = _Output.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,10 +85,10 @@
 		2F154C3F234FCA5200FA6368 /* Test */ = {
 			isa = PBXGroup;
 			children = (
-				2F154C40234FCA5200FA6368 /* error_output.txt */,
+				2FEFFEA62395F5D1009EE112 /* _Output.txt */,
+				2FEFFEA22395F528009EE112 /* error_output.txt */,
 				2F154C41234FCA5200FA6368 /* main.s */,
 				2F154C44234FCA5200FA6368 /* linkscript.s */,
-				2F154C45234FCA5200FA6368 /* _Output.txt */,
 			);
 			path = Test;
 			sourceTree = "<group>";
