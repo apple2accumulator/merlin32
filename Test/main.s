@@ -64,18 +64,10 @@ _LFT	ds	1			;Window edge   0..39
 * Program Entry
 
 ;Issue #26 - This should start at the ORG in the linkscript, not at the last ORG in the DUM sections.
-START
+TEST_START
 
 ; PUT current issue here, so it's the first thing assembled.
 ; The rest below are unit tests to make sure future changes don't break existing code!
-
-        ;CR/LF test (requires reformatting this file)
-		hex	0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a
-
-        asl
-		asl
-		asl
-		asl
 
 ; START OF TESTS KNOWN TO HAVE PASSED IN PREVIOUS BUILDS
 
@@ -220,6 +212,58 @@ L00BC   bit	L00BC
 
 ;:COUNTL	DB	$00
 ;:COUNTH	DB	$00
+
+        xc
+        xc
+        org    $018200
+
+bank02	equ	$020000
+bank03	equ $030000
+dp		equ	$A5
+long    equ	$020304
+
+        mx    %00
+start	nop
+        pea	^start
+        pea	start
+        mvn	bank02,bank03
+        mvp	bank03,bank02
+
+        lda	dp
+        lda <dp
+        lda >dp
+        lda ^dp
+        lda |dp
+
+        lda #long
+        lda #<long
+        lda #>long
+        lda	#^long
+
+        lda long
+        lda <long
+        lda >long
+        lda ^long
+
+        pea #long
+        pea #<long
+        pea #>long
+        pea #^long
+
+        pea long
+        pea <long
+        pea >long
+        pea ^long
+
+        org
+
+        ;CR/LF test (requires reformatting this file)
+        hex    0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a
+
+        asl
+        asl
+        asl
+        asl
 
 
 ]XCODEEND       ; Keep this at the end and put your code above this

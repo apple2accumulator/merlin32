@@ -3933,8 +3933,8 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     strcpy(buffer_error_rtn,"");
     *byte_count_rtn = (BYTE)(current_line->nb_byte - 1);   /* Size of the Operand */
     *expression_address_rtn = 0xFFFFFFFF;        /* This is not a long address */
-    is_pea_opcode = !my_stricmp(current_line->opcode_txt,"PEA");
-    is_mvn_opcode = (!my_stricmp(current_line->opcode_txt,"MVN") || !my_stricmp(current_line->opcode_txt,"MVP"));
+    is_pea_opcode = current_line->opcode_byte == 0xF4 /*PEA*/;
+    is_mvn_opcode = (current_line->opcode_byte == 0x54 /*MVN*/ || current_line->opcode_byte == 0x44 /*MVP*/);
 
     /** We will treat the # < > ^ | from the very beginning **/
     int has_hash = (expression_param[0] == '#') ? 1 : 0;
@@ -4356,6 +4356,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
         /* Code Line */
         if(current_line->type == LINE_CODE)
         {
+            /* @TODO: ^ should always return bank, regardless of operand or mode! */
             /* Number of Bytes to Relocate */
             if((has_hash == 1 || is_pea_opcode == 1) && has_exp == 1)          /* # ^ = 1 or 2 Byte relocate */
             {
