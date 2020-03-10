@@ -123,6 +123,10 @@ int main(int argc, char *argv[])
     /* End of error handling */
     my_RaiseError(ERROR_END,NULL);
 
+
+    if (error) {
+      return EXIT_FAILURE;
+    }
     /* OK */
     return EXIT_SUCCESS;
 }
