@@ -188,7 +188,17 @@ int DecodeLineType(struct source_line *first_line, struct macro *current_macro, 
                 AddDateLine(current_line);
             continue;
         }
-        
+
+         /** TYP: File type **/
+        if(!my_stricmp(current_line->opcode_txt,"TYP"))
+        {
+            current_line->type = LINE_DIRECTIVE;
+
+            /* Decode the value */
+            current_omfproject->type = GetByteValue(current_line->operand_txt);
+            continue;
+        }
+
         /** Line Defining a Global Entry Point for InterSegs **/
         if(strlen(current_line->label_txt) > 0 && !my_stricmp(current_line->opcode_txt,"ENT"))
         {
