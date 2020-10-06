@@ -3931,6 +3931,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
 
     /* Init */
     strcpy(buffer_error_rtn,"");
+    *is_reloc_rtn = 0;
     *byte_count_rtn = (BYTE)(current_line->nb_byte - 1);   /* Size of the Operand */
     *expression_address_rtn = 0xFFFFFFFF;        /* This is not a long address */
     is_pea_opcode = current_line->opcode_byte == 0xF4 /*PEA*/;
