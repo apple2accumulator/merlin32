@@ -14,11 +14,9 @@
 
 TEXT	=	$FB39		;Reset text window
 TABV	=	$FB5B		;Complete vtab, using contents of 'A'
-FIXVEC	=	$FB6F		;fix vector's powerup byte
 MONBELL	=	$FBE4		;random bell noise!
 HOME    =	$FC58		;Clear text window
 WAIT	=	$FCA8		;delay routine
-GETLN1	=	$FD6F		;input routine
 CROUT	=	$FD8E		;Print a CR
 PRBYTE	=	$FDDA		;Print 'A' as a hex number
 PRHEX	=	$FDE3		;as above, but bits 0-3 only
@@ -40,7 +38,7 @@ TSTADDR	=	$1000		;absolute address for testing
 		DUM	0
 dum0	ds	1			;fractional byte
 dum1	ds	1
-qdSize	=	*
+dumSize	=	*
 		DEND
 
 *==========================================================
@@ -51,43 +49,28 @@ qdSize	=	*
 _ptr	ds	2
 _tmp	ds	2
 
-_num1	ds	qdSize		;first and second operand values
-
-_menPtr	ds	2			;ptr to current menu's table
-_curmen	ds	1			;current menu and item selected (item is 1..max-1)
-_maxitm	ds	1			;max # of items in current menu
-_curitm	ds	1
-_prvitm	ds	1			;previous item selected (menus are 1 deep max, so this is always for the main menu)
+_num1	ds	dumSize		;first and second operand values
 
 ; test ORG with DUM section
 
 		ORG	$20
 
 _LFT	ds	1			;Window edge   0..39
-_WDTH	ds	1			;  ''   widht  1..40/80
-_TOP	ds  1			;  ''   top    0..23
-_BTM	ds  1			;  ''   bottom 1..24
-_CH		ds  1			;Cursor htab
-_CV		ds  1			;  ''   vtab
 
 		DEND
 
 *==========================================================
 * Program Entry
 
-		org $800
-
+;Issue #26 - This should start at the ORG in the linkscript, not at the last ORG in the DUM sections.
 START
 
 ; PUT current issue here, so it's the first thing assembled. The rest below are unit tests to make sure future changes don't break existing code!
 
 
-;make sure zp values after ORG have right values
-        lda _LFT
-        ldx #_LFT
-
-
 ; START OF TESTS KNOWN TO HAVE PASSED IN PREVIOUS BUILDS
+
+; --- Test all instructions in all their modes, with as many variants as possible ---
 
 ;adc (ZP,x)
 		adc (0,x)
@@ -108,6 +91,9 @@ START
         adc #$1111
         adc $1111
 
+; --- Other tests that have proven helpful ---
+
+; Tests regarding issues with math and zp,x
         sta TSTADDR+dum0
         sta TSTADDR+_num1+dum0
         sta TSTADDR+_num1+dum0,x
@@ -155,15 +141,24 @@ GetKey	ldx  $C000
 myQuit
 		jmp DOSWARM
 
-;Issue #16 (fadden)
+; --- Tests used when addressing issues opened against Merlin32 ---
+
+;Issue #26 (lroathe) - ORG in DUM section is ignored, but can't mess up code ORG
+
+		org $2000
+
+        lda _LFT
+        ldx #_LFT
+        cpx #$20
+
+        org	;return to ongoing address
+        
+
+;Issue #16 (fadden) - Byte reference modifiers are ignored (no way to force DP)
         lda	<$fff0			;zp
         lda	>$fff0			;ABS (lo word)
         lda ^$fff0			;ABS (hi word)
         lda |$fff0			;ABS (long in 65816 mode)
-
-        lda	#<$fff0			;byte
-        lda	#>$fff0			;page
-        lda #^$fff0			;bank
 
         lda	<$fff0+24       ;zp
         lda	>$fff0+24       ;ABS (lo word)
@@ -174,22 +169,22 @@ myQuit
         lda	#>$fff0+24		;page
         lda #^$fff0+24		;bank
 
-        lda	#<$fff0+24		;byte
-        lda	#>$fff0+24		;page
-        lda #^$fff0+24		;bank
+        lda	#<$fff0			;byte
+        lda	#>$fff0			;page
+        lda #^$fff0			;bank
 
         lda	$0008           ;ZP
         lda	$08             ;ZP
         lda	$ffff-$fff7     ;ZP
         lda	$fff0+24        ;ABS (long in 65816 mode)
 
-;Issue #8 fadden)
+
+;Issue #8 fadden) - STX zp,y fails to assemble
         org	$00bc
 
 L00BC   bit	L00BC
 
-
-        org	$1000
+        org
 
         stx	$bc,y
 
