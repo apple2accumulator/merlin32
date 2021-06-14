@@ -45,6 +45,7 @@
 		2F154C4C2350012C00FA6368 /* make-installer */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "make-installer"; sourceTree = "<group>"; };
 		2F154C4D2350012C00FA6368 /* config.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = config.sh; sourceTree = "<group>"; };
 		2F154C4E2350FD2600FA6368 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
+		2F9346E723621F110094B40A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		2FEB51362345442300FF8878 /* Merlin32 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Merlin32; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FEB5142234544AA00FF8878 /* a65816_Cond.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Cond.c; sourceTree = "<group>"; };
 		2FEB5143234544AA00FF8878 /* a65816_Line.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a65816_Line.c; sourceTree = "<group>"; };
@@ -109,6 +110,7 @@
 		2FEB512D2345442300FF8878 = {
 			isa = PBXGroup;
 			children = (
+				2F9346E723621F110094B40A /* README.md */,
 				2FEB5141234544AA00FF8878 /* Source */,
 				2F154C462350012C00FA6368 /* Scripts */,
 				2F154C3F234FCA5200FA6368 /* Test */,
