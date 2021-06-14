@@ -371,9 +371,12 @@ static int Assemble65c816Segment(struct omf_project *current_omfproject, struct 
     if(error)
         return(1);
 
-    /** Replaces labels :local / ]variable by unid_ in Code and Macros **/
-    printf("    o Process local/variable Labels...\n");
+    /** Replaces labels :local by unid_ in Code and Macros **/
+    printf("    o Process local Labels...\n");
     ProcessAllLocalLabel(current_omfsegment);
+
+    /** Replaces labels ]variable by unid_ in Code and Macros **/
+    printf("    o Process variable Labels...\n");
     ProcessAllVariableLabel(current_omfsegment);
 
     /** Replace * with Labels in Code and Macros **/
@@ -637,14 +640,17 @@ static int Link65c816Segment(struct omf_project *current_omfproject, struct omf_
 }
 
 
-/***************************************************************/
-/*  IsLinkFile() :  Determine if a Source file is a File Link. */
-/***************************************************************/
+/************************************************************************/
+/*  IsLinkFile() :  Determine if the source file is a link file.        */
+/*  IsLinkFile() :  Détermine si un fichier Source est un fichier Link. */
+/************************************************************************/
 static int IsLinkFile(struct source_file *master_file)
 {
     int found = 0;
     struct source_line *current_line = NULL;
-    char *opcode_link[] = {"DSK","TYP","AUX","XPL","ASM","KND","ALI","LNA","SNA","BSZ",NULL};      /* Opcodes exclusive to a File Link */
+    /* Opcodes exclusive to link files  */
+    /* Opcode exclusifs au fichier Link */
+    char *opcode_link[] = {"AUX","XPL","ASM","KND","ALI","LNA","SNA","BSZ",NULL};      
 
     /* Valid File? */
     if(master_file->first_line == NULL)

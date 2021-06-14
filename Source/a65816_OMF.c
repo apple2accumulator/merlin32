@@ -72,11 +72,7 @@ int BuildOMFFile(char *output_folder_path, struct omf_project *current_omfprojec
     printf("        => Creating OMF file '%s'\n",file_path);
 
     /* Create the File */
-#if defined(WIN32) || defined(WIN64) 
     fd = fopen(file_path,"wb+");
-#else
-    fd = fopen(file_path,"w+");
-#endif
     if(fd == NULL)
     {
         printf("    Error : Can't create OMF file '%s'.\n",file_path);

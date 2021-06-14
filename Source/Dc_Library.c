@@ -1959,7 +1959,7 @@ int GetLabelFromLine(char *data, int offset, char *value_rtn)
     strcpy(value_rtn,"");
 
     /* Do we have something? */
-    if(data[offset] == ' ' || data[offset] == '\n')
+    if(data[offset] == ' ' || data[offset] == 0x0A || data[offset] == 0x0D)
     {
         /* Empty, so we'll look for the next character */
         for(length=0; length<(int)strlen(data); length++)
@@ -2017,7 +2017,7 @@ void CleanBuffer(char *buffer)
     int length = (int)strlen(buffer);
     for(int i = length-1; i >= 0; i--)
     {
-        if(buffer[i] == '\0' || buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
+        if(buffer[i] == '\0' || buffer[i] == ' ' || buffer[i] == 0x0A  || buffer[i] == 0x0D || buffer[i] == '\t')
             buffer[i] = '\0';
         else
             break;
@@ -2028,7 +2028,7 @@ void CleanBuffer(char *buffer)
     int j = 0;
     for(int i = 0; i < length; i++)
     {
-        if(buffer[i] == ' ' || buffer[i] == '\n' || buffer[i] == '\t')
+        if(buffer[i] == ' ' || buffer[i] == 0x0A  || buffer[i] == 0x0D || buffer[i] == '\t')
             j++;
         else
             break;
@@ -2579,9 +2579,11 @@ void ProcessOZUNIDLine(char *label)
 
     /* Make sure the label is a value past the ozunid_ prefix */
     for(i=(int)strlen("ozunid_"); i<(int)strlen(label); i++)
+    {
         if(label[i] < '0' || label[i] > '9')
             return;
-
+    }
+    
     /* We have a number, so we go to the next */
     index = atoi(label) + 1;
 
@@ -2668,7 +2670,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
            string[i] == '(' || string[i] == ')' || string[i] == '.' || string[i] == '^' ||
            string[i] == '<' || string[i] == '>' || string[i] == '\\' || string[i] == '!' ||
            string[i] == '|' || string[i] == '@' || string[i] == '{' || string[i] == '}' ||
-           string[i] == '=' || string[i] == '\t' || string[i] == '\n')
+           string[i] == '=' || string[i] == '\t' || string[i] == 0x0A || string[i] == 0x0D)
             nb_element += 2;
     }
     
@@ -2756,7 +2758,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
             }
 
             /** Simple Case 2: Unambiguous Operators or Seperators (* may be the current address, but we will isolate as we would an operator) **/
-            if(string[i] == '+' || string[i] == '*' || string[i] == '/' || string[i] == '&' || string[i] == '.' || string[i] == '!' || string[i] == '{' || string[i] == '}' || string[i] == ' ' || string[i] == '\t' || string[i] == '\n')
+            if(string[i] == '+' || string[i] == '*' || string[i] == '/' || string[i] == '&' || string[i] == '.' || string[i] == '!' || string[i] == '{' || string[i] == '}' || string[i] == ' ' || string[i] == '\t' || string[i] == 0x0A || string[i] == 0x0D)
             {
                 /* Finish the previous one */
                 buffer[bufIdx] = '\0';
@@ -2776,7 +2778,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                 }
 
                 /* Stores the separator alone (unless it is a neutral separator: space, \ t, \ n) */
-                if(string[i] != ' ' && string[i] != '\n' && string[i] != '\t')
+                if(string[i] != ' ' && string[i] != 0x0A && string[i] != 0x0D && string[i] != '\t')
                 {
                     /* Adds the element */
                     buffer[0] = string[i];
@@ -2857,7 +2859,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
             }
 
             /* Stores the separator alone (unless it is a neutral separator: space, \ t, \ n) */
-            if(string[i] != ' ' && string[i] != '\n' && string[i] != '\t')
+            if(string[i] != ' ' && string[i] != 0x0A && string[i] != 0x0D && string[i] != '\t')
             {
                 /* Adds the element */
                 buffer[0] = string[i];
@@ -2890,7 +2892,7 @@ char **DecodeOperandeAsElementTable(char *string, int *nb_element_rtn, int separ
                 }
 
                 /* Stores the separator alone (unless it is a neutral separator: space, \ t, \ n) */
-                if(string[i] != ' ' && string[i] != '\n' && string[i] != '\t')
+                if(string[i] != ' ' && string[i] != 0x0A && string[i] != 0x0D && string[i] != '\t')
                 {
                     buffer[0] = string[i];
                     buffer[1] = '\0';
@@ -2964,7 +2966,7 @@ int IsSeparator(char c, int separator_mode)
         if(c == '<' || c == '=' || c == '>' || c == '#' ||              /* < egal > different */
            c == '+' || c == '-' || c == '*' || c == '/' ||              /* + - * / */
            c == '&' || c == '.' || c == '!' ||                          /* AND / OR / EXCLUSIVE */
-           c == '{' || c == '}' || c == ' ' || c == '\t' || c == '\n')  /* Operators / Separators Priority */
+           c == '{' || c == '}' || c == ' ' || c == '\t' || c == 0x0A || c == 0x0D)  /* Operators / Separators Priority */
             return(1);
     }
     /** The data are separated by, **/
@@ -3348,7 +3350,7 @@ int64_t GetAddressValue(char *expression, int current_address, struct external *
         return(current_address);
 
     /* Is it an External Label */
-    my_Memory(MEMORY_SEARCH_EXTERNAL,expression,&current_external,current_omfsegment);
+    my_Memory(MEMORY_SEARCH_EXTERNAL, expression, &current_external, current_omfsegment);
     if(current_external != NULL)
     {
         *current_external_rtn = current_external;
@@ -3357,7 +3359,7 @@ int64_t GetAddressValue(char *expression, int current_address, struct external *
     }
 
     /* We are looking for a Label */
-    my_Memory(MEMORY_SEARCH_LABEL,expression,&current_label,current_omfsegment);
+    my_Memory(MEMORY_SEARCH_LABEL, expression, &current_label, current_omfsegment);
     if(current_label == NULL)
         return(-1);
 
@@ -3929,10 +3931,11 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
 
     /* Init */
     strcpy(buffer_error_rtn,"");
+    *is_reloc_rtn = 0;
     *byte_count_rtn = (BYTE)(current_line->nb_byte - 1);   /* Size of the Operand */
     *expression_address_rtn = 0xFFFFFFFF;        /* This is not a long address */
-    is_pea_opcode = !my_stricmp(current_line->opcode_txt,"PEA");
-    is_mvn_opcode = (!my_stricmp(current_line->opcode_txt,"MVN") || !my_stricmp(current_line->opcode_txt,"MVP"));
+    is_pea_opcode = current_line->opcode_byte == 0xF4 /*PEA*/;
+    is_mvn_opcode = (current_line->opcode_byte == 0x54 /*MVN*/ || current_line->opcode_byte == 0x44 /*MVP*/);
 
     /** We will treat the # < > ^ | from the very beginning **/
     int has_hash = (expression_param[0] == '#') ? 1 : 0;
@@ -4231,6 +4234,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
     has_priority = 0;
     nb_open = 0;
     for(int i=0; i<nb_element; i++)
+    {
         if(!strcmp(tab_element[i],"{"))
         {
             nb_open++;
@@ -4247,6 +4251,8 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
                 return(0);
             }
         }
+    }
+    
     if(nb_open != 0)
     {
         /* Error */
@@ -4351,6 +4357,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
         /* Code Line */
         if(current_line->type == LINE_CODE)
         {
+            /* @TODO: ^ should always return bank, regardless of operand or mode! */
             /* Number of Bytes to Relocate */
             if((has_hash == 1 || is_pea_opcode == 1) && has_exp == 1)          /* # ^ = 1 or 2 Byte relocate */
             {
@@ -4903,11 +4910,7 @@ int CreateBinaryFile(char *file_path, unsigned char *data, int length)
     my_DeleteFile(file_path);
 
     /* Create the File */
-#if defined(WIN32) || defined(WIN64)    
     fd = fopen(file_path,"wb");
-#else
-    fd = fopen(file_path,"w");
-#endif
     if(fd == NULL)
         return(1);
 
@@ -4978,8 +4981,12 @@ char **BuildUniqueListFromFile(char *file_path, int *nb_value)
         line_length = (int) strlen(buffer_line);
         if(line_length < 2)              /* Empty line */
             continue;
-        if(buffer_line[line_length-1] == '\n')
+        if(buffer_line[line_length-1] == 0x0A)
+        {
+            if( line_length > 2 && buffer_line[line_length-2] == 0x0D )
+                --line_length;
             buffer_line[line_length-1] = '\0';  /* make the final \n into EOL (zero) */
+        }
 
         /** Stores the value **/
         for(i=0,found=0; i<nb_line; i++)

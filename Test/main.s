@@ -12,6 +12,7 @@
 * monitor addresses
 
 
+
 TEXT	=	$FB39		;Reset text window
 TABV	=	$FB5B		;Complete vtab, using contents of 'A'
 MONBELL	=	$FBE4		;random bell noise!
@@ -63,11 +64,10 @@ _LFT	ds	1			;Window edge   0..39
 * Program Entry
 
 ;Issue #26 - This should start at the ORG in the linkscript, not at the last ORG in the DUM sections.
-START
+TEST_START
 
 ; PUT current issue here, so it's the first thing assembled.
 ; The rest below are unit tests to make sure future changes don't break existing code!
-
 
 ; START OF TESTS KNOWN TO HAVE PASSED IN PREVIOUS BUILDS
 
@@ -153,7 +153,7 @@ myQuit
         cpx #$20
 
         org	;return to ongoing address
-        
+
 
 ;Issue #16 (fadden) - Byte reference modifiers are ignored (no way to force DP)
         lda	<$fff0			;zp
@@ -191,5 +191,79 @@ L00BC   bit	L00BC
 
         ldx	L00BC,y
         stx	L00BC,y
+
+; JBrooks
+*
+*
+* GENERAL PURPOSE DELAY ROUTINE
+*
+;:DELAY	LDX	#$11
+;]SPOT	=	*&$FF00
+;:DELAY2	DEX
+;        BNE	:DELAY2
+;        ERR	{*&$FF00}-{]SPOT&$FF00}
+;        INC	:COUNTL
+;        BNE	:DELAY3
+;        INC	:COUNTH
+;:DELAY3	SEC
+;        SBC	#$01
+;        BNE	:DELAY
+;        RTS
+
+;:COUNTL	DB	$00
+;:COUNTH	DB	$00
+
+        xc
+        xc
+        org    $018200
+
+bank02	equ	$020000
+bank03	equ $030000
+dp		equ	$A5
+long    equ	$020304
+
+        mx    %00
+start	nop
+        pea	^start
+        pea	start
+        mvn	bank02,bank03
+        mvp	bank03,bank02
+
+        lda	dp
+        lda <dp
+        lda >dp
+        lda ^dp
+        lda |dp
+
+        lda #long
+        lda #<long
+        lda #>long
+        lda	#^long
+
+        lda long
+        lda <long
+        lda >long
+        lda ^long
+
+        pea #long
+        pea #<long
+        pea #>long
+        pea #^long
+
+        pea long
+        pea <long
+        pea >long
+        pea ^long
+
+        org
+
+        ;CR/LF test (requires reformatting this file)
+        hex    0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a
+
+        asl
+        asl
+        asl
+        asl
+
 
 ]XCODEEND       ; Keep this at the end and put your code above this

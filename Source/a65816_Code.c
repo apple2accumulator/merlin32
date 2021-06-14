@@ -2148,7 +2148,7 @@ static void BuildOneCodeLineOperand(struct source_line *current_line, int *has_e
     
     /** Calculate the value of the Operand **/
     next_sep = strchr(param->buffer_operand,',');
-    if((!my_stricmp(current_line->opcode_txt,"MVN") || !my_stricmp(current_line->opcode_txt,"MVP")) && next_sep != NULL)
+    if((current_line->opcode_byte == 0x54 /*MVN*/ || current_line->opcode_byte == 0x44 /*MVP*/) && next_sep != NULL)
     {
         /** NOTE: MVN / MVP have two expressions **/
         *next_sep = '\0';
@@ -2191,7 +2191,12 @@ static void BuildOneCodeLineOperand(struct source_line *current_line, int *has_e
         /* Want the high word of the value? */
         if( current_line->operand_txt[0] == '^' )
         {
-            operand_value_64 = (operand_value_64 >> 4);	/* move down so bank and page are all that we have left */
+            /* @TODO: EvalExpressionAsInteger should always return bank for ^ usage, regardless of operand or mode! When fixed, remove this if code! */
+            // do not need to do this for PEA, it's already the bank value
+            if( current_line->opcode_byte != 0xF4 )
+            {
+                operand_value_64 = (operand_value_64 >> 16);    /* move down so bank is all that we have left */
+            }
         }
         else if( current_line->operand_txt[0] == '<' )
         {
@@ -2659,7 +2664,7 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
         has_long_addr = 1;
     
     /* Copy of Block? (MVN, MVP) */
-    if(!my_stricmp(current_line->opcode_txt,"MVN") || !my_stricmp(current_line->opcode_txt,"MVP"))
+    if(current_line->opcode_byte == 0x54 /*MVN*/ || current_line->opcode_byte == 0x44 /*MVP*/)
         is_block_copy = 1;
     
     /** Process the # < > ^ | **/
@@ -2797,7 +2802,7 @@ static int GetOperandNbByte(char *operand, struct source_line *current_line, int
         {
             /* > */
             current_line->no_direct_page = 1;
-            nb_max_byte = 2;
+            nb_max_byte = 3;
         }
         else if(has_pipe == 1)	/*@TODO: this may be a bug as it allows !, which should be "NOT" and not LONG...?) */
         {
