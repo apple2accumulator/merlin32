@@ -6,22 +6,12 @@
 /*  Auteur : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <setjmp.h>
-#include <stdint.h>
 
 #include "Dc_Library.h"
+
 #include "a65816_Link.h"
-#include "a65816_Line.h"
 #include "a65816_File.h"
-#include "a65816_Lup.h"
-#include "a65816_Macro.h"
-#include "a65816_Cond.h"
-#include "a65816_Code.h"
-#include "a65816_Data.h"
-#include "a65816_OMF.h"
 #include "version.h"
 
 #ifndef MACRO_DIR
@@ -29,13 +19,12 @@
 #endif
 
 #define STR_SIZE 2048
+#define SYMBOL_COLUMNS 6
 
 int Assemble65c816(char *,char *,int);
-void ParseArguments(int,char **,int *,char *,char *);
+void ParseArguments(int,char **,int *,int *,char *,char *);
 void Usage(void);
 void FailWithUsage(char *,char *);
-
-char program_name[STR_SIZE];
 
 /************************************************/
 /*  main() :  Main function of the application. */
@@ -43,7 +32,7 @@ char program_name[STR_SIZE];
 int main(int argc, char *argv[])
 {
     jmp_buf context;
-    int i, verbose_mode, context_value, error;
+    int i, verbose_mode, symbol_mode, context_value, error;
     char *error_string = NULL;
     struct omf_segment *current_omfsegment;
     struct parameter *param;
@@ -52,14 +41,11 @@ int main(int argc, char *argv[])
     char macro_folder_path[STR_SIZE];
     size_t len;
 
-    /* Fill in the global program name variable */
-    CopyString(program_name,argv[0],STR_SIZE);
-
     /* Display program about string */
     printf("%s %s, (c) Brutal Deluxe 2011-2015\n",argv[0],MERLIN_VERSION);
 
     /* Analyze command line arguments */
-    ParseArguments(argc,argv,&verbose_mode,macro_folder_path,source_file_path);
+    ParseArguments(argc, argv, &verbose_mode, &symbol_mode, macro_folder_path, source_file_path);
 
     /* Initialization */
     my_Memory(MEMORY_INIT,NULL,NULL,NULL);
@@ -91,7 +77,7 @@ int main(int argc, char *argv[])
             if(param != NULL)
             if(strlen(param->current_folder_path) > 0)
             sprintf(file_error_path,"%serror_output.txt",param->current_folder_path);
-            CreateOutputFile(file_error_path,current_omfsegment,NULL);
+            CreateOutputFile(file_error_path, 0, 0, current_omfsegment, NULL);
         }
         
         /* Free memory */
@@ -128,7 +114,7 @@ int main(int argc, char *argv[])
     strcpy(param->current_folder_path,param->output_file_path);
 
     /*** Assemble and Link all project files ***/
-    error = AssembleLink65c816(source_file_path,macro_folder_path,verbose_mode);
+    error = AssembleLink65c816(source_file_path,macro_folder_path,verbose_mode,symbol_mode);
 
     /* Free resources */
     my_File(FILE_FREE,NULL);
@@ -149,37 +135,69 @@ void ParseArguments(
                     /* data input */ int   argc,
                     /* data input */ char *argv[],
                     /* exit value */ int  *verbose,
+                    /* exit value */ int  *symbols,
                     /* exit value */ char *macro_dir,
                     /* exit value */ char *source_file)
 {
-    *verbose = 0;
+    int columns = 0;
+
+    *verbose = -1;
+    *symbols = 0;
     ClearString(macro_dir);
     ClearString(source_file);
 
     for(int i = 1; i < argc; i++)
     {
-        if(my_stricmp(argv[i],"-v")==0 || my_stricmp(argv[i],"--verbose")==0)
+        char* curArg = argv[i];
+
+        if(my_strnicmp(curArg,"-v",2)==0)
         {
-            *verbose = 1;
+            if( strlen(curArg) > 2 )
+            {
+                columns = atoi(&curArg[2]);
+                if( !columns )
+                    columns = SYMBOL_COLUMNS;
+                *verbose = columns;
+            }
+            else
+            	*verbose = 0;
         }
-        else if(my_stricmp(argv[i],"-h")==0 || my_stricmp(argv[i],"--help")==0)
+        else if(my_strnicmp(curArg,"--verbose",8)==0)
+        {
+            if( strlen(curArg) > 8 )
+            {
+                columns = atoi(&curArg[8]);
+                if( !columns )
+                    columns = SYMBOL_COLUMNS;
+                *verbose = columns;
+            }
+            else
+	            *verbose = 0;
+        }
+        else if(my_strnicmp(curArg,"-s",2)==0)
+        {
+            if( strlen(curArg) > 2 )
+                columns = atoi(&curArg[2]);
+            *symbols = columns ? columns : SYMBOL_COLUMNS;
+        }
+        else if(my_stricmp(curArg,"-h")==0 || my_stricmp(curArg,"--help")==0)
         {
             Usage();
             exit(EXIT_SUCCESS);
         }
-        else if(IsDirectory(argv[i])) /* Dir arg is macro lib */
+        else if(IsDirectory(curArg)) /* Dir arg is macro lib */
         {
             if(IsEmpty(macro_dir) && IsEmpty(source_file))
-            	CopyString(macro_dir,argv[i],STR_SIZE);
+            	CopyString(macro_dir,curArg,STR_SIZE);
             else
-            	FailWithUsage(argv[i],"Too many macro directories");
+            	FailWithUsage(curArg,"Too many macro directories");
         }
         else                          /* Non-dir arg is source file */
         {
             if(IsEmpty(source_file))    /* Accept only if not yet provided */
-            	CopyString(source_file,argv[i],STR_SIZE);
+            	CopyString(source_file,curArg,STR_SIZE);
             else
-            	FailWithUsage(argv[i],"Too many source files");
+            	FailWithUsage(curArg,"Too many source files");
         }
     }
 
@@ -197,8 +215,15 @@ void ParseArguments(
 void Usage(void)
 {
     printf("Usage:\n");
-    printf("  %s [-v|--verbose] [<macro_dir>] <source_file>\n",program_name);
-    printf("  %s -h|--help\n",program_name);
+    printf("  [(-v|--verbose)[#]] [-s[#]] [<macro_dir>] <source_file>\n");
+    printf("or\n");
+    printf("  -h|--help to print this help and exit\n\n");
+    printf("  <macro_dir> is the optional path to the macro folder directory. Default is "MACRO_DIR"\n");
+    printf("  <source_file> is the path to the source or link file to assemble\n");
+    printf("  -v|--verbose will write detailed output results to _outputfile.txt\n");
+    printf("  (a number after -v will dump symbol tables to the output file)\n");
+    printf("  -s will dump the symbol tables to the console\n");
+    printf("  (a number after -s or -v specifies the # of columns (0 = default, which is %i)\n", SYMBOL_COLUMNS);
 }
 
 
@@ -208,9 +233,9 @@ void Usage(void)
 void FailWithUsage(char *object_name,char *message)
 {
     if (IsEmpty(object_name))
-    	fprintf(stderr, "%s: %s\n", program_name, message);
+    	fprintf(stderr, "ERROR: %s\n", message);
     else
-    	fprintf(stderr, "%s: %s: %s\n", program_name, message, object_name);
+    	fprintf(stderr, "ERROR: %s: %s\n", message, object_name);
 
     Usage();
     exit(EXIT_FAILURE);

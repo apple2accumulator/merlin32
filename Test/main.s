@@ -65,7 +65,8 @@ _LFT	ds	1			;Window edge   0..39
 ;Issue #26 - This should start at the ORG in the linkscript, not at the last ORG in the DUM sections.
 START
 
-; PUT current issue here, so it's the first thing assembled. The rest below are unit tests to make sure future changes don't break existing code!
+; PUT current issue here, so it's the first thing assembled.
+; The rest below are unit tests to make sure future changes don't break existing code!
 
 
 ; START OF TESTS KNOWN TO HAVE PASSED IN PREVIOUS BUILDS

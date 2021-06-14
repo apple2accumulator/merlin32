@@ -6,12 +6,6 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <setjmp.h>
-#include <stdint.h>
-
 /** Platform dependent code **/
 /* MSVC only defines _WIN32 */
 #if defined(_WIN32) || defined(WIN32) || defined(WIN64)
@@ -22,15 +16,15 @@
 #endif
 
 #include "Dc_Library.h"
-#include "a65816_Line.h"
+
+#include "a65816_Link.h"
+
 #include "a65816_File.h"
 #include "a65816_Lup.h"
-#include "a65816_Macro.h"
 #include "a65816_Cond.h"
 #include "a65816_Code.h"
 #include "a65816_Data.h"
 #include "a65816_OMF.h"
-#include "a65816_Link.h"
 
 static int Assemble65c816Segment(struct omf_project *,struct omf_segment *,char *);
 static int Link65c816Segment(struct omf_project *, struct omf_segment *);
@@ -41,7 +35,7 @@ static struct omf_project *BuildLinkFile(struct source_file *);
 /*********************************************************************/
 /*  AssembleLink65c816() :  Assembles and Links source files 65c816. */
 /*********************************************************************/
-int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verbose_mode)
+int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verbose_mode, int symbol_mode)
 {
     int error = 0, is_link_file = 0, org_offset = 0;
     char file_name[1024] = "";
@@ -112,7 +106,7 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
         if(error)
         {
             /* Creation of the File Output */
-            CreateOutputFile(file_error_path,current_omfproject->first_segment,current_omfproject);
+            CreateOutputFile(file_error_path, 0, 0, current_omfproject->first_segment, current_omfproject);
 
             /* Memory release */
             mem_free_omfproject(current_omfproject);
@@ -152,14 +146,14 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
         }
 
         /** Dump Code as Output Text File **/
-        if(verbose_mode)
+        if(verbose_mode >= 0)
         {
             /* File name _Output.txt */
             sprintf(param->output_file_path,"%s%s_Output.txt",param->current_folder_path,current_omfproject->first_segment->object_name);         /* Mono Segment */
 
             /* Create the Output File */
             printf("  + Create Output Text file...\n");
-            CreateOutputFile(param->output_file_path,current_omfproject->first_segment,current_omfproject);
+            CreateOutputFile(param->output_file_path, verbose_mode, symbol_mode, current_omfproject->first_segment, current_omfproject);
         }
 
         /* Memory release */
@@ -210,7 +204,7 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
             if(error)
             {
                 /* Create the Output File */
-                CreateOutputFile(file_error_path,current_omfsegment,current_omfproject);
+                CreateOutputFile(file_error_path, 0, 0, current_omfsegment, current_omfproject);
 
                 /* Memory release : OMF Project + OMF Segment */
                 mem_free_omfproject(current_omfproject);
@@ -289,7 +283,7 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
         }
 
         /** Dump the Output Text File **/
-        if(verbose_mode)
+        if(verbose_mode >= 0)
         {
             /* Create the Output Text file */
             printf("  + Create Output Text file%s...\n",(current_omfproject->nb_segment == 1)?"":"s");
@@ -312,7 +306,7 @@ int AssembleLink65c816(char *master_file_path, char *macro_folder_path, int verb
                     sprintf(param->output_file_path,"%s%s_S%02X_%s_Output.txt",param->current_folder_path,current_omfproject->dsk_name_tab[current_omfsegment->file_number-1],current_omfsegment->segment_number,(strlen(current_omfsegment->segment_name)==0)?current_omfsegment->object_name:current_omfsegment->segment_name);
 
                 /* Create the Output File */
-                CreateOutputFile(param->output_file_path,current_omfsegment,current_omfproject);
+                CreateOutputFile(param->output_file_path, verbose_mode, symbol_mode, current_omfsegment, current_omfproject);
             }
         }
 
@@ -541,11 +535,13 @@ static int Assemble65c816Segment(struct omf_project *current_omfproject, struct 
     {
         /* Look for the first line with something in it */
         for(current_line=current_omfsegment->first_file->first_line; current_line; current_line=current_line->next)
+        {
             if(current_line->nb_byte > 0)
             {
                 current_omfsegment->org = current_line->address;
                 break;
             }
+        }
     }
 
     /* OK */

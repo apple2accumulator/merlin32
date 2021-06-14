@@ -6,23 +6,12 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include <stdlib.h>
-#include <setjmp.h>
-#include <sys/timeb.h>
-
 #include "Dc_Library.h"
+
+#include "a65816_Macro.h"
+
 #include "a65816_File.h"
 #include "a65816_Line.h"
-#include "a65816_Macro.h"
 
 void LoadOneMacroFile(char *,char *,struct source_line *,struct omf_segment *);
 static struct source_line *BuildMacroLine(struct source_line *,struct omf_segment *,struct omf_project *);
@@ -270,8 +259,8 @@ void LoadOneMacroFile(char *folder_path, char *file_name, struct source_line *ma
                 if(current_equivalence == NULL)
                     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for structure equivalence");
                 current_equivalence->name = strdup(param->buffer_label);
-                current_equivalence->value = strdup(param->buffer_operand);
-                if(current_equivalence->name == NULL || current_equivalence->value == NULL)
+                current_equivalence->valueStr = strdup(param->buffer_operand);
+                if(current_equivalence->name == NULL || current_equivalence->valueStr == NULL)
                 {
                     mem_free_equivalence(current_equivalence);
                     my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for 'name' from structure equivalence");

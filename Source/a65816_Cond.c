@@ -6,23 +6,12 @@
 /*  Author : Olivier ZARDINI  *  Brutal Deluxe Software  *  Janv 2011  */
 /***********************************************************************/
 
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include <stdlib.h>
-#include <setjmp.h>
-#include <sys/timeb.h>
-
 #include "Dc_Library.h"
+
+#include "a65816_Cond.h"
+
 #include "a65816_File.h"
 #include "a65816_Line.h"
-#include "a65816_Cond.h"
 
 /****************************************************************************/
 /* ProcessConditionalDirective() : Processes sources lines with conditions. */
