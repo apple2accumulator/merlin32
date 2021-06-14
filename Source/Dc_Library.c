@@ -172,6 +172,8 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
     struct global *next_global = NULL;
     struct global *new_global = NULL;
 
+    int sortValues = 0;
+
     switch(code)
     {
         case MEMORY_INIT :
@@ -821,6 +823,8 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 current_omfsegment->last_label->next = (struct label *) data;
             current_omfsegment->last_label = (struct label *) data;
             current_omfsegment->nb_label++;
+            if( current_omfsegment->tab_label )
+                free(current_omfsegment->tab_label);
             break;
 
         case MEMORY_GET_LABEL_NB :
@@ -849,24 +853,29 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             *((struct label **)value) = current_label;
             break;
 
+        case MEMORY_SORT_LABEL_V:
+            sortValues = 1;
+            // FALL THROUGH
+
         case MEMORY_SORT_LABEL :
             if(current_omfsegment->nb_label == 0)
                 return;
 
             /* Allocate memory */
-            if(current_omfsegment->tab_label)
-                free(current_omfsegment->tab_label);
-            current_omfsegment->tab_label = (struct label **) calloc(current_omfsegment->nb_label,sizeof(struct label *));
-            if(current_omfsegment->tab_label == NULL)
-                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_label table");
+            if(!current_omfsegment->tab_label)
+            {
+                current_omfsegment->tab_label = (struct label **) calloc(current_omfsegment->nb_label,sizeof(struct label *));
+                if(current_omfsegment->tab_label == NULL)
+                    my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_label table");
 
-            /* Place the items */
-            current_label = current_omfsegment->first_label;
-            for(int i=0; current_label; current_label=current_label->next,i++)
-                current_omfsegment->tab_label[i] = current_label;
+                /* Place the items */
+                current_label = current_omfsegment->first_label;
+                for(int i=0; current_label; current_label=current_label->next,i++)
+                    current_omfsegment->tab_label[i] = current_label;
+            }
 
             /* Sort items */
-            qsort(current_omfsegment->tab_label,current_omfsegment->nb_label,sizeof(struct label *),compare_label);
+            qsort(current_omfsegment->tab_label,current_omfsegment->nb_label,sizeof(struct label *), sortValues ? compare_label_v : compare_label);
 
             /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_label; i++)
@@ -875,22 +884,6 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                     current_omfsegment->tab_label[i]->next = NULL;
                 else
                     current_omfsegment->tab_label[i]->next = current_omfsegment->tab_label[i+1];
-            }
-            current_omfsegment->first_label = current_omfsegment->tab_label[0];
-            current_omfsegment->last_label = current_omfsegment->tab_label[current_omfsegment->nb_label-1];
-            break;
-
-        case MEMORY_SORT_LABEL_V:
-            /* Sort items */
-            qsort(current_omfsegment->tab_label, current_omfsegment->nb_label, sizeof(struct label *), compare_label_v);
-
-            /* Replace the links */
-            for(int i=0; i<current_omfsegment->nb_label; i++)
-            {
-                if(i == current_omfsegment->nb_label-1)
-                current_omfsegment->tab_label[i]->next = NULL;
-                else
-                current_omfsegment->tab_label[i]->next = current_omfsegment->tab_label[i+1];
             }
             current_omfsegment->first_label = current_omfsegment->tab_label[0];
             current_omfsegment->last_label = current_omfsegment->tab_label[current_omfsegment->nb_label-1];
@@ -949,6 +942,8 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                 current_omfsegment->last_equivalence->next = (struct equivalence *) data;
             current_omfsegment->last_equivalence = (struct equivalence *) data;
             current_omfsegment->nb_equivalence++;
+            if(current_omfsegment->tab_equivalence)
+                free(current_omfsegment->tab_equivalence);
             break;
 
         case MEMORY_GET_EQUIVALENCE_NB :
@@ -977,24 +972,29 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
             *((struct equivalence **)value) = current_equivalence;
             break;
 
+        case MEMORY_SORT_EQUIVALENCE_V :
+            sortValues = 1;
+            // FALL THROUGH
+
         case MEMORY_SORT_EQUIVALENCE :
             if(current_omfsegment->nb_equivalence == 0)
                 return;
 
             /* Allocate memory */
-            if(current_omfsegment->tab_equivalence)
-                free(current_omfsegment->tab_equivalence);
-            current_omfsegment->tab_equivalence = (struct equivalence **) calloc(current_omfsegment->nb_equivalence,sizeof(struct equivalence *));
-            if(current_omfsegment->tab_equivalence == NULL)
-                my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_equivalence table");
+            if(!current_omfsegment->tab_equivalence)
+            {
+                current_omfsegment->tab_equivalence = (struct equivalence **) calloc(current_omfsegment->nb_equivalence,sizeof(struct equivalence *));
+                if(current_omfsegment->tab_equivalence == NULL)
+                    my_RaiseError(ERROR_RAISE,"Impossible to allocate memory for tab_equivalence table");
 
-            /* Place the items */
-            current_equivalence = current_omfsegment->first_equivalence;
-            for(int i=0; current_equivalence; current_equivalence=current_equivalence->next,i++)
-                current_omfsegment->tab_equivalence[i] = current_equivalence;
+                /* Place the items */
+                current_equivalence = current_omfsegment->first_equivalence;
+                for(int i=0; current_equivalence; current_equivalence=current_equivalence->next,i++)
+                    current_omfsegment->tab_equivalence[i] = current_equivalence;
+            }
 
             /* Sort items */
-            qsort(current_omfsegment->tab_equivalence,current_omfsegment->nb_equivalence,sizeof(struct equivalence *),compare_equivalence);
+            qsort(current_omfsegment->tab_equivalence,current_omfsegment->nb_equivalence,sizeof(struct equivalence *), sortValues ? compare_equivalence_v : compare_equivalence);
 
             /* Replace the links */
             for(int i=0; i<current_omfsegment->nb_equivalence; i++)
@@ -1003,22 +1003,6 @@ void my_Memory(int code, void *data, void *value, struct omf_segment *current_om
                     current_omfsegment->tab_equivalence[i]->next = NULL;
                 else
                     current_omfsegment->tab_equivalence[i]->next = current_omfsegment->tab_equivalence[i+1];
-            }
-            current_omfsegment->first_equivalence = current_omfsegment->tab_equivalence[0];
-            current_omfsegment->last_equivalence = current_omfsegment->tab_equivalence[current_omfsegment->nb_equivalence-1];
-            break;
-
-        case MEMORY_SORT_EQUIVALENCE_V :
-            /* Sort items */
-            qsort(current_omfsegment->tab_equivalence, current_omfsegment->nb_equivalence, sizeof(struct equivalence *), compare_equivalence_v);
-
-            /* Replace the links */
-            for(int i=0; i<current_omfsegment->nb_equivalence; i++)
-            {
-                if(i == current_omfsegment->nb_equivalence-1)
-                current_omfsegment->tab_equivalence[i]->next = NULL;
-                else
-                current_omfsegment->tab_equivalence[i]->next = current_omfsegment->tab_equivalence[i+1];
             }
             current_omfsegment->first_equivalence = current_omfsegment->tab_equivalence[0];
             current_omfsegment->last_equivalence = current_omfsegment->tab_equivalence[current_omfsegment->nb_equivalence-1];
