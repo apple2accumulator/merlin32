@@ -1534,7 +1534,6 @@ char *GetFileProperCasePath(char *file_path_arg)
     return(&file_path_case[0]);
 }
 
-
 /************************************************************************/
 /*  GetFolderFileList() : Retrieves the list of Files from a directory. */
 /************************************************************************/
@@ -1666,7 +1665,7 @@ char **GetFolderFileList(char *folder_path, int *nb_file_rtn, int *is_error)
         if(dir_entry->d_name[0] == '.')
             continue;
         /* Ignore Directories */
-        if(dir_entry->d_type == DT_DIR)
+        if(IsDirEntryDirectory(dir_entry))
             continue;
 
         /** Keep the File **/
@@ -4394,7 +4393,7 @@ int64_t EvalExpressionAsInteger(char *expression_param, char *buffer_error_rtn, 
             /* Number of Bytes to Relocate */
             if(operand_size == 3 || operand_size == 4)
                 *byte_count_rtn = 3;
-            else if(has_exp == 1)          /* ^ = 1 Byte à reloger */
+            else if(has_exp == 1)          /* ^ = 1 Byte ï¿½ reloger */
                 *byte_count_rtn = 1;
             else
                 *byte_count_rtn = (BYTE)operand_size;
@@ -4754,7 +4753,7 @@ int UseCurrentAddress(char *operand, char *buffer_error_rtn, struct source_line 
         if(!my_stricmp(tab_element[i],"{") || !my_stricmp(tab_element[i],"}"))
             continue;
 
-        /** On reconnait immédiatement les Operators no ambigus + / - & . ! = **/
+        /** On reconnait immï¿½diatement les Operators no ambigus + / - & . ! = **/
         if(!my_stricmp(tab_element[i],"+") || !my_stricmp(tab_element[i],"-") || !my_stricmp(tab_element[i],"/") ||
            !my_stricmp(tab_element[i],"&") || !my_stricmp(tab_element[i],".") || !my_stricmp(tab_element[i],"!") ||
            !my_stricmp(tab_element[i],"="))
@@ -4786,7 +4785,7 @@ int UseCurrentAddress(char *operand, char *buffer_error_rtn, struct source_line 
 
 
 /*********************************************************************************/
-/*  ReplaceCurrentAddressInOperand() :  Remplace le * par le label unique dédié. */
+/*  ReplaceCurrentAddressInOperand() :  Remplace le * par le label unique dï¿½diï¿½. */
 /*********************************************************************************/
 void ReplaceCurrentAddressInOperand(char **operand_adr, char *label_name, char *buffer_error_rtn, struct source_line *current_line)
 {
@@ -5552,9 +5551,21 @@ int IsDirectory(char *name)
 #else
     struct stat file_info;
     if (stat(name, &file_info) == 0)
-    is_directory = S_ISDIR(file_info.st_mode);
+        is_directory = S_ISDIR(file_info.st_mode);
 #endif
     return is_directory;
+}
+
+/************************************************************************/
+/*  IsDirEntryDirectory() :  Determine if the directory entry is a directory           */
+/************************************************************************/
+int IsDirEntryDirectory(struct dirent *dir_entry)
+{
+#ifdef SOMEGNUTHING
+    return dir_entry->d_type == DT_DIR;
+#else
+    return IsDirectory(dir_entry->d_name);
+#endif
 }
 
 /***********************************************************************/

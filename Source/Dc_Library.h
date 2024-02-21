@@ -289,5 +289,6 @@ extern char *CopyString(char *target,char *source,size_t target_size);
 extern int IsEmpty(char *s);
 extern char *ClearString(char *s);
 extern int IsDirectory(char *name);
+extern int IsDirEntryDirectory(struct dirent *e);
 
 /***********************************************************************/
