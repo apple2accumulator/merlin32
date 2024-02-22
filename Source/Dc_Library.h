@@ -12,8 +12,13 @@
 #include <stdint.h>
 #include <ctype.h>
 
+#ifndef _WIN32
+#include <dirent.h> /* struct dirent */
+#endif
 
-#if defined(WIN32)
+/* _WIN32 is the only macro that is necessary to identify Windows 32-bit 
+   or 64-bit, on any architecture. */
+#if defined(_WIN32)
 typedef unsigned long       DWORD;    /* Unsigned 32 bit */
 #else
 typedef uint32_t            DWORD;    /* Unsigned 32 bit */
@@ -26,7 +31,7 @@ typedef unsigned char       BYTE;     /* Unsigned 8 bit */
 #define BYTE_ORDER_MOTOROLA    2     /* Big Endian */
 
 /** Platform dependent code **/
-#if defined(WIN32) || defined(WIN64) 
+#if defined(_WIN32)
   /* Windows */
   #define FOLDER_SEPARATOR  "\\"
 #else
@@ -289,6 +294,9 @@ extern char *CopyString(char *target,char *source,size_t target_size);
 extern int IsEmpty(char *s);
 extern char *ClearString(char *s);
 extern int IsDirectory(char *name);
+
+#ifndef _WIN32
 extern int IsDirEntryDirectory(struct dirent *e);
+#endif
 
 /***********************************************************************/

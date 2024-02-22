@@ -10,8 +10,7 @@
 #include <time.h>
 
 /** Platform dependent code **/
-/* MSVC only defines _WIN32 */
-#if defined(_WIN32) || defined(WIN32) || defined(WIN64)
+#if defined(_WIN32)
 /* Windows */
 #include <io.h>
 #include <windows.h>                    /* GetFileAttributes() SetFileAttributes() FILE_ATTRIBUTE_HIDDEN */
@@ -20,12 +19,11 @@
 #include <inttypes.h>
 #include <strings.h>                    /* strcasecmp() strncasecmp() */
 #include <unistd.h>                     /* unlink() */
-#include <dirent.h>
+#include <dirent.h>			/* struct dirent */
 #include <sys/stat.h>
 #endif
 
 #include "Dc_Library.h"
-
 #include "a65816_File.h"
 #include "a65816_OMF.h"
 
@@ -5529,7 +5527,7 @@ int IsEmpty(char *s)
 
 
 /************************************************************************/
-/*  IsEmpty() :  Makes an empty character string                        */
+/*  ClearString() :  Makes an empty character string                    */
 /************************************************************************/
 char *ClearString(char *s)
 {
@@ -5539,15 +5537,15 @@ char *ClearString(char *s)
 
 
 /************************************************************************/
-/*  IsEmpty() :  Determine if the filename is for a directory           */
+/*  IsDirectory() :  Determine if the filename is a directory           */
 /************************************************************************/
 int IsDirectory(char *name)
 {
     int is_directory = 0;
     
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32)
     if (GetFileAttributes(name) & FILE_ATTRIBUTE_DIRECTORY)
-    is_directory = 1;
+        is_directory = 1;
 #else
     struct stat file_info;
     if (stat(name, &file_info) == 0)
@@ -5556,16 +5554,23 @@ int IsDirectory(char *name)
     return is_directory;
 }
 
-/************************************************************************/
-/*  IsDirEntryDirectory() :  Determine if the directory entry is a directory           */
-/************************************************************************/
+
+#ifndef _WIN32
+/****************************************************************************/
+/*  IsDirEntryDirectory() :  Determine if a directory entry is a directory  */
+/****************************************************************************/
 int IsDirEntryDirectory(struct dirent *dir_entry)
 {
-#ifdef SOMEGNUTHING
+/* Linux has the d_type field defined in its 'struct dirent'. But POSIX does
+   not require it to be defined. So some systems like OpenIndiana/Illumos
+   don't define it. It is much faster to use it if it is available than
+   to make a call to 'stat' to determine if the entry is a directory. */
+#if defined(_DIRENT_HAVE_D_TYPE)
     return dir_entry->d_type == DT_DIR;
 #else
     return IsDirectory(dir_entry->d_name);
 #endif
 }
+#endif
 
 /***********************************************************************/
