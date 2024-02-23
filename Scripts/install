@@ -7,33 +7,35 @@ then
     exit
 fi
 
-BIN_DIR=`dirname "$0"`
-if [ "$BIN_DIR" = "." ]
+THIS_SCRIPT_DIR=`dirname "$0"`
+if [ "$THIS_SCRIPT_DIR" = "." ]
 then
-	BIN_DIR=`pwd`
+	THIS_SCRIPT_DIR=`pwd`
 fi
 
-TOP_SOURCE_DIST_DIR=`dirname "$BIN_DIR"`
+PROJECT_TOP_DIR=`dirname "$THIS_SCRIPT_DIR"`
+SOURCE_MACRO_DIR="$PROJECT_TOP_DIR"/Library
+SOURCE_MERLIN32_EXE="$PROJECT_TOP_DIR"/Source/merlin32
 
-# Get PREFIX, INSTALL_BIN_DIR, MACRO_INSTALL_DIR
-. "$BIN_DIR"/config.sh
+# Get PREFIX, TARGET_BIN_DIR, TARGET_MACRO_DIR
+. "$THIS_SCRIPT_DIR"/config.sh
 
-install -d "$INSTALL_BIN_DIR"
-install -d "$MACRO_INSTALL_DIR"
+install -d "$TARGET_BIN_DIR"
+install -d "$TARGET_MACRO_DIR"
 
 if [ `uname -s` = 'SunOS' ]
 then
 	# Call stupid Solaris installer. It writes its own output.
-	install -f "$INSTALL_BIN_DIR" "$TOP_SOURCE_DIST_DIR"/Source/merlin32
-	for MACRO_FILE in "$TOP_SOURCE_DIST_DIR"/Library/*
+	install -f "$TARGET_BIN_DIR" "$SOURCE_MERLIN32_EXE"
+	for MACRO_FILE in "$SOURCE_MACRO_DIR"/*
 	do
-		install -f "$MACRO_INSTALL_DIR" "$MACRO_FILE"
+		install -f "$TARGET_MACRO_DIR" "$MACRO_FILE"
 	done
 else
 	# Call non-stupid installer
-	echo Installing merlin32 to $INSTALL_BIN_DIR
-	install "$TOP_SOURCE_DIST_DIR"/Source/merlin32 "$INSTALL_BIN_DIR"
-	echo Installing library files to $MACRO_INSTALL_DIR
-	install "$TOP_SOURCE_DIST_DIR"/Library/* "$MACRO_INSTALL_DIR"
+	echo Installing merlin32 to $TARGET_BIN_DIR
+	install "$SOURCE_MERLIN32_EXE" "$TARGET_BIN_DIR"
+	echo Installing library files to $TARGET_MACRO_DIR
+	install "$SOURCE_MACRO_DIR"/* "$TARGET_MACRO_DIR"
 fi
 
