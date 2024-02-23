@@ -1,5 +1,6 @@
 # Merlin32
-The Merlin 32 assembler for the Apple II from Brutal Deluxe Software. More information, documentation, etc available at:
+The Merlin 32 assembler for the Apple II from Brutal Deluxe Software. 
+More information, documentation, etc available at:
 
 	http://www.brutaldeluxe.fr/products/crossdevtools/merlin/
 
@@ -15,7 +16,7 @@ The Merlin 32 assembler for the Apple II from Brutal Deluxe Software. More infor
 
 There are 2 different make files.
 
-1. GNUmakefile - Used for Mac, Linux & BSD UNIX
+1. GNUmakefile - Used for Mac, Linux, BSD UNIX, OpenIndiana & Solaris
 2. Makefile - Used for Windows with nmake and MSVC
 
 The build process is too different between Windows and the other platforms
@@ -25,13 +26,16 @@ platform. GNU make on Mac, Linux and BSD UNIX automatically looks for
 GNUmakefile first and will ignore Makefile if GNUmakefile exists. Likewise,
 nmake on Windows will ignore GNUmakefile and use Makefile instead.
 
-### Mac, Linux, & BSD UNIX
+### Mac, Linux, BSD UNIX, OpenIndiana, Solaris
+
+Make sure GNU Make is installed. Depending on your platform, you may have
+to invoke it with *gmake* rather than *make*.
 
 #### Build with default install loaction
 
 1. <code>git clone https://github.com/apple2accumulator/merlin32</code>
 2. <code>cd merlin32/Source</code>
-3. <code>make</code>
+3. <code>make</code> or <code>gmake</code> to get GNU make
 4. <code>sudo make install</code>
 
 This will install it into these locations:
@@ -39,7 +43,7 @@ This will install it into these locations:
 <code>/usr/local/bin/merlin32</code><br>
 <code>/usr/local/share/merlin32/asminc/*.Mac.s</code>
 
-#### Alternate Install Location
+#### Alternate Install Location (currently doesn't work)
 
 The default install location (PREFIX) is /usr/local.
 You can change the install location like this. Make sure you specify
@@ -77,7 +81,7 @@ The install copies to these locations:
 <code>C:\Users\<You>\Applications\merlin32\bin\merlin32.exe</code><br>
 <code>C:\Users\<You>\Applications\merlin32\asminc\\*.Macs.s</code>
 
-#### Options
+#### Options (currently not supported)
 
 To get it to install into "C:\Program Files" would require a setup application
 that would be able to do privilege escalation. That is not currently supported. But you could install into a directory like C:\opt because that is not protected like "C:\Program Files". To do

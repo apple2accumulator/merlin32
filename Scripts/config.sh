@@ -1,3 +1,3 @@
 PREFIX=/usr/local
-INSTALL_BIN=/usr/local/bin
-MACRO_INSTALL_DIR=/usr/local/share/merlin32/asminc
+INSTALL_BIN_DIR="$PREFIX"/bin
+MACRO_INSTALL_DIR="$PREFIX"/share/merlin32/asminc

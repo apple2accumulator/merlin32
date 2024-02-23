@@ -13,17 +13,27 @@ then
 	BIN_DIR=`pwd`
 fi
 
-# Get PREFIX, INSTALL_BIN, MACRO_INSTALL_DIR
-. "$BIN_DIR"/config.sh
-
 TOP_SOURCE_DIST_DIR=`dirname "$BIN_DIR"`
 
-echo Installing merlin32 to $INSTALL_BIN
-install -d "$INSTALL_BIN"
-install "$TOP_SOURCE_DIST_DIR"/Source/merlin32 "$INSTALL_BIN"
-ln -s "$INSTALL_BIN"/merlin32 "$INSTALL_BIN"/Merlin32
-echo Installing library files to $MACRO_INSTALL_DIR
+# Get PREFIX, INSTALL_BIN_DIR, MACRO_INSTALL_DIR
+. "$BIN_DIR"/config.sh
+
+install -d "$INSTALL_BIN_DIR"
 install -d "$MACRO_INSTALL_DIR"
-install "$TOP_SOURCE_DIST_DIR"/Library/* "$MACRO_INSTALL_DIR"
-rm -f "$INSTALL_BIN"/../lib/Merlin
-ln -s "$MACRO_INSTALL_DIR" "$INSTALL_BIN"/../lib/Merlin
+
+if [ `uname -s` = 'SunOS' ]
+then
+	# Call stupid Solaris installer. It writes its own output.
+	install -f "$INSTALL_BIN_DIR" "$TOP_SOURCE_DIST_DIR"/Source/merlin32
+	for MACRO_FILE in "$TOP_SOURCE_DIST_DIR"/Library/*
+	do
+		install -f "$MACRO_INSTALL_DIR" "$MACRO_FILE"
+	done
+else
+	# Call non-stupid installer
+	echo Installing merlin32 to $INSTALL_BIN_DIR
+	install "$TOP_SOURCE_DIST_DIR"/Source/merlin32 "$INSTALL_BIN_DIR"
+	echo Installing library files to $MACRO_INSTALL_DIR
+	install "$TOP_SOURCE_DIST_DIR"/Library/* "$MACRO_INSTALL_DIR"
+fi
+
