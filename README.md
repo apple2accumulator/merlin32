@@ -1,6 +1,7 @@
-# Merlin32
-The Merlin 32 assembler for the Apple II from Brutal Deluxe Software. 
-More information, documentation, etc available at:
+# Merlin32-v1.1-accumulator (forked from Merlin32 v1.0)
+This version of the assembler was forked from the 1.0 version of the Merlin32 assembler from Brutal Deluxe Software. 
+The original from Brutal Delux Software now has an updated 1.1 version. It is recommeneded that
+you use that one instead:
 
 	http://www.brutaldeluxe.fr/products/crossdevtools/merlin/
 
